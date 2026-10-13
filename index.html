@@ -1,468 +1,188 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Home, 
-  Layers, 
-  User, 
-  Plus, 
-  Search, 
-  MapPin, 
-  Heart, 
-  Eye, 
-  ArrowUp, 
-  ChevronRight, 
-  Calculator, 
-  ScanBarcode, 
-  UserCheck, 
-  Zap, 
-  X, 
-  Camera,
-  MessageCircle,
-  Settings,
-  Bell,
-  LayoutGrid,
-  Palette
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Resale Platform</title>
+  <!-- Telegram Web App API -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Babel для парсинга JSX на лету -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body {
+      background-color: #0a0a0a;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
 
-/* STREAMING_CHUNK:Инициализация моковых данных... */
-const initialItems = [
-  {
-    id: 1,
-    title: 'Nike Dunk Low Retro White Black',
-    price: 12500,
-    location: 'Москва',
-    time: '12 мин',
-    views: 342,
-    isMine: false,
-    image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80',
-    description: 'Оригинал, любые проверки. Состояние 9/10, носились пару раз. Коробка в комплекте.'
-  },
-  {
-    id: 2,
-    title: 'Yeezy Boost 350 V2 Bone',
-    price: 22000,
-    location: 'Уфа',
-    time: '21 мин',
-    views: 154,
-    isMine: true,
-    image: 'https://images.unsplash.com/photo-1615714316900-51743f55447b?w=400&q=80',
-    description: 'Новые с бирками (DS). Не подошел размер. Покупал на Poizon.'
-  },
-  {
-    id: 3,
-    title: 'Carhartt WIP Detroit Jacket',
-    price: 15000,
-    location: 'Санкт-Петербург',
-    time: '1 час',
-    views: 89,
-    isMine: false,
-    image: 'https://images.unsplash.com/photo-1559551409-dadc959f76b8?w=400&q=80',
-    description: 'Винтажная куртка, отличный фейд. Размер L. Без дефектов.'
-  },
-  {
-    id: 4,
-    title: 'Jordan 1 Retro High OG',
-    price: 18500,
-    location: 'Казань',
-    time: '3 часа',
-    views: 420,
-    isMine: true,
-    image: 'https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=400&q=80',
-    description: 'Состояние хорошее, есть небольшие заломы. Полный комплект с доп. шнурками.'
-  },
-];
+  <script type="text/babel" data-type="module">
+    import React, { useState, useEffect } from 'https://esm.sh/react@18.2.0';
+    import ReactDOM from 'https://esm.sh/react-dom@18.2.0/client';
+    import { 
+      Home, Layers, User, Plus, Search, MapPin, Heart, Eye, ArrowUp, 
+      ChevronRight, Calculator, ScanBarcode, UserCheck, Zap, X, Camera, 
+      MessageCircle, Settings, Bell, LayoutGrid, Palette 
+    } from 'https://esm.sh/lucide-react@0.363.0';
 
-/* STREAMING_CHUNK:Создание основного компонента и стейтов... */
-export default function MiniApp() {
-  const [activeTab, setActiveTab] = useState('feed');
-  const [items, setItems] = useState(initialItems);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [isChatOpen, setIsChatOpen] = useState(false);
+    const initialItems = [
+      {
+        id: 1,
+        title: 'Nike Dunk Low Retro White Black',
+        price: 12500,
+        location: 'Москва',
+        time: '12 мин',
+        views: 342,
+        isMine: false,
+        image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80',
+        description: 'Оригинал, любые проверки. Состояние 9/10, носились пару раз. Коробка в комплекте.'
+      },
+      {
+        id: 2,
+        title: 'Yeezy Boost 350 V2 Bone',
+        price: 22000,
+        location: 'Уфа',
+        time: '21 мин',
+        views: 154,
+        isMine: true,
+        image: 'https://images.unsplash.com/photo-1615714316900-51743f55447b?w=400&q=80',
+        description: 'Новые с бирками (DS). Не подошел размер. Покупал на Poizon.'
+      },
+      {
+        id: 3,
+        title: 'Carhartt WIP Detroit Jacket',
+        price: 15000,
+        location: 'Санкт-Петербург',
+        time: '1 час',
+        views: 89,
+        isMine: false,
+        image: 'https://images.unsplash.com/photo-1559551409-dadc959f76b8?w=400&q=80',
+        description: 'Винтажная куртка, отличный фейд. Размер L. Без дефектов.'
+      },
+      {
+        id: 4,
+        title: 'Jordan 1 Retro High OG',
+        price: 18500,
+        location: 'Казань',
+        time: '3 часа',
+        views: 420,
+        isMine: true,
+        image: 'https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=400&q=80',
+        description: 'Состояние хорошее, есть небольшие заломы. Полный комплект.'
+      }
+    ];
 
-  // Обработчик добавления нового лота
-  const handleAddItem = (newItem) => {
-    setItems([{ ...newItem, id: Date.now(), isMine: true, views: 0, time: 'только что' }, ...items]);
-    setIsAddModalOpen(false);
-  };
+    function App() {
+      const [activeTab, setActiveTab] = useState('feed');
+      const [items, setItems] = useState(initialItems);
+      const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+      const [selectedItem, setSelectedItem] = useState(null);
+      const [isChatOpen, setIsChatOpen] = useState(false);
 
-  return (
-    <div className="max-w-md mx-auto h-screen bg-[#0a0a0a] text-white relative overflow-hidden flex flex-col font-sans selection:bg-yellow-500/30">
-      
-      {/* Главная область контента со скроллом */}
-      <div className="flex-1 overflow-y-auto pb-24 hide-scrollbar">
-        {activeTab === 'feed' && <FeedView items={items} onOpenItem={setSelectedItem} onOpenAdd={() => setIsAddModalOpen(true)} />}
-        {activeTab === 'mylots' && <MyLotsView items={items.filter(i => i.isMine)} onOpenItem={setSelectedItem} />}
-        {activeTab === 'profile' && <ProfileView mineCount={items.filter(i => i.isMine).length} />}
-      </div>
+      useEffect(() => {
+        if (window.Telegram?.WebApp) {
+          window.Telegram.WebApp.ready();
+          window.Telegram.WebApp.expand();
+        }
+      }, []);
 
-      {/* Нижняя навигация */}
-      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} onOpenAdd={() => setIsAddModalOpen(true)} />
+      const handleAddItem = (newItem) => {
+        setItems([{ ...newItem, id: Date.now(), isMine: true, views: 0, time: 'только что' }, ...items]);
+        setIsAddModalOpen(false);
+      };
 
-      {/* Модалки */}
-      {isAddModalOpen && <AddItemModal onClose={() => setIsAddModalOpen(false)} onAdd={handleAddItem} />}
-      {selectedItem && (
-        <ItemDetailModal 
-          item={selectedItem} 
-          onClose={() => setSelectedItem(null)} 
-          onChat={() => setIsChatOpen(true)} 
-        />
-      )}
-      
-      {/* Фейковый чат */}
-      {isChatOpen && (
-        <div className="absolute inset-0 z-50 bg-[#0a0a0a] flex flex-col justify-center items-center p-6 text-center">
-          <MessageCircle className="w-16 h-16 text-yellow-400 mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Чат с продавцом</h2>
-          <p className="text-neutral-400 mb-8">Эта функция находится в разработке. В будущем здесь будет диалог.</p>
-          <button 
-            onClick={() => setIsChatOpen(false)}
-            className="w-full bg-neutral-800 py-3 rounded-2xl font-medium"
-          >
-            Вернуться
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* STREAMING_CHUNK:Компонент вкладки 'Лента'... */
-function FeedView({ items, onOpenItem, onOpenAdd }) {
-  return (
-    <div className="p-4 space-y-6">
-      {/* Шапка */}
-      <div className="flex justify-between items-start mt-2">
-        <div>
-          <p className="text-sm text-neutral-400">Добрый день, Сандали</p>
-          <h1 className="text-2xl font-bold mt-1">Что ищем сегодня?</h1>
-        </div>
-        <button className="flex items-center gap-1 bg-neutral-800/80 px-3 py-1.5 rounded-full text-sm">
-          <MapPin className="w-4 h-4 text-yellow-400" />
-          Уфа
-        </button>
-      </div>
-
-      {/* Поиск */}
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-          <input 
-            type="text" 
-            placeholder="Поиск по 3 327 объявлениям" 
-            className="w-full bg-[#1a1a1c] border border-neutral-800 rounded-2xl py-3.5 pl-10 pr-4 text-sm focus:outline-none focus:border-yellow-400/50 transition-colors"
-          />
-        </div>
-        <button className="bg-yellow-400 text-black p-3.5 rounded-2xl flex-shrink-0">
-          <Settings className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* Быстрые действия */}
-      <div className="grid grid-cols-4 gap-2">
-        <button onClick={onOpenAdd} className="col-span-1 bg-yellow-400 text-black rounded-2xl p-3 flex flex-col items-center justify-center gap-2 aspect-square">
-          <Plus className="w-6 h-6" />
-          <span className="text-xs font-semibold">Продать</span>
-        </button>
-        <button className="col-span-1 bg-[#1a1a1c] rounded-2xl p-3 flex flex-col items-center justify-center gap-2 aspect-square">
-          <Calculator className="w-6 h-6 text-neutral-300" />
-          <span className="text-xs text-neutral-300">Оценить</span>
-        </button>
-        <button className="col-span-1 bg-[#1a1a1c] rounded-2xl p-3 flex flex-col items-center justify-center gap-2 aspect-square">
-          <ScanBarcode className="w-6 h-6 text-neutral-300" />
-          <span className="text-xs text-neutral-300">Легит</span>
-        </button>
-        <button className="col-span-1 bg-[#1a1a1c] rounded-2xl p-3 flex flex-col items-center justify-center gap-2 aspect-square">
-          <UserCheck className="w-6 h-6 text-neutral-300" />
-          <span className="text-xs text-neutral-300">Гарант</span>
-        </button>
-      </div>
-
-      {/* Баннеры */}
-      <div className="grid grid-cols-2 gap-2">
-        <div className="bg-yellow-400 text-black rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden">
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <Zap className="w-5 h-5" />
-              <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
-                <ChevronRight className="w-4 h-4 text-white" />
-              </div>
-            </div>
-            <h3 className="font-bold text-lg leading-tight mt-2">Листать новое</h3>
-            <p className="text-xs mt-1 opacity-80">46 новых продаж</p>
+      return (
+        <div className="max-w-md mx-auto h-screen bg-[#0a0a0a] text-white relative overflow-hidden flex flex-col font-sans">
+          <div className="flex-1 overflow-y-auto pb-24 hide-scrollbar">
+            {activeTab === 'feed' && <FeedView items={items} onOpenItem={setSelectedItem} onOpenAdd={() => setIsAddModalOpen(true)} />}
+            {activeTab === 'mylots' && <MyLotsView items={items.filter(i => i.isMine)} onOpenItem={setSelectedItem} />}
+            {activeTab === 'profile' && <ProfileView mineCount={items.filter(i => i.isMine).length} />}
           </div>
-        </div>
-        <div className="bg-[#1a1a1c] rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden">
-          <h3 className="font-bold text-lg text-white">Рядом</h3>
-          <p className="text-xs text-neutral-400 mt-1">96 в городе</p>
-          {/* Декоративная сетка/точки */}
-          <div className="absolute right-0 bottom-0 opacity-20">
-            <div className="flex gap-1 p-2">
-              <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-              <div className="w-2 h-2 bg-white rounded-full"></div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Сетка товаров */}
-      <div className="grid grid-cols-2 gap-3">
-        {items.map(item => (
-          <div 
-            key={item.id} 
-            className="bg-[#1a1a1c] rounded-2xl overflow-hidden cursor-pointer active:scale-95 transition-transform"
-            onClick={() => onOpenItem(item)}
-          >
-            <div className="relative aspect-[4/5] bg-neutral-800">
-              <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-              <button className="absolute top-2 right-2 p-1.5 bg-black/40 backdrop-blur-md rounded-full" onClick={(e) => { e.stopPropagation(); }}>
-                <Heart className="w-4 h-4 text-white" />
-              </button>
-              <div className="absolute bottom-2 right-2 bg-black/40 backdrop-blur-md rounded-full px-2 py-0.5 flex gap-1 items-center">
-                 <div className="w-1.5 h-1.5 bg-white rounded-full opacity-50"></div>
-                 <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                 <div className="w-1.5 h-1.5 bg-white rounded-full opacity-50"></div>
-              </div>
-            </div>
-            <div className="p-3">
-              <p className="text-yellow-400 font-bold text-lg">{item.price.toLocaleString()} ₽</p>
-              <p className="text-sm font-medium mt-1 truncate">{item.title}</p>
-              <p className="text-xs text-neutral-400 mt-1">{item.location} • {item.time}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+          <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} onOpenAdd={() => setIsAddModalOpen(true)} />
 
-/* STREAMING_CHUNK:Компонент вкладки 'Мои лоты'... */
-function MyLotsView({ items, onOpenItem }) {
-  return (
-    <div className="p-4 space-y-4">
-      <div className="mt-2">
-        <h1 className="text-3xl font-bold">Мои лоты</h1>
-        <p className="text-sm text-neutral-400 mt-1">{items.length} в канале • {items.length} лотов всего</p>
-      </div>
+          {isAddModalOpen && <AddItemModal onClose={() => setIsAddModalOpen(false)} onAdd={handleAddItem} />}
+          
+          {selectedItem && (
+            <ItemDetailModal 
+              item={selectedItem} 
+              onClose={() => setSelectedItem(null)} 
+              onChat={() => setIsChatOpen(true)} 
+            />
+          )}
 
-      <div className="flex gap-2">
-        <button className="bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-semibold">Все {items.length}</button>
-        <button className="bg-[#1a1a1c] text-white px-4 py-2 rounded-full text-sm font-medium">В канале {items.length}</button>
-      </div>
-
-      <div className="bg-[#1a1a1c] rounded-2xl p-4 flex gap-3 items-center">
-        <div className="bg-neutral-800 p-2 rounded-full flex-shrink-0">
-          <ArrowUp className="w-5 h-5 text-yellow-400" />
-        </div>
-        <div>
-          <h3 className="font-semibold text-sm">Можно поднять: {items.length} лотов</h3>
-          <p className="text-xs text-neutral-400 mt-1">жми «Поднять» на карточке — лот окажется наверху канала</p>
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        {items.map(item => (
-          <div 
-            key={item.id} 
-            className="bg-[#1a1a1c] rounded-2xl p-4 flex flex-col gap-3 relative cursor-pointer"
-            onClick={() => onOpenItem(item)}
-          >
-            <div className="flex items-center gap-2 text-xs font-medium">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-green-500">В канале</span>
-              <span className="text-neutral-500">• {item.time}</span>
-            </div>
-            
-            <div className="pr-20">
-              <h3 className="font-medium truncate">{item.title}</h3>
-              <p className="text-yellow-400 font-bold text-xl mt-1">{item.price.toLocaleString()} ₽</p>
-            </div>
-
-            <div className="flex justify-between items-end mt-2">
-              <div className="flex gap-3 text-neutral-400 text-xs items-center">
-                <span className="flex items-center gap-1"><Eye className="w-4 h-4" /> {item.views}</span>
-                <span className="flex items-center gap-1"><Heart className="w-4 h-4" /> 0</span>
-              </div>
+          {isChatOpen && (
+            <div className="absolute inset-0 z-50 bg-[#0a0a0a] flex flex-col justify-center items-center p-6 text-center">
+              <MessageCircle className="w-16 h-16 text-yellow-400 mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Чат с продавцом</h2>
+              <p className="text-neutral-400 mb-8">Функция диалога находится в разработке.</p>
               <button 
-                onClick={(e) => { e.stopPropagation(); /* Логика поднятия */ }}
-                className="bg-yellow-400 text-black px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1 active:scale-95 transition-transform"
+                onClick={() => setIsChatOpen(false)}
+                className="w-full bg-neutral-800 py-3 rounded-2xl font-medium"
               >
-                <ArrowUp className="w-4 h-4" /> Поднять
+                Вернуться
               </button>
             </div>
-
-            {/* Водяной знак/иконка поиска на фоне */}
-            <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-20 h-20 text-neutral-800/30 pointer-events-none" />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* STREAMING_CHUNK:Компонент вкладки 'Профиль'... */
-function ProfileView({ mineCount }) {
-  return (
-    <div>
-      {/* Желтый градиентный баннер */}
-      <div className="h-48 bg-gradient-to-b from-yellow-500/80 to-[#0a0a0a] relative flex flex-col items-center justify-end pb-4 pt-10">
-        <button className="absolute top-4 right-4 bg-black/20 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1">
-          <Palette className="w-3 h-3" /> Баннер
-        </button>
-        <div className="w-24 h-24 rounded-full bg-neutral-800 border-4 border-[#0a0a0a] overflow-hidden relative mb-2">
-          <img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?w=400&q=80" alt="Аватар" className="w-full h-full object-cover" />
+          )}
         </div>
-        <h1 className="text-2xl font-bold">Сандали</h1>
-        <p className="text-xs text-neutral-400 mt-1">с октября 2026</p>
-      </div>
+      );
+    }
 
-      <div className="px-4 pb-6 space-y-6 -mt-2">
-        {/* Статистика */}
-        <div className="flex flex-wrap justify-center gap-2">
-          <div className="bg-[#1a1a1c] border border-neutral-800 px-3 py-1.5 rounded-full text-xs flex items-center gap-1">
-             <span className="text-green-500 font-bold">0%</span> довольны • 1 оценка
+    function FeedView({ items, onOpenItem, onOpenAdd }) {
+      return (
+        <div className="p-4 space-y-5">
+          <div className="flex justify-between items-start mt-2">
+            <div>
+              <p className="text-sm text-neutral-400">Добрый день, Сандали</p>
+              <h1 className="text-2xl font-bold mt-1">Что ищем сегодня?</h1>
+            </div>
+            <button className="flex items-center gap-1 bg-[#1a1a1c] border border-neutral-800 px-3 py-1.5 rounded-full text-sm">
+              <MapPin className="w-4 h-4 text-yellow-400" /> Уфа
+            </button>
           </div>
-          <div className="bg-[#1a1a1c] border border-neutral-800 px-3 py-1.5 rounded-full text-xs">
-             {mineCount} в канале
+
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+              <input 
+                type="text" 
+                placeholder="Поиск по 3 327 объявлениям" 
+                className="w-full bg-[#1a1a1c] border border-neutral-800 rounded-2xl py-3 pl-10 pr-4 text-sm focus:outline-none"
+              />
+            </div>
+            <button className="bg-yellow-400 text-black p-3 rounded-2xl">
+              <Settings className="w-5 h-5" />
+            </button>
           </div>
-          <div className="bg-[#1a1a1c] border border-neutral-800 px-3 py-1.5 rounded-full text-xs">
-             {mineCount} лотов всего
-          </div>
-          <div className="bg-[#1a1a1c] border border-neutral-800 px-3 py-1.5 rounded-full text-xs flex items-center gap-1">
-             <MapPin className="w-3 h-3" /> Уфа
-          </div>
-        </div>
 
-        {/* Меню профиля */}
-        <div className="bg-[#1a1a1c] rounded-3xl p-2 space-y-1">
-          <ProfileMenuItem icon={<Heart className="w-5 h-5" />} title="Избранное" />
-          <ProfileMenuItem icon={<Bell className="w-5 h-5" />} title="Подписки" subtitle="новое по запросу — в бот" />
-          <ProfileMenuItem icon={<LayoutGrid className="w-5 h-5" />} title="Моя витрина" subtitle="как тебя видят покупатели" />
-          <ProfileMenuItem icon={<Palette className="w-5 h-5" />} title="Оформление витрины" />
-          <ProfileMenuItem icon={<MapPin className="w-5 h-5" />} title="Мой город" subtitle="Уфа" />
-        </div>
-
-        <div>
-          <p className="text-xs text-neutral-500 font-bold mb-3 uppercase tracking-wider px-2">Проверки и инструменты</p>
-          <div className="bg-[#1a1a1c] rounded-3xl p-2">
-            <ProfileMenuItem icon={<Calculator className="w-5 h-5" />} title="Сколько стоит мой?" subtitle="оценка по ленте" />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ProfileMenuItem({ icon, title, subtitle }) {
-  return (
-    <div className="flex items-center justify-between p-3 active:bg-neutral-800/50 rounded-2xl cursor-pointer transition-colors">
-      <div className="flex items-center gap-4">
-        <div className="text-neutral-400">{icon}</div>
-        <div>
-          <h4 className="font-medium text-sm">{title}</h4>
-          {subtitle && <p className="text-xs text-neutral-500 mt-0.5">{subtitle}</p>}
-        </div>
-      </div>
-      <ChevronRight className="w-5 h-5 text-neutral-600" />
-    </div>
-  );
-}
-
-/* STREAMING_CHUNK:Компонент нижней навигации... */
-function BottomNav({ activeTab, setActiveTab, onOpenAdd }) {
-  return (
-    <div className="absolute bottom-0 w-full bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-neutral-900 px-6 py-3 flex justify-between items-center z-40 pb-safe">
-      <button 
-        onClick={() => setActiveTab('feed')}
-        className={`flex flex-col items-center gap-1 ${activeTab === 'feed' ? 'text-yellow-400' : 'text-neutral-500'}`}
-      >
-        <Home className="w-6 h-6" />
-        <span className="text-[10px] font-medium">Лента</span>
-      </button>
-      <button 
-        onClick={() => setActiveTab('mylots')}
-        className={`flex flex-col items-center gap-1 ${activeTab === 'mylots' ? 'text-yellow-400' : 'text-neutral-500'}`}
-      >
-        <Layers className="w-6 h-6" />
-        <span className="text-[10px] font-medium">Мои лоты</span>
-      </button>
-      <button 
-        onClick={() => setActiveTab('profile')}
-        className={`flex flex-col items-center gap-1 mr-8 ${activeTab === 'profile' ? 'text-yellow-400' : 'text-neutral-500'}`}
-      >
-        <User className="w-6 h-6" />
-        <span className="text-[10px] font-medium">Профиль</span>
-      </button>
-      
-      {/* Плавающая кнопка '+' */}
-      <button 
-        onClick={onOpenAdd}
-        className="absolute right-4 -top-6 bg-transparent rounded-full p-1"
-      >
-        <div className="bg-yellow-400 text-black w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-yellow-500/20 active:scale-90 transition-transform">
-          <Plus className="w-7 h-7" />
-        </div>
-      </button>
-    </div>
-  );
-}
-
-/* STREAMING_CHUNK:Модалка добавления лота... */
-function AddItemModal({ onClose, onAdd }) {
-  const [title, setTitle] = useState('');
-  const [price, setPrice] = useState('');
-  const [desc, setDesc] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!title || !price) return;
-    onAdd({
-      title,
-      price: parseInt(price),
-      description: desc,
-      location: 'Уфа',
-      image: 'https://images.unsplash.com/photo-1578681994506-b8f463449011?w=400&q=80' // Рандомная картинка для теста
-    });
-  };
-
-  return (
-    <div className="absolute inset-0 z-50 bg-[#0a0a0a] flex flex-col animate-in slide-in-from-bottom-full duration-300">
-      <div className="flex items-center justify-between p-4 border-b border-neutral-900">
-        <button onClick={onClose} className="p-2"><X className="w-6 h-6" /></button>
-        <h2 className="text-lg font-bold">Новое объявление</h2>
-        <div className="w-10"></div>
-      </div>
-      
-      <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-6">
-        {/* Фото */}
-        <div>
-          <label className="block text-sm text-neutral-400 mb-2">Фотографии</label>
-          <div className="w-24 h-24 bg-[#1a1a1c] border border-dashed border-neutral-700 rounded-2xl flex flex-col items-center justify-center text-neutral-500 cursor-pointer active:bg-neutral-800">
-            <Camera className="w-6 h-6 mb-1" />
-            <span className="text-xs">Добавить</span>
-          </div>
-        </div>
-
-        {/* Поля */}
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm text-neutral-400 mb-1 ml-1">Название вещи</label>
-            <input 
-              type="text" 
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Например, Nike Dunk Low"
-              className="w-full bg-[#1a1a1c] rounded-2xl px-4 py-3.5 text-sm focus:outline-none border border-transparent focus:border-yellow-400/50 transition-colors"
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-neutral-400 mb-1 ml-1">Цена (₽)</label>
-            <input 
-              type="number" 
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="0"
-              className="w-full bg-[#1a1a1c] rounded-2xl px-4 py-3.5 text-sm focus:outline-none border border-transparent focus:border-yellow-400/50 transition-colors"
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-n
+          <div className="grid grid-cols-4 gap-2">
+            <button onClick={onOpenAdd} className="bg-yellow-400 text-black rounded-2xl p-3 flex flex-col items-center justify-center gap-1 aspect-square">
+              <Plus className="w-6 h-6" />
+              <span className="text-[11px] font-bold">Продать</span>
+            </button>
+            <button className="bg-[#1a1a1c] rounded-2xl p-3 flex flex-col items-center justify-center gap-1 aspect-square border border-neutral-800/60">
+              <Calculator className="w-6 h-6 text-neutral-300" />
+              <span className="text-[11px] text-neutral-300">Оценить</span>
+            </button>
+            <button className="bg-[#1a1a1c] rounded-2xl p-3 flex flex-col items-center justify-center gap-1 aspect-square border border-neutral-800/60">
+              <ScanBarcode className="w-6 h-6 text-neutral-300" />
+              <span className="text-[11px] text-neutral-300">Легит</span>
+            </button>
+            <button className="bg-[#1a1a1c] rounded-2xl p-3 flex flex-col items-center justify-center gap-1 aspect-square border border-neutral-800/60">
+              <UserCheck className="w-6 h-6 text-neutral-300" />
+              <span className="text-[11px] text-neutral-300">Гарант</span>
+              
