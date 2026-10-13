@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Resale Platform</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="alert('Ошибка загрузки базы данных. Выключите VPN или смените сеть.')"></script>
   <style>
     :root {
       --bg: #0a0a0a; --card: #1a1a1c; --border: #262626;
@@ -14,7 +13,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background-color: var(--bg); color: var(--text);
-      font-family: system-ui, -apple-system, sans-serif; 
+      font-family: "MiSans", "Mi Lanting", system-ui, -apple-system, sans-serif; 
       font-weight: 500; -webkit-tap-highlight-color: transparent;
       user-select: none; height: 100vh; display: flex; flex-direction: column; overflow: hidden;
     }
@@ -59,18 +58,16 @@
 </head>
 <body>
 
-  <!-- Вкладка Лента -->
   <div class="hide-scrollbar" style="flex: 1;" id="main-scroll">
     <div id="tab-feed" class="tab-content" style="display: block;">
       <div style="margin-bottom: 20px;">
-        <p style="color: var(--muted); font-size: 14px;" id="welcome-text">Добрый день!</p>
+        <p style="color: var(--muted); font-size: 14px;" id="welcome-text"></p>
         <h1 style="font-size: 24px; font-weight: bold; margin-top: 4px;">Что ищем сегодня?</h1>
       </div>
       <input type="text" placeholder="Поиск..." class="input-field" style="margin-bottom: 20px;" id="search-input" oninput="renderFeed()">
       <div id="feed-items" class="grid-2"></div>
     </div>
 
-    <!-- Вкладка Профиль -->
     <div id="tab-profile" class="tab-content">
       <div style="text-align: center; padding-top: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border);">
         <div style="width: 80px; height: 80px; background: #262626; border-radius: 50%; margin: 0 auto 12px; overflow: hidden;">
@@ -80,7 +77,6 @@
         <p id="admin-badge" style="color: #ef4444; font-size: 12px; font-weight: bold; display: none; margin-top: 4px;">👑 АДМИН</p>
       </div>
 
-      <!-- Админ-панель -->
       <div id="admin-panel" style="display:none; margin-top: 20px; padding: 16px; background: #1a0000; border: 1px solid #ef4444; border-radius: 16px;">
         <h2 style="font-size: 16px; font-weight: bold; color: #ef4444; margin-bottom: 12px;">Новые отзывы (<span id="admin-reviews-count">0</span>)</h2>
         <div id="admin-reviews-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
@@ -91,7 +87,6 @@
     </div>
   </div>
 
-  <!-- Навигация -->
   <div class="nav-bar pb-safe">
     <button class="nav-btn" id="btn-feed" onclick="switchTab('feed')" style="flex: 1; color: var(--accent);">
       <div style="font-size: 20px;">🏠</div> Лента
@@ -104,7 +99,6 @@
     </button>
   </div>
 
-  <!-- Модалка: Объявление -->
   <div id="add-modal" class="modal">
     <div class="modal-header">
       <button onclick="closeModals()" style="background:none; border:none; color:white; font-size:20px;">✕</button>
@@ -129,7 +123,6 @@
     </div>
   </div>
 
-  <!-- Модалка: Просмотр товара -->
   <div id="item-modal" class="modal" style="z-index: 60;">
     <div style="position: relative; height: 45%; background: #262626;">
       <div id="detail-img-container" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; height: 100%; width: 100%;"></div>
@@ -148,7 +141,6 @@
     <div class="pb-safe" style="padding: 16px; background: var(--bg);" id="detail-action-container"></div>
   </div>
 
-  <!-- Модалка: Отзыв -->
   <div id="review-modal" class="modal" style="z-index: 70;">
     <div class="modal-header">
       <button onclick="closeReviewModal()" style="background:none; border:none; color:white; font-size:20px;">✕</button>
@@ -172,16 +164,9 @@
   </div>
 
   <script>
-    window.onerror = function(msg, url, line) { alert("Ошибка JS: " + msg + " (строка " + line + ")"); };
-
     var MY_ADMIN_ID = 1879880417;
-    var supabase = null;
-    
-    try {
-      if (window.supabase) {
-        supabase = window.supabase.createClient('https://qlomefucenvjktwacwow.supabase.co', 'sb_publishable_cIsEZCsfm19S9mnS2YYorA_4mpyVYyp');
-      }
-    } catch(e) { alert("Supabase Error: " + e.message); }
+    var SUPABASE_URL = 'https://qlomefucenvjktwacwow.supabase.co';
+    var SUPABASE_KEY = 'sb_publishable_cIsEZCsfm19S9mnS2YYorA_4mpyVYyp';
 
     var tgUser = { id: 1879880417, first_name: "Админ", username: "", photo_url: "" }; 
     try {
@@ -193,7 +178,7 @@
           tgUser = window.Telegram.WebApp.initDataUnsafe.user;
         }
       }
-    } catch(e) { alert("TG Error: " + e.message); }
+    } catch(e) {}
 
     var IS_ADMIN = (Number(tgUser.id) === MY_ADMIN_ID);
     document.getElementById('welcome-text').innerText = 'Добрый день, ' + tgUser.first_name + '!';
@@ -217,14 +202,33 @@
       } catch(e) { return [imgStr]; }
     }
 
+    function dbQuery(table, method, body, eqCol, eqVal) {
+      var url = SUPABASE_URL + '/rest/v1/' + table;
+      if (eqCol && eqVal) url += '?' + eqCol + '=eq.' + eqVal;
+      else if (method === 'GET') url += '?order=created_at.desc';
+      
+      var options = {
+        method: method,
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation'
+        }
+      };
+      if (body) options.body = JSON.stringify(body);
+      
+      return fetch(url, options).then(function(res) { return res.json(); });
+    }
+
     function fetchData() {
-      if (!supabase) return;
-      supabase.from('items').select('*').order('created_at', { ascending: false }).then(function(res) {
-        if (!res.error) { items = res.data || []; renderFeed(); renderMyLots(); }
-      });
-      supabase.from('reviews').select('*').then(function(res) {
-        if (!res.error) { reviews = res.data || []; renderAdminReviews(); }
-      });
+      dbQuery('items', 'GET').then(function(data) {
+        if(Array.isArray(data)) { items = data; renderFeed(); renderMyLots(); }
+      }).catch(function(e){});
+      
+      dbQuery('reviews', 'GET').then(function(data) {
+        if(Array.isArray(data)) { reviews = data; renderAdminReviews(); }
+      }).catch(function(e){});
     }
 
     function renderFeed() {
@@ -264,7 +268,7 @@
       document.getElementById('mylots-items').innerHTML = html;
     }
 
-    function handleFiles(input) {
+    window.handleFiles = function(input) {
       var files = input.files;
       if (!files) return;
       var fArr = Array.prototype.slice.call(files);
@@ -276,13 +280,13 @@
           img.onload = function() {
             var canvas = document.createElement('canvas');
             var ctx = canvas.getContext('2d');
-            var maxW = 600; var maxH = 600;
+            var maxW = 500; var maxH = 500;
             var w = img.width; var h = img.height;
             if (w > h && w > maxW) { h = h * (maxW / w); w = maxW; }
             else if (h > maxH) { w = w * (maxH / h); h = maxH; }
             canvas.width = w; canvas.height = h;
             ctx.drawImage(img, 0, 0, w, h);
-            currentImages.push(canvas.toDataURL('image/jpeg', 0.7));
+            currentImages.push(canvas.toDataURL('image/jpeg', 0.6));
             renderImagePreviews();
           };
           img.src = e.target.result;
@@ -290,12 +294,12 @@
         reader.readAsDataURL(file);
       });
       input.value = ''; 
-    }
+    };
 
-    function removeImage(index) {
+    window.removeImage = function(index) {
       currentImages.splice(index, 1);
       renderImagePreviews();
-    }
+    };
 
     function renderImagePreviews() {
       var html = '';
@@ -308,14 +312,14 @@
       document.getElementById('image-previews').innerHTML = html;
     }
 
-    function saveItem() {
+    window.saveItem = function() {
       var id = document.getElementById('edit-id').value;
       var title = document.getElementById('add-title').value;
       var price = document.getElementById('add-price').value;
       var desc = document.getElementById('add-desc').value;
       var loc = document.getElementById('add-location').value;
       
-      if (!title || !price) { alert('Введите название и цену!'); return; }
+      if (!title || !price) return;
       document.getElementById('save-btn').innerText = 'Сохранение...';
       
       var uName = tgUser.first_name + (tgUser.username ? ' (@' + tgUser.username + ')' : '');
@@ -324,22 +328,20 @@
         description: desc, location: loc || 'Уфа', image: JSON.stringify(currentImages), status: 'active'
       };
 
-      if (!supabase) return;
       if (id) {
-        supabase.from('items').update(itemData).eq('id', id).then(function() { closeModals(); fetchData(); });
+        dbQuery('items', 'PATCH', itemData, 'id', id).then(function() { closeModals(); fetchData(); });
       } else {
-        supabase.from('items').insert([itemData]).then(function() { closeModals(); fetchData(); });
+        dbQuery('items', 'POST', itemData).then(function() { closeModals(); fetchData(); });
       }
-    }
+    };
 
-    function deleteItem(id) {
-      if (!supabase) return;
+    window.deleteItem = function(id) {
       if (confirm("Удалить объявление?")) {
-        closeModals(); supabase.from('items').delete().eq('id', id).then(function() { fetchData(); });
+        closeModals(); dbQuery('items', 'DELETE', null, 'id', id).then(function() { fetchData(); });
       }
-    }
+    };
 
-    function startEdit(id) {
+    window.startEdit = function(id) {
       var item = null;
       for(var i=0; i<items.length; i++) { if(items[i].id === id) item = items[i]; }
       if(!item) return;
@@ -353,9 +355,9 @@
       renderImagePreviews();
       document.getElementById('save-btn').innerText = 'Сохранить';
       openModal('add-modal');
-    }
+    };
 
-    function contactSeller(id) {
+    window.contactSeller = function(id) {
       var item = null;
       for(var i=0; i<items.length; i++) { if(items[i].id === id) item = items[i]; }
       if(!item) return;
@@ -363,31 +365,37 @@
       if (match && window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
         window.Telegram.WebApp.openTelegramLink("https://t.me/" + match[1]);
       } else { alert("Продавец без @username: " + (item.user_name || "Неизвестно")); }
-    }
+    };
 
-    function openReviewModal(sellerId) {
+    window.openReviewModal = function(sellerId) {
       document.getElementById('review-target-id').value = sellerId;
       document.getElementById('review-comment').value = '';
       document.getElementById('review-modal').style.display = 'flex';
-    }
+    };
 
-    function closeReviewModal() {
+    window.closeReviewModal = function() {
       document.getElementById('review-modal').style.display = 'none';
-    }
+    };
 
-    function submitReview() {
+    window.submitReview = function() {
       var sellerId = document.getElementById('review-target-id').value;
       var rating = document.getElementById('review-rating').value;
       var comment = document.getElementById('review-comment').value;
-      if (!comment || !supabase) return;
+      if (!comment) return;
       
-      supabase.from('reviews').insert([{
+      var revData = {
         seller_id: parseInt(sellerId), reviewer_name: tgUser.first_name, rating: parseInt(rating), comment: comment, status: 'pending'
-      }]).then(function(){
+      };
+      
+      dbQuery('reviews', 'POST', revData).then(function(){
         closeReviewModal();
-        alert('Отзыв отправлен на модерацию!');
+        if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showAlert) {
+          window.Telegram.WebApp.showAlert('Отзыв отправлен на модерацию!');
+        } else {
+          alert('Отзыв отправлен на модерацию!');
+        }
       });
-    }
+    };
 
     function renderAdminReviews() {
       if (!IS_ADMIN) return;
@@ -398,6 +406,4 @@
       for(var j=0; j<pReviews.length; j++) {
         var r = pReviews[j];
         html += '<div style="background: #262626; padding: 12px; border-radius: 8px;">' +
-                  '<p style="font-size:12px; color:var(--muted);">' + r.reviewer_name + ' -> ID: ' + r.seller_id + '</p>' +
-                  '<p style="color:#facc15;">Оценка: ' + r.rating + '</p>' +
-   
+                  '<p style="f
