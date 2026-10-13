@@ -65,7 +65,7 @@
   <div class="hide-scrollbar" style="flex: 1;" id="main-scroll">
     <div id="tab-feed" class="tab-content active">
       <div style="margin-bottom: 20px;">
-        <p style="color: var(--muted); font-size: 14px;" id="welcome-text">Добрый день!</p>
+        <p style="color: var(--muted); font-size: 14px;" id="welcome-text"></p>
         <h1 style="font-size: 24px; font-weight: bold; margin-top: 4px;">Что ищем сегодня?</h1>
       </div>
       <input type="text" placeholder="Поиск по объявлениям..." class="input-field" style="margin-bottom: 20px;">
@@ -133,13 +133,13 @@
   </div>
 
   <script>
-    var MY_ADMIN_ID = 123456789; 
+    var MY_ADMIN_ID = 1879880417; 
     
     var SUPABASE_URL = 'https://qlomefucenvjktwacwow.supabase.co';
     var SUPABASE_KEY = 'sb_publishable_cIsEZCsfm19S9mnS2YYorA_4mpyVYyp';
     var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    var tgUser = { id: Math.floor(Math.random() * 1000000), first_name: "Тестовый", photo_url: "" }; 
+    var tgUser = { id: Math.floor(Math.random() * 1000000), first_name: "Тестовый", username: "", photo_url: "" }; 
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
@@ -149,7 +149,7 @@
       }
     }
 
-    var IS_ADMIN = (tgUser.id === 1879880417);
+    var IS_ADMIN = (Number(tgUser.id) === MY_ADMIN_ID);
 
     document.getElementById('welcome-text').innerText = 'Добрый день, ' + tgUser.first_name + '!';
     document.getElementById('profile-name').innerText = tgUser.first_name;
@@ -161,13 +161,11 @@
 
     function fetchItems() {
       supabase.from('items').select('*').order('created_at', { ascending: false }).then(function(res) {
-        if (res.error) {
-           console.error("Ошибка:", res.error);
-           return;
+        if (!res.error) {
+          items = res.data || [];
+          renderFeed();
+          renderMyLots();
         }
-        items = res.data || [];
-        renderFeed();
-        renderMyLots();
       });
     }
 
@@ -242,15 +240,19 @@
       var price = document.getElementById('add-price').value;
       var desc = document.getElementById('add-desc').value;
       var loc = document.getElementById('add-location').value;
-      if (!title || !price) {
-        if(window.Telegram.WebApp.showAlert) window.Telegram.WebApp.showAlert('Введите название и цену!');
-        else alert('Введите название и цену!');
-        return;
-      }
+      
+      if (!title || !price) return;
+      
       document.getElementById('save-btn').innerText = 'Сохранение...';
+      
+      var uName = tgUser.first_name;
+      if (tgUser.username) {
+        uName += ' (@' + tgUser.username + ')';
+      }
+
       var itemData = {
         user_id: tgUser.id,
-        user_name: tgUser.first_name,
+        user_name: uName,
         title: title,
         price: parseInt(price),
         description: desc,
@@ -258,6 +260,7 @@
         image: currentBase64Image,
         status: 'active'
       };
+
       if (id) {
         supabase.from('items').update(itemData).eq('id', id).then(function() {
           closeModals(); fetchItems();
@@ -299,24 +302,48 @@
       openModal('add-modal');
     }
 
+    function contactSeller(id) {
+      var item = null;
+      for(var i=0; i<items.length; i++) { if(items[i].id === id) item = items[i]; }
+      if(!item) return;
+      
+      var name = item.user_name || '';
+      var match = name.match(/@(\w+)/);
+      
+      if (match && window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
+        window.Telegram.WebApp.openTelegramLink("https://t.me/" + match[1]);
+      } else {
+        var msg = "Продавец не указал @username в настройках.\nИмя профиля: " + name;
+        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showAlert) {
+          window.Telegram.WebApp.showAlert(msg);
+        } else {
+          alert(msg);
+        }
+      }
+    }
+
     function openItem(id) {
       var item = null;
       for(var i=0; i<items.length; i++) { if(items[i].id === id) item = items[i]; }
       if(!item) return;
+      
       var isMine = (Number(item.user_id) === tgUser.id);
+      
       document.getElementById('detail-img').src = item.image || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80';
       document.getElementById('detail-title').innerText = item.title;
       document.getElementById('detail-price').innerText = item.price.toLocaleString() + ' ₽';
       document.getElementById('detail-desc').innerText = item.description || 'Нет описания';
       document.getElementById('detail-location').innerText = '📍 ' + (item.location || 'Уфа');
       document.getElementById('detail-seller').innerText = '👤 ' + (item.user_name || 'Продавец');
+      
       var actionContainer = document.getElementById('detail-action-container');
+      
       if (isMine || IS_ADMIN) {
         actionContainer.innerHTML = 
           '<button onclick="closeModals(); startEdit(' + item.id + ')" class="btn-primary" style="flex: 1; background: white; color: black; font-size: 14px;">Редактировать</button>' +
           '<button onclick="deleteItem(' + item.id + ')" class="btn-primary" style="flex: 1; background: #ef4444; color: white; font-size: 14px;">Удалить</button>';
       } else {
-        actionContainer.innerHTML = '<button class="btn-primary" style="width: 100%;">Написать продавцу</button>';
+        actionContainer.innerHTML = '<button onclick="contactSeller(' + item.id + ')" class="btn-primary" style="width: 100%;">Написать продавцу</button>';
       }
       openModal('item-modal');
     }
