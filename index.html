@@ -4,12 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Resale Platform</title>
+  
   <!-- Telegram Web App API -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <!-- Tailwind CSS CDN -->
+  
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Babel для парсинга JSX на лету -->
+  
+  <!-- Babel для работы React прямо в браузере -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
   <style>
     body {
       background-color: #0a0a0a;
@@ -17,6 +21,8 @@
       padding: 0;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
+      color: white;
+      font-family: sans-serif;
     }
     .hide-scrollbar::-webkit-scrollbar {
       display: none;
@@ -25,11 +31,14 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+    /* Безопасные отступы для телефонов (челки/свайпы) */
+    .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
   </style>
 </head>
 <body>
   <div id="root"></div>
 
+  <!-- Весь функционал внутри этого тега script -->
   <script type="text/babel" data-type="module">
     import React, { useState, useEffect } from 'https://esm.sh/react@18.2.0';
     import ReactDOM from 'https://esm.sh/react-dom@18.2.0/client';
@@ -97,6 +106,7 @@
         if (window.Telegram?.WebApp) {
           window.Telegram.WebApp.ready();
           window.Telegram.WebApp.expand();
+          window.Telegram.WebApp.setHeaderColor('#0a0a0a');
         }
       }, []);
 
@@ -126,13 +136,13 @@
           )}
 
           {isChatOpen && (
-            <div className="absolute inset-0 z-50 bg-[#0a0a0a] flex flex-col justify-center items-center p-6 text-center">
+            <div className="absolute inset-0 z-50 bg-[#0a0a0a] flex flex-col justify-center items-center p-6 text-center animate-in slide-in-from-bottom-4 duration-200">
               <MessageCircle className="w-16 h-16 text-yellow-400 mb-4" />
               <h2 className="text-2xl font-bold mb-2">Чат с продавцом</h2>
               <p className="text-neutral-400 mb-8">Функция диалога находится в разработке.</p>
               <button 
                 onClick={() => setIsChatOpen(false)}
-                className="w-full bg-neutral-800 py-3 rounded-2xl font-medium"
+                className="w-full bg-neutral-800 py-3 rounded-2xl font-medium active:scale-95 transition-transform"
               >
                 Вернуться
               </button>
@@ -161,7 +171,7 @@
               <input 
                 type="text" 
                 placeholder="Поиск по 3 327 объявлениям" 
-                className="w-full bg-[#1a1a1c] border border-neutral-800 rounded-2xl py-3 pl-10 pr-4 text-sm focus:outline-none"
+                className="w-full bg-[#1a1a1c] border border-neutral-800 rounded-2xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-yellow-400/50"
               />
             </div>
             <button className="bg-yellow-400 text-black p-3 rounded-2xl">
@@ -170,7 +180,7 @@
           </div>
 
           <div className="grid grid-cols-4 gap-2">
-            <button onClick={onOpenAdd} className="bg-yellow-400 text-black rounded-2xl p-3 flex flex-col items-center justify-center gap-1 aspect-square">
+            <button onClick={onOpenAdd} className="bg-yellow-400 text-black rounded-2xl p-3 flex flex-col items-center justify-center gap-1 aspect-square active:scale-95 transition-transform">
               <Plus className="w-6 h-6" />
               <span className="text-[11px] font-bold">Продать</span>
             </button>
@@ -185,4 +195,230 @@
             <button className="bg-[#1a1a1c] rounded-2xl p-3 flex flex-col items-center justify-center gap-1 aspect-square border border-neutral-800/60">
               <UserCheck className="w-6 h-6 text-neutral-300" />
               <span className="text-[11px] text-neutral-300">Гарант</span>
-              
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div className="bg-yellow-400 text-black rounded-2xl p-4 flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <Zap className="w-5 h-5" />
+                <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center">
+                  <ChevronRight className="w-3.5 h-3.5 text-white" />
+                </div>
+              </div>
+              <div>
+                <h3 className="font-bold text-base leading-tight mt-2">Листать новое</h3>
+                <p className="text-[11px] opacity-80 mt-0.5">46 новых продаж</p>
+              </div>
+            </div>
+            <div className="bg-[#1a1a1c] border border-neutral-800/80 rounded-2xl p-4 flex flex-col justify-between">
+              <div>
+                <h3 className="font-bold text-base text-white">Рядом</h3>
+                <p className="text-[11px] text-neutral-400 mt-0.5">96 в городе</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            {items.map(item => (
+              <div 
+                key={item.id} 
+                className="bg-[#1a1a1c] border border-neutral-900 rounded-2xl overflow-hidden cursor-pointer active:scale-95 transition-transform"
+                onClick={() => onOpenItem(item)}
+              >
+                <div className="relative aspect-[4/5] bg-neutral-800">
+                  <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                  <button className="absolute top-2 right-2 p-1.5 bg-black/40 backdrop-blur-md rounded-full">
+                    <Heart className="w-4 h-4 text-white" />
+                  </button>
+                </div>
+                <div className="p-3">
+                  <p className="text-yellow-400 font-bold text-base">{item.price.toLocaleString()} ₽</p>
+                  <p className="text-xs font-medium mt-1 truncate text-white">{item.title}</p>
+                  <p className="text-[10px] text-neutral-400 mt-1">{item.location} • {item.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    function MyLotsView({ items, onOpenItem }) {
+      return (
+        <div className="p-4 space-y-4">
+          <div className="mt-2">
+            <h1 className="text-2xl font-bold">Мои лоты</h1>
+            <p className="text-xs text-neutral-400 mt-1">{items.length} в канале • {items.length} лотов всего</p>
+          </div>
+
+          <div className="flex gap-2">
+            <button className="bg-yellow-400 text-black px-4 py-1.5 rounded-full text-xs font-semibold">Все {items.length}</button>
+            <button className="bg-[#1a1a1c] text-white px-4 py-1.5 rounded-full text-xs font-medium border border-neutral-800">В канале {items.length}</button>
+          </div>
+
+          <div className="bg-[#1a1a1c] border border-neutral-800 rounded-2xl p-3.5 flex gap-3 items-center">
+            <div className="bg-neutral-800 p-2 rounded-full flex-shrink-0">
+              <ArrowUp className="w-4 h-4 text-yellow-400" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-xs text-white">Можно поднять: {items.length} лотов</h3>
+              <p className="text-[11px] text-neutral-400 mt-0.5">нажмите «Поднять» для перемещения вверх</p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {items.map(item => (
+              <div 
+                key={item.id} 
+                className="bg-[#1a1a1c] border border-neutral-800 rounded-2xl p-4 flex flex-col gap-3 relative cursor-pointer active:scale-[0.98] transition-transform"
+                onClick={() => onOpenItem(item)}
+              >
+                <div className="flex items-center gap-2 text-xs font-medium">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-green-500">В канале</span>
+                  <span className="text-neutral-500">• {item.time}</span>
+                </div>
+                
+                <div className="pr-16">
+                  <h3 className="font-medium text-sm truncate text-white">{item.title}</h3>
+                  <p className="text-yellow-400 font-bold text-lg mt-0.5">{item.price.toLocaleString()} ₽</p>
+                </div>
+
+                <div className="flex justify-between items-end mt-1">
+                  <div className="flex gap-3 text-neutral-400 text-xs items-center">
+                    <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {item.views}</span>
+                    <span className="flex items-center gap-1"><Heart className="w-3.5 h-3.5" /> 0</span>
+                  </div>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); }}
+                    className="bg-yellow-400 text-black px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 active:scale-95 transition-transform"
+                  >
+                    <ArrowUp className="w-3.5 h-3.5" /> Поднять
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    function ProfileView({ mineCount }) {
+      return (
+        <div>
+          <div className="h-44 bg-gradient-to-b from-yellow-500/80 to-[#0a0a0a] relative flex flex-col items-center justify-end pb-4 pt-6">
+            <button className="absolute top-4 right-4 bg-black/30 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+              <Palette className="w-3 h-3" /> Баннер
+            </button>
+            <div className="w-20 h-20 rounded-full bg-neutral-800 border-4 border-[#0a0a0a] overflow-hidden relative mb-2">
+              <img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?w=400&q=80" alt="Avatar" className="w-full h-full object-cover" />
+            </div>
+            <h1 className="text-xl font-bold">Сандали</h1>
+            <p className="text-xs text-neutral-400 mt-0.5">с октября 2026</p>
+          </div>
+
+          <div className="px-4 pb-6 space-y-5 -mt-1">
+            <div className="flex flex-wrap justify-center gap-2">
+              <div className="bg-[#1a1a1c] border border-neutral-800 px-3 py-1.5 rounded-full text-xs flex items-center gap-1">
+                 <span className="text-green-500 font-bold">0%</span> довольны • 1 оценка
+              </div>
+              <div className="bg-[#1a1a1c] border border-neutral-800 px-3 py-1.5 rounded-full text-xs">
+                 {mineCount} в канале
+              </div>
+              <div className="bg-[#1a1a1c] border border-neutral-800 px-3 py-1.5 rounded-full text-xs flex items-center gap-1">
+                 <MapPin className="w-3 h-3" /> Уфа
+              </div>
+            </div>
+
+            <div className="bg-[#1a1a1c] border border-neutral-800/80 rounded-3xl p-2 space-y-1">
+              <ProfileMenuItem icon={<Heart className="w-5 h-5" />} title="Избранное" />
+              <ProfileMenuItem icon={<Bell className="w-5 h-5" />} title="Подписки" subtitle="новое по запросу — в бот" />
+              <ProfileMenuItem icon={<LayoutGrid className="w-5 h-5" />} title="Моя витрина" subtitle="как тебя видят покупатели" />
+              <ProfileMenuItem icon={<Palette className="w-5 h-5" />} title="Оформление витрины" />
+              <ProfileMenuItem icon={<MapPin className="w-5 h-5" />} title="Мой город" subtitle="Уфа" />
+            </div>
+
+            <div>
+              <p className="text-[11px] text-neutral-500 font-bold mb-2 uppercase tracking-wider px-2">Проверки и инструменты</p>
+              <div className="bg-[#1a1a1c] border border-neutral-800/80 rounded-3xl p-2">
+                <ProfileMenuItem icon={<Calculator className="w-5 h-5" />} title="Сколько стоит мой?" subtitle="оценка по ленте" />
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function ProfileMenuItem({ icon, title, subtitle }) {
+      return (
+        <div className="flex items-center justify-between p-3 active:bg-neutral-800/50 rounded-2xl cursor-pointer">
+          <div className="flex items-center gap-3.5">
+            <div className="text-neutral-400">{icon}</div>
+            <div>
+              <h4 className="font-medium text-sm text-white">{title}</h4>
+              {subtitle && <p className="text-xs text-neutral-500 mt-0.5">{subtitle}</p>}
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-neutral-600" />
+        </div>
+      );
+    }
+
+    function BottomNav({ activeTab, setActiveTab, onOpenAdd }) {
+      return (
+        <div className="absolute bottom-0 w-full bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-neutral-900 px-6 py-3 flex justify-between items-center z-40 pb-safe">
+          <button onClick={() => setActiveTab('feed')} className={`flex flex-col items-center gap-1 ${activeTab === 'feed' ? 'text-yellow-400' : 'text-neutral-500'}`}>
+            <Home className="w-5 h-5" />
+            <span className="text-[10px] font-medium">Лента</span>
+          </button>
+          <button onClick={() => setActiveTab('mylots')} className={`flex flex-col items-center gap-1 ${activeTab === 'mylots' ? 'text-yellow-400' : 'text-neutral-500'}`}>
+            <Layers className="w-5 h-5" />
+            <span className="text-[10px] font-medium">Мои лоты</span>
+          </button>
+          <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center gap-1 mr-8 ${activeTab === 'profile' ? 'text-yellow-400' : 'text-neutral-500'}`}>
+            <User className="w-5 h-5" />
+            <span className="text-[10px] font-medium">Профиль</span>
+          </button>
+          
+          <button onClick={onOpenAdd} className="absolute right-4 -top-5">
+            <div className="bg-yellow-400 text-black w-12 h-12 rounded-full flex items-center justify-center shadow-lg shadow-yellow-500/20 active:scale-90 transition-transform">
+              <Plus className="w-6 h-6" />
+            </div>
+          </button>
+        </div>
+      );
+    }
+
+    function AddItemModal({ onClose, onAdd }) {
+      const [title, setTitle] = useState('');
+      const [price, setPrice] = useState('');
+      const [desc, setDesc] = useState('');
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!title || !price) return;
+        onAdd({
+          title,
+          price: parseInt(price),
+          description: desc,
+          location: 'Уфа',
+          image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80'
+        });
+      };
+
+      return (
+        <div className="absolute inset-0 z-50 bg-[#0a0a0a] flex flex-col animate-in slide-in-from-bottom-full duration-300">
+          <div className="flex items-center justify-between p-4 border-b border-neutral-900">
+            <button onClick={onClose} className="p-2"><X className="w-6 h-6" /></button>
+            <h2 className="text-base font-bold text-white">Новое объявление</h2>
+            <div className="w-8"></div>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div>
+              <label className="block text-xs text-neutral-400 mb-2">Фотография</label>
+              <div className="w-20 h-20 bg-[#1a1a1c] border border-dashed border-neutral-700 rounded-2xl flex flex-col items-center justify-center text-neutral-500 active:bg-neutral-800 transition-colors">
+                <Camera className="w-5 h-5 mb-1" />
+                <span className="text-[10px]">Добавить</span>
+              </
