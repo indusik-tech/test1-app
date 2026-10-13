@@ -5,14 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Resale Platform</title>
   
-  <!-- Telegram Web App API -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Babel для работы React прямо в браузере -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   
   <style>
     body {
@@ -24,401 +19,259 @@
       color: white;
       font-family: sans-serif;
     }
-    .hide-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .hide-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    /* Безопасные отступы для телефонов (челки/свайпы) */
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
+    .nav-btn.active { color: #facc15; }
+    .nav-btn { color: #737373; transition: color 0.2s; }
+    
+    .modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #0a0a0a; z-index: 50; display: none; flex-direction: column;
+      transform: translateY(100%); transition: transform 0.3s;
+    }
+    .modal.show { display: flex; transform: translateY(0); }
   </style>
 </head>
 <body>
-  <div id="root"></div>
+  
+  <div class="max-w-md mx-auto h-screen relative flex flex-col">
+    <!-- Скроллируемая область -->
+    <div class="flex-1 overflow-y-auto pb-24 hide-scrollbar" id="main-scroll">
+      
+      <!-- ВКЛАДКА: ЛЕНТА -->
+      <div id="tab-feed" class="tab-content active p-4 space-y-5">
+        <div class="flex justify-between items-start mt-2">
+          <div>
+            <p class="text-sm text-neutral-400">Добрый день, Сандали</p>
+            <h1 class="text-2xl font-bold mt-1">Что ищем сегодня?</h1>
+          </div>
+          <button class="flex items-center gap-1 bg-[#1a1a1c] border border-neutral-800 px-3 py-1.5 rounded-full text-sm">
+            <i class="fa-solid fa-location-dot text-yellow-400 text-xs"></i> Уфа
+          </button>
+        </div>
 
-  <!-- Весь функционал внутри этого тега script -->
-  <script type="text/babel" data-type="module">
-    import React, { useState, useEffect } from 'https://esm.sh/react@18.2.0';
-    import ReactDOM from 'https://esm.sh/react-dom@18.2.0/client';
-    import { 
-      Home, Layers, User, Plus, Search, MapPin, Heart, Eye, ArrowUp, 
-      ChevronRight, Calculator, ScanBarcode, UserCheck, Zap, X, Camera, 
-      MessageCircle, Settings, Bell, LayoutGrid, Palette 
-    } from 'https://esm.sh/lucide-react@0.363.0';
+        <div class="flex gap-2">
+          <div class="relative flex-1">
+            <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"></i>
+            <input type="text" placeholder="Поиск по 3 327 объявлениям" class="w-full bg-[#1a1a1c] border border-neutral-800 rounded-2xl py-3 pl-9 pr-4 text-sm text-white outline-none focus:border-yellow-400/50">
+          </div>
+          <button class="bg-yellow-400 text-black px-4 rounded-2xl"><i class="fa-solid fa-sliders"></i></button>
+        </div>
 
-    const initialItems = [
-      {
-        id: 1,
-        title: 'Nike Dunk Low Retro White Black',
-        price: 12500,
-        location: 'Москва',
-        time: '12 мин',
-        views: 342,
-        isMine: false,
-        image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80',
-        description: 'Оригинал, любые проверки. Состояние 9/10, носились пару раз. Коробка в комплекте.'
-      },
-      {
-        id: 2,
-        title: 'Yeezy Boost 350 V2 Bone',
-        price: 22000,
-        location: 'Уфа',
-        time: '21 мин',
-        views: 154,
-        isMine: true,
-        image: 'https://images.unsplash.com/photo-1615714316900-51743f55447b?w=400&q=80',
-        description: 'Новые с бирками (DS). Не подошел размер. Покупал на Poizon.'
-      },
-      {
-        id: 3,
-        title: 'Carhartt WIP Detroit Jacket',
-        price: 15000,
-        location: 'Санкт-Петербург',
-        time: '1 час',
-        views: 89,
-        isMine: false,
-        image: 'https://images.unsplash.com/photo-1559551409-dadc959f76b8?w=400&q=80',
-        description: 'Винтажная куртка, отличный фейд. Размер L. Без дефектов.'
-      },
-      {
-        id: 4,
-        title: 'Jordan 1 Retro High OG',
-        price: 18500,
-        location: 'Казань',
-        time: '3 часа',
-        views: 420,
-        isMine: true,
-        image: 'https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=400&q=80',
-        description: 'Состояние хорошее, есть небольшие заломы. Полный комплект.'
-      }
+        <div class="grid grid-cols-4 gap-2">
+          <button onclick="openAddModal()" class="bg-yellow-400 text-black rounded-2xl p-3 flex flex-col items-center justify-center gap-1 aspect-square active:scale-95 transition-transform">
+            <i class="fa-solid fa-plus text-lg"></i>
+            <span class="text-[11px] font-bold">Продать</span>
+          </button>
+          <div class="bg-[#1a1a1c] rounded-2xl p-3 flex flex-col items-center justify-center gap-1 aspect-square border border-neutral-800/60">
+            <i class="fa-solid fa-calculator text-lg text-neutral-300"></i>
+            <span class="text-[11px] text-neutral-300">Оценить</span>
+          </div>
+          <div class="bg-[#1a1a1c] rounded-2xl p-3 flex flex-col items-center justify-center gap-1 aspect-square border border-neutral-800/60">
+            <i class="fa-solid fa-barcode text-lg text-neutral-300"></i>
+            <span class="text-[11px] text-neutral-300">Легит</span>
+          </div>
+          <div class="bg-[#1a1a1c] rounded-2xl p-3 flex flex-col items-center justify-center gap-1 aspect-square border border-neutral-800/60">
+            <i class="fa-solid fa-user-shield text-lg text-neutral-300"></i>
+            <span class="text-[11px] text-neutral-300">Гарант</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div class="bg-yellow-400 text-black rounded-2xl p-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <i class="fa-solid fa-bolt text-lg"></i>
+              <div class="w-5 h-5 bg-black rounded-full flex items-center justify-center"><i class="fa-solid fa-chevron-right text-white text-[10px]"></i></div>
+            </div>
+            <div>
+              <h3 class="font-bold text-base mt-2">Листать новое</h3>
+              <p class="text-[11px] opacity-80">46 новых продаж</p>
+            </div>
+          </div>
+          <div class="bg-[#1a1a1c] border border-neutral-800/80 rounded-2xl p-4 flex flex-col justify-between">
+            <h3 class="font-bold text-base">Рядом</h3>
+            <p class="text-[11px] text-neutral-400">96 в городе</p>
+          </div>
+        </div>
+
+        <!-- Сетка товаров (Лента) -->
+        <div id="feed-items" class="grid grid-cols-2 gap-3"></div>
+      </div>
+
+      <!-- ВКЛАДКА: МОИ ЛОТЫ -->
+      <div id="tab-mylots" class="tab-content p-4 space-y-4">
+        <div class="mt-2">
+          <h1 class="text-2xl font-bold">Мои лоты</h1>
+          <p class="text-xs text-neutral-400 mt-1" id="mylots-count">2 в канале • 2 лотов всего</p>
+        </div>
+        <div class="flex gap-2">
+          <button class="bg-yellow-400 text-black px-4 py-1.5 rounded-full text-xs font-semibold">Все</button>
+          <button class="bg-[#1a1a1c] text-white px-4 py-1.5 rounded-full text-xs font-medium border border-neutral-800">В канале</button>
+        </div>
+        <div class="bg-[#1a1a1c] border border-neutral-800 rounded-2xl p-3.5 flex gap-3 items-center">
+          <div class="bg-neutral-800 p-2 rounded-full"><i class="fa-solid fa-arrow-up text-yellow-400"></i></div>
+          <div>
+            <h3 class="font-semibold text-xs">Можно поднять лоты</h3>
+            <p class="text-[11px] text-neutral-400 mt-0.5">нажмите «Поднять»</p>
+          </div>
+        </div>
+        <div id="mylots-items" class="space-y-3"></div>
+      </div>
+
+      <!-- ВКЛАДКА: ПРОФИЛЬ -->
+      <div id="tab-profile" class="tab-content">
+        <div class="h-44 bg-gradient-to-b from-yellow-500/80 to-[#0a0a0a] relative flex flex-col items-center justify-end pb-4 pt-6">
+          <div class="w-20 h-20 rounded-full bg-neutral-800 border-4 border-[#0a0a0a] overflow-hidden mb-2">
+            <img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?w=400&q=80" class="w-full h-full object-cover">
+          </div>
+          <h1 class="text-xl font-bold">Сандали</h1>
+          <p class="text-xs text-neutral-400 mt-0.5">с октября 2026</p>
+        </div>
+        <div class="px-4 pb-6 space-y-5">
+          <div class="flex flex-wrap justify-center gap-2">
+            <div class="bg-[#1a1a1c] border border-neutral-800 px-3 py-1.5 rounded-full text-xs"><span class="text-green-500 font-bold">100%</span> довольны</div>
+            <div class="bg-[#1a1a1c] border border-neutral-800 px-3 py-1.5 rounded-full text-xs" id="profile-count">2 лота</div>
+          </div>
+          <div class="bg-[#1a1a1c] border border-neutral-800/80 rounded-3xl p-2 space-y-1">
+            <div class="flex items-center justify-between p-3"><div class="flex gap-3"><i class="fa-solid fa-heart text-neutral-400"></i><span class="text-sm font-medium">Избранное</span></div><i class="fa-solid fa-chevron-right text-neutral-600 text-xs"></i></div>
+            <div class="flex items-center justify-between p-3"><div class="flex gap-3"><i class="fa-solid fa-bell text-neutral-400"></i><span class="text-sm font-medium">Подписки</span></div><i class="fa-solid fa-chevron-right text-neutral-600 text-xs"></i></div>
+            <div class="flex items-center justify-between p-3"><div class="flex gap-3"><i class="fa-solid fa-store text-neutral-400"></i><span class="text-sm font-medium">Моя витрина</span></div><i class="fa-solid fa-chevron-right text-neutral-600 text-xs"></i></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Навигация -->
+    <div class="absolute bottom-0 w-full bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-neutral-900 px-6 py-3 flex justify-between items-center z-40 pb-safe">
+      <button onclick="switchTab('feed')" id="btn-feed" class="nav-btn active flex flex-col items-center gap-1"><i class="fa-solid fa-house text-lg"></i><span class="text-[10px]">Лента</span></button>
+      <button onclick="switchTab('mylots')" id="btn-mylots" class="nav-btn flex flex-col items-center gap-1"><i class="fa-solid fa-layer-group text-lg"></i><span class="text-[10px]">Мои лоты</span></button>
+      <button onclick="switchTab('profile')" id="btn-profile" class="nav-btn flex flex-col items-center gap-1 mr-8"><i class="fa-solid fa-user text-lg"></i><span class="text-[10px]">Профиль</span></button>
+      
+      <button onclick="openAddModal()" class="absolute right-4 -top-5">
+        <div class="bg-yellow-400 text-black w-12 h-12 rounded-full flex items-center justify-center shadow-lg shadow-yellow-500/20"><i class="fa-solid fa-plus text-xl"></i></div>
+      </button>
+    </div>
+
+    <!-- Модалка добавления -->
+    <div id="add-modal" class="modal">
+      <div class="flex items-center justify-between p-4 border-b border-neutral-900">
+        <button onclick="closeModals()" class="p-2 text-xl"><i class="fa-solid fa-xmark"></i></button>
+        <h2 class="text-base font-bold">Новое объявление</h2>
+        <div class="w-8"></div>
+      </div>
+      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+        <input type="text" id="add-title" placeholder="Название (напр. Nike Dunk)" class="w-full bg-[#1a1a1c] border border-neutral-800 rounded-xl px-3.5 py-3 text-sm text-white outline-none focus:border-yellow-400/50">
+        <input type="number" id="add-price" placeholder="Цена (₽)" class="w-full bg-[#1a1a1c] border border-neutral-800 rounded-xl px-3.5 py-3 text-sm text-white outline-none focus:border-yellow-400/50">
+        <textarea id="add-desc" placeholder="Описание" rows="3" class="w-full bg-[#1a1a1c] border border-neutral-800 rounded-xl px-3.5 py-3 text-sm text-white outline-none focus:border-yellow-400/50 resize-none"></textarea>
+      </div>
+      <div class="p-4 border-t border-neutral-900 pb-safe">
+        <button onclick="submitItem()" class="w-full bg-yellow-400 text-black py-3.5 rounded-2xl font-bold">Опубликовать</button>
+      </div>
+    </div>
+
+    <!-- Модалка просмотра товара -->
+    <div id="item-modal" class="modal" style="z-index: 60;">
+      <div class="relative h-2/5 min-h-[260px] bg-neutral-900">
+        <img id="detail-img" src="" class="w-full h-full object-cover">
+        <div class="absolute top-0 w-full p-4 flex justify-between bg-gradient-to-b from-black/60 to-transparent">
+          <button onclick="closeModals()" class="p-2 bg-black/40 rounded-full"><i class="fa-solid fa-chevron-down"></i></button>
+        </div>
+      </div>
+      <div class="flex-1 overflow-y-auto p-4 pb-20">
+        <h1 id="detail-title" class="text-xl font-bold"></h1>
+        <p id="detail-price" class="text-2xl text-yellow-400 font-extrabold mt-1"></p>
+        <p id="detail-desc" class="text-neutral-300 text-sm mt-4"></p>
+      </div>
+      <div class="absolute bottom-0 w-full p-4 bg-gradient-to-t from-[#0a0a0a] to-transparent pb-safe">
+        <button onclick="closeModals()" class="w-full bg-yellow-400 text-black py-3.5 rounded-2xl font-bold">Закрыть</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+
+    let items = [
+      { id: 1, title: 'Nike Dunk Low', price: 12500, desc: 'Оригинал, 9/10', isMine: false, img: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80' },
+      { id: 2, title: 'Yeezy Boost 350', price: 22000, desc: 'Новые с бирками', isMine: true, img: 'https://images.unsplash.com/photo-1615714316900-51743f55447b?w=400&q=80' },
+      { id: 3, title: 'Jordan 1 Retro', price: 18500, desc: 'Отличное состояние', isMine: true, img: 'https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=400&q=80' }
     ];
 
-    function App() {
-      const [activeTab, setActiveTab] = useState('feed');
-      const [items, setItems] = useState(initialItems);
-      const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-      const [selectedItem, setSelectedItem] = useState(null);
-      const [isChatOpen, setIsChatOpen] = useState(false);
-
-      useEffect(() => {
-        if (window.Telegram?.WebApp) {
-          window.Telegram.WebApp.ready();
-          window.Telegram.WebApp.expand();
-          window.Telegram.WebApp.setHeaderColor('#0a0a0a');
-        }
-      }, []);
-
-      const handleAddItem = (newItem) => {
-        setItems([{ ...newItem, id: Date.now(), isMine: true, views: 0, time: 'только что' }, ...items]);
-        setIsAddModalOpen(false);
-      };
-
-      return (
-        <div className="max-w-md mx-auto h-screen bg-[#0a0a0a] text-white relative overflow-hidden flex flex-col font-sans">
-          <div className="flex-1 overflow-y-auto pb-24 hide-scrollbar">
-            {activeTab === 'feed' && <FeedView items={items} onOpenItem={setSelectedItem} onOpenAdd={() => setIsAddModalOpen(true)} />}
-            {activeTab === 'mylots' && <MyLotsView items={items.filter(i => i.isMine)} onOpenItem={setSelectedItem} />}
-            {activeTab === 'profile' && <ProfileView mineCount={items.filter(i => i.isMine).length} />}
+    function renderFeed() {
+      const container = document.getElementById('feed-items');
+      container.innerHTML = items.map(item => `
+        <div onclick="openItem(${item.id})" class="bg-[#1a1a1c] border border-neutral-900 rounded-2xl overflow-hidden cursor-pointer">
+          <div class="aspect-[4/5]"><img src="${item.img}" class="w-full h-full object-cover"></div>
+          <div class="p-3">
+            <p class="text-yellow-400 font-bold">${item.price.toLocaleString()} ₽</p>
+            <p class="text-xs mt-1 truncate">${item.title}</p>
           </div>
-
-          <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} onOpenAdd={() => setIsAddModalOpen(true)} />
-
-          {isAddModalOpen && <AddItemModal onClose={() => setIsAddModalOpen(false)} onAdd={handleAddItem} />}
-          
-          {selectedItem && (
-            <ItemDetailModal 
-              item={selectedItem} 
-              onClose={() => setSelectedItem(null)} 
-              onChat={() => setIsChatOpen(true)} 
-            />
-          )}
-
-          {isChatOpen && (
-            <div className="absolute inset-0 z-50 bg-[#0a0a0a] flex flex-col justify-center items-center p-6 text-center animate-in slide-in-from-bottom-4 duration-200">
-              <MessageCircle className="w-16 h-16 text-yellow-400 mb-4" />
-              <h2 className="text-2xl font-bold mb-2">Чат с продавцом</h2>
-              <p className="text-neutral-400 mb-8">Функция диалога находится в разработке.</p>
-              <button 
-                onClick={() => setIsChatOpen(false)}
-                className="w-full bg-neutral-800 py-3 rounded-2xl font-medium active:scale-95 transition-transform"
-              >
-                Вернуться
-              </button>
-            </div>
-          )}
-        </div>
-      );
+        </div>`).join('');
     }
 
-    function FeedView({ items, onOpenItem, onOpenAdd }) {
-      return (
-        <div className="p-4 space-y-5">
-          <div className="flex justify-between items-start mt-2">
-            <div>
-              <p className="text-sm text-neutral-400">Добрый день, Сандали</p>
-              <h1 className="text-2xl font-bold mt-1">Что ищем сегодня?</h1>
-            </div>
-            <button className="flex items-center gap-1 bg-[#1a1a1c] border border-neutral-800 px-3 py-1.5 rounded-full text-sm">
-              <MapPin className="w-4 h-4 text-yellow-400" /> Уфа
-            </button>
-          </div>
-
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-              <input 
-                type="text" 
-                placeholder="Поиск по 3 327 объявлениям" 
-                className="w-full bg-[#1a1a1c] border border-neutral-800 rounded-2xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-yellow-400/50"
-              />
-            </div>
-            <button className="bg-yellow-400 text-black p-3 rounded-2xl">
-              <Settings className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-4 gap-2">
-            <button onClick={onOpenAdd} className="bg-yellow-400 text-black rounded-2xl p-3 flex flex-col items-center justify-center gap-1 aspect-square active:scale-95 transition-transform">
-              <Plus className="w-6 h-6" />
-              <span className="text-[11px] font-bold">Продать</span>
-            </button>
-            <button className="bg-[#1a1a1c] rounded-2xl p-3 flex flex-col items-center justify-center gap-1 aspect-square border border-neutral-800/60">
-              <Calculator className="w-6 h-6 text-neutral-300" />
-              <span className="text-[11px] text-neutral-300">Оценить</span>
-            </button>
-            <button className="bg-[#1a1a1c] rounded-2xl p-3 flex flex-col items-center justify-center gap-1 aspect-square border border-neutral-800/60">
-              <ScanBarcode className="w-6 h-6 text-neutral-300" />
-              <span className="text-[11px] text-neutral-300">Легит</span>
-            </button>
-            <button className="bg-[#1a1a1c] rounded-2xl p-3 flex flex-col items-center justify-center gap-1 aspect-square border border-neutral-800/60">
-              <UserCheck className="w-6 h-6 text-neutral-300" />
-              <span className="text-[11px] text-neutral-300">Гарант</span>
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div className="bg-yellow-400 text-black rounded-2xl p-4 flex flex-col justify-between">
-              <div className="flex items-center justify-between">
-                <Zap className="w-5 h-5" />
-                <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center">
-                  <ChevronRight className="w-3.5 h-3.5 text-white" />
-                </div>
-              </div>
-              <div>
-                <h3 className="font-bold text-base leading-tight mt-2">Листать новое</h3>
-                <p className="text-[11px] opacity-80 mt-0.5">46 новых продаж</p>
-              </div>
-            </div>
-            <div className="bg-[#1a1a1c] border border-neutral-800/80 rounded-2xl p-4 flex flex-col justify-between">
-              <div>
-                <h3 className="font-bold text-base text-white">Рядом</h3>
-                <p className="text-[11px] text-neutral-400 mt-0.5">96 в городе</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            {items.map(item => (
-              <div 
-                key={item.id} 
-                className="bg-[#1a1a1c] border border-neutral-900 rounded-2xl overflow-hidden cursor-pointer active:scale-95 transition-transform"
-                onClick={() => onOpenItem(item)}
-              >
-                <div className="relative aspect-[4/5] bg-neutral-800">
-                  <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                  <button className="absolute top-2 right-2 p-1.5 bg-black/40 backdrop-blur-md rounded-full">
-                    <Heart className="w-4 h-4 text-white" />
-                  </button>
-                </div>
-                <div className="p-3">
-                  <p className="text-yellow-400 font-bold text-base">{item.price.toLocaleString()} ₽</p>
-                  <p className="text-xs font-medium mt-1 truncate text-white">{item.title}</p>
-                  <p className="text-[10px] text-neutral-400 mt-1">{item.location} • {item.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
+    function renderMyLots() {
+      const myItems = items.filter(i => i.isMine);
+      document.getElementById('mylots-count').innerText = `${myItems.length} в канале • ${myItems.length} всего`;
+      document.getElementById('profile-count').innerText = `${myItems.length} лота`;
+      
+      const container = document.getElementById('mylots-items');
+      container.innerHTML = myItems.map(item => `
+        <div onclick="openItem(${item.id})" class="bg-[#1a1a1c] border border-neutral-800 rounded-2xl p-4 flex flex-col gap-3">
+          <h3 class="font-medium text-sm text-white">${item.title}</h3>
+          <p class="text-yellow-400 font-bold">${item.price.toLocaleString()} ₽</p>
+        </div>`).join('');
     }
 
-    function MyLotsView({ items, onOpenItem }) {
-      return (
-        <div className="p-4 space-y-4">
-          <div className="mt-2">
-            <h1 className="text-2xl font-bold">Мои лоты</h1>
-            <p className="text-xs text-neutral-400 mt-1">{items.length} в канале • {items.length} лотов всего</p>
-          </div>
-
-          <div className="flex gap-2">
-            <button className="bg-yellow-400 text-black px-4 py-1.5 rounded-full text-xs font-semibold">Все {items.length}</button>
-            <button className="bg-[#1a1a1c] text-white px-4 py-1.5 rounded-full text-xs font-medium border border-neutral-800">В канале {items.length}</button>
-          </div>
-
-          <div className="bg-[#1a1a1c] border border-neutral-800 rounded-2xl p-3.5 flex gap-3 items-center">
-            <div className="bg-neutral-800 p-2 rounded-full flex-shrink-0">
-              <ArrowUp className="w-4 h-4 text-yellow-400" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-xs text-white">Можно поднять: {items.length} лотов</h3>
-              <p className="text-[11px] text-neutral-400 mt-0.5">нажмите «Поднять» для перемещения вверх</p>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {items.map(item => (
-              <div 
-                key={item.id} 
-                className="bg-[#1a1a1c] border border-neutral-800 rounded-2xl p-4 flex flex-col gap-3 relative cursor-pointer active:scale-[0.98] transition-transform"
-                onClick={() => onOpenItem(item)}
-              >
-                <div className="flex items-center gap-2 text-xs font-medium">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-green-500">В канале</span>
-                  <span className="text-neutral-500">• {item.time}</span>
-                </div>
-                
-                <div className="pr-16">
-                  <h3 className="font-medium text-sm truncate text-white">{item.title}</h3>
-                  <p className="text-yellow-400 font-bold text-lg mt-0.5">{item.price.toLocaleString()} ₽</p>
-                </div>
-
-                <div className="flex justify-between items-end mt-1">
-                  <div className="flex gap-3 text-neutral-400 text-xs items-center">
-                    <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {item.views}</span>
-                    <span className="flex items-center gap-1"><Heart className="w-3.5 h-3.5" /> 0</span>
-                  </div>
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); }}
-                    className="bg-yellow-400 text-black px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 active:scale-95 transition-transform"
-                  >
-                    <ArrowUp className="w-3.5 h-3.5" /> Поднять
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active');
+      
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('btn-' + tabId).classList.add('active');
     }
 
-    function ProfileView({ mineCount }) {
-      return (
-        <div>
-          <div className="h-44 bg-gradient-to-b from-yellow-500/80 to-[#0a0a0a] relative flex flex-col items-center justify-end pb-4 pt-6">
-            <button className="absolute top-4 right-4 bg-black/30 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-              <Palette className="w-3 h-3" /> Баннер
-            </button>
-            <div className="w-20 h-20 rounded-full bg-neutral-800 border-4 border-[#0a0a0a] overflow-hidden relative mb-2">
-              <img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?w=400&q=80" alt="Avatar" className="w-full h-full object-cover" />
-            </div>
-            <h1 className="text-xl font-bold">Сандали</h1>
-            <p className="text-xs text-neutral-400 mt-0.5">с октября 2026</p>
-          </div>
+    function openAddModal() { document.getElementById('add-modal').classList.add('show'); }
+    function closeModals() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('show')); }
 
-          <div className="px-4 pb-6 space-y-5 -mt-1">
-            <div className="flex flex-wrap justify-center gap-2">
-              <div className="bg-[#1a1a1c] border border-neutral-800 px-3 py-1.5 rounded-full text-xs flex items-center gap-1">
-                 <span className="text-green-500 font-bold">0%</span> довольны • 1 оценка
-              </div>
-              <div className="bg-[#1a1a1c] border border-neutral-800 px-3 py-1.5 rounded-full text-xs">
-                 {mineCount} в канале
-              </div>
-              <div className="bg-[#1a1a1c] border border-neutral-800 px-3 py-1.5 rounded-full text-xs flex items-center gap-1">
-                 <MapPin className="w-3 h-3" /> Уфа
-              </div>
-            </div>
-
-            <div className="bg-[#1a1a1c] border border-neutral-800/80 rounded-3xl p-2 space-y-1">
-              <ProfileMenuItem icon={<Heart className="w-5 h-5" />} title="Избранное" />
-              <ProfileMenuItem icon={<Bell className="w-5 h-5" />} title="Подписки" subtitle="новое по запросу — в бот" />
-              <ProfileMenuItem icon={<LayoutGrid className="w-5 h-5" />} title="Моя витрина" subtitle="как тебя видят покупатели" />
-              <ProfileMenuItem icon={<Palette className="w-5 h-5" />} title="Оформление витрины" />
-              <ProfileMenuItem icon={<MapPin className="w-5 h-5" />} title="Мой город" subtitle="Уфа" />
-            </div>
-
-            <div>
-              <p className="text-[11px] text-neutral-500 font-bold mb-2 uppercase tracking-wider px-2">Проверки и инструменты</p>
-              <div className="bg-[#1a1a1c] border border-neutral-800/80 rounded-3xl p-2">
-                <ProfileMenuItem icon={<Calculator className="w-5 h-5" />} title="Сколько стоит мой?" subtitle="оценка по ленте" />
-              </div>
-            </div>
-          </div>
-        </div>
-      );
+    function openItem(id) {
+      const item = items.find(i => i.id === id);
+      document.getElementById('detail-img').src = item.img;
+      document.getElementById('detail-title').innerText = item.title;
+      document.getElementById('detail-price').innerText = item.price.toLocaleString() + ' ₽';
+      document.getElementById('detail-desc').innerText = item.desc;
+      document.getElementById('item-modal').classList.add('show');
     }
 
-    function ProfileMenuItem({ icon, title, subtitle }) {
-      return (
-        <div className="flex items-center justify-between p-3 active:bg-neutral-800/50 rounded-2xl cursor-pointer">
-          <div className="flex items-center gap-3.5">
-            <div className="text-neutral-400">{icon}</div>
-            <div>
-              <h4 className="font-medium text-sm text-white">{title}</h4>
-              {subtitle && <p className="text-xs text-neutral-500 mt-0.5">{subtitle}</p>}
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-neutral-600" />
-        </div>
-      );
+    function submitItem() {
+      const title = document.getElementById('add-title').value;
+      const price = document.getElementById('add-price').value;
+      if(!title || !price) return;
+      
+      items.unshift({
+        id: Date.now(), title, price: parseInt(price), desc: document.getElementById('add-desc').value,
+        isMine: true, img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80'
+      });
+      
+      document.getElementById('add-title').value = '';
+      document.getElementById('add-price').value = '';
+      
+      renderFeed();
+      renderMyLots();
+      closeModals();
     }
 
-    function BottomNav({ activeTab, setActiveTab, onOpenAdd }) {
-      return (
-        <div className="absolute bottom-0 w-full bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-neutral-900 px-6 py-3 flex justify-between items-center z-40 pb-safe">
-          <button onClick={() => setActiveTab('feed')} className={`flex flex-col items-center gap-1 ${activeTab === 'feed' ? 'text-yellow-400' : 'text-neutral-500'}`}>
-            <Home className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Лента</span>
-          </button>
-          <button onClick={() => setActiveTab('mylots')} className={`flex flex-col items-center gap-1 ${activeTab === 'mylots' ? 'text-yellow-400' : 'text-neutral-500'}`}>
-            <Layers className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Мои лоты</span>
-          </button>
-          <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center gap-1 mr-8 ${activeTab === 'profile' ? 'text-yellow-400' : 'text-neutral-500'}`}>
-            <User className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Профиль</span>
-          </button>
-          
-          <button onClick={onOpenAdd} className="absolute right-4 -top-5">
-            <div className="bg-yellow-400 text-black w-12 h-12 rounded-full flex items-center justify-center shadow-lg shadow-yellow-500/20 active:scale-90 transition-transform">
-              <Plus className="w-6 h-6" />
-            </div>
-          </button>
-        </div>
-      );
-    }
-
-    function AddItemModal({ onClose, onAdd }) {
-      const [title, setTitle] = useState('');
-      const [price, setPrice] = useState('');
-      const [desc, setDesc] = useState('');
-
-      const handleSubmit = (e) => {
-        e.preventDefault();
-        if (!title || !price) return;
-        onAdd({
-          title,
-          price: parseInt(price),
-          description: desc,
-          location: 'Уфа',
-          image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80'
-        });
-      };
-
-      return (
-        <div className="absolute inset-0 z-50 bg-[#0a0a0a] flex flex-col animate-in slide-in-from-bottom-full duration-300">
-          <div className="flex items-center justify-between p-4 border-b border-neutral-900">
-            <button onClick={onClose} className="p-2"><X className="w-6 h-6" /></button>
-            <h2 className="text-base font-bold text-white">Новое объявление</h2>
-            <div className="w-8"></div>
-          </div>
-          
-          <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-4">
-            <div>
-              <label className="block text-xs text-neutral-400 mb-2">Фотография</label>
-              <div className="w-20 h-20 bg-[#1a1a1c] border border-dashed border-neutral-700 rounded-2xl flex flex-col items-center justify-center text-neutral-500 active:bg-neutral-800 transition-colors">
-                <Camera className="w-5 h-5 mb-1" />
-                <span className="text-[10px]">Добавить</span>
-              </
+    renderFeed();
+    renderMyLots();
+  </script>
+</body>
+</html>
