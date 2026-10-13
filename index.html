@@ -5,138 +5,86 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Resale Platform</title>
   
+  <!-- Telegram Web App API -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <style>
-    /* Базовые стили (встроены, чтобы не зависеть от внешних файлов) */
     :root {
-      --bg: #0a0a0a;
-      --card: #1a1a1c;
-      --border: #262626;
-      --accent: #facc15;
-      --text: #ffffff;
-      --muted: #a3a3a3;
+      --bg: #0a0a0a; --card: #1a1a1c; --border: #262626;
+      --accent: #facc15; --text: #ffffff; --muted: #a3a3a3;
     }
-    
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    
     body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      background-color: var(--bg); color: var(--text);
+      font-family: sans-serif; -webkit-tap-highlight-color: transparent;
+      user-select: none; height: 100vh; display: flex; flex-direction: column; overflow: hidden;
     }
-
     .hide-scrollbar { overflow-y: auto; -ms-overflow-style: none; scrollbar-width: none; }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
-    
     .pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 20px); }
-    
-    /* Контент вкладок */
     .tab-content { display: none; padding: 16px; padding-bottom: 90px; }
     .tab-content.active { display: block; }
-    
-    /* Утилиты */
     .text-yellow { color: var(--accent); }
-    .bg-yellow { background-color: var(--accent); color: #000; }
     .bg-card { background-color: var(--card); border: 1px solid var(--border); }
-    .rounded-xl { border-radius: 12px; }
-    .rounded-2xl { border-radius: 16px; }
-    .rounded-full { border-radius: 9999px; }
-    .font-bold { font-weight: bold; }
     
-    /* Навигация */
     .nav-bar {
       position: absolute; bottom: 0; left: 0; width: 100%;
       background-color: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px);
       border-top: 1px solid var(--border);
-      display: flex; justify-content: space-between; padding: 12px 24px;
-      z-index: 40;
+      display: flex; justify-content: space-between; padding: 12px 24px; z-index: 40;
     }
     .nav-btn {
       background: none; border: none; color: var(--muted);
       display: flex; flex-direction: column; align-items: center; gap: 4px;
-      font-size: 10px; font-weight: 500; cursor: pointer; transition: color 0.2s;
+      font-size: 10px; font-weight: 500; cursor: pointer;
     }
     .nav-btn.active { color: var(--accent); }
-    
     .fab-btn {
-      position: absolute; right: 16px; top: -24px;
-      width: 56px; height: 56px; border-radius: 50%;
-      background: var(--accent); color: #000;
-      border: none; font-size: 24px; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 15px rgba(250, 204, 21, 0.2); cursor: pointer;
+      position: absolute; right: 16px; top: -24px; width: 56px; height: 56px; border-radius: 50%;
+      background: var(--accent); color: #000; border: none; font-size: 24px; display: flex;
+      align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(250, 204, 21, 0.2);
     }
 
-    /* Модалки */
     .modal {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: var(--bg); z-index: 50; display: none; flex-direction: column;
       transform: translateY(100%); transition: transform 0.3s ease;
     }
     .modal.show { display: flex; transform: translateY(0); }
-    
-    .modal-header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 16px; border-bottom: 1px solid var(--border);
-    }
-    
+    .modal-header { display: flex; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--border); align-items: center;}
     .input-field {
       width: 100%; background: var(--card); border: 1px solid var(--border);
-      color: var(--text); padding: 14px 16px; border-radius: 12px; margin-bottom: 12px;
-      font-size: 14px; outline: none;
+      color: var(--text); padding: 14px 16px; border-radius: 12px; margin-bottom: 12px; outline: none;
     }
-    .input-field:focus { border-color: var(--accent); }
-    
     .btn-primary {
       width: 100%; background: var(--accent); color: #000; border: none;
-      padding: 16px; border-radius: 16px; font-weight: bold; font-size: 16px;
-      cursor: pointer;
+      padding: 16px; border-radius: 16px; font-weight: bold; font-size: 16px; cursor: pointer;
     }
-
-    /* Карточки товаров */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .item-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 16px; overflow: hidden; cursor: pointer;
-    }
-    .item-img-container {
-      width: 100%; aspect-ratio: 4/5; background: #262626; position: relative;
-    }
-    .item-img { width: 100%; height: 100%; object-fit: cover; }
-    .item-info { padding: 12px; }
+    .item-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; cursor: pointer;}
   </style>
 </head>
 <body>
 
-  <!-- Основная область скролла -->
+  <!-- Основная область -->
   <div class="hide-scrollbar" style="flex: 1;" id="main-scroll">
     
     <!-- Вкладка Лента -->
     <div id="tab-feed" class="tab-content active">
-      <div style="margin-top: 8px; margin-bottom: 20px;">
-        <p style="color: var(--muted); font-size: 14px;">Добрый день, Сандали</p>
+      <div style="margin-bottom: 20px;">
+        <p style="color: var(--muted); font-size: 14px;" id="welcome-text">Добрый день!</p>
         <h1 style="font-size: 24px; font-weight: bold; margin-top: 4px;">Что ищем сегодня?</h1>
       </div>
-
-      <div style="display: flex; gap: 8px; margin-bottom: 20px;">
-        <input type="text" placeholder="Поиск по 3 327 объявлениям" class="input-field" style="margin: 0; flex: 1;">
-      </div>
-
-      <!-- Сетка товаров (будет заполняться JS) -->
+      <input type="text" placeholder="Поиск по объявлениям..." class="input-field" style="margin-bottom: 20px;">
       <div id="feed-items" class="grid-2"></div>
     </div>
 
     <!-- Вкладка Мои Лоты -->
     <div id="tab-mylots" class="tab-content">
       <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 16px;">Мои лоты</h1>
-      <p id="mylots-count" style="color: var(--muted); font-size: 12px; margin-bottom: 16px;"></p>
-      
+      <p id="mylots-count" style="color: var(--muted); font-size: 12px; margin-bottom: 16px;">Загрузка...</p>
       <div id="mylots-items" style="display: flex; flex-direction: column; gap: 12px;"></div>
     </div>
 
@@ -144,148 +92,261 @@
     <div id="tab-profile" class="tab-content">
       <div style="text-align: center; padding-top: 20px;">
         <div style="width: 80px; height: 80px; background: #262626; border-radius: 50%; margin: 0 auto 12px; overflow: hidden;">
-          <img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?w=400&q=80" style="width: 100%; height: 100%; object-fit: cover;">
+          <img id="profile-avatar" src="https://images.unsplash.com/photo-1517849845537-4d257902454a?w=400&q=80" style="width: 100%; height: 100%; object-fit: cover;">
         </div>
-        <h1 style="font-size: 20px; font-weight: bold;">Сандали</h1>
-        <p style="color: var(--muted); font-size: 12px;">В приложении с 2026</p>
+        <h1 id="profile-name" style="font-size: 20px; font-weight: bold;">Пользователь</h1>
+        <p style="color: var(--muted); font-size: 12px;">Синхронизировано с Telegram</p>
+      </div>
+      
+      <div class="bg-card" style="margin-top: 30px; border-radius: 20px; padding: 16px;">
+        <p style="font-size: 14px; margin-bottom: 8px;">📊 Статистика</p>
+        <p id="profile-stats" class="text-yellow" style="font-size: 20px; font-weight: bold;">0 лотов</p>
       </div>
     </div>
-
   </div>
 
   <!-- Навигация -->
   <div class="nav-bar pb-safe">
     <button class="nav-btn active" id="btn-feed" onclick="switchTab('feed')">
-      <div style="font-size: 20px; margin-bottom: 2px;">🏠</div> Лента
+      <div style="font-size: 20px;">🏠</div> Лента
     </button>
     <button class="nav-btn" id="btn-mylots" onclick="switchTab('mylots')">
-      <div style="font-size: 20px; margin-bottom: 2px;">📦</div> Мои лоты
+      <div style="font-size: 20px;">📦</div> Мои лоты
     </button>
     <button class="nav-btn" id="btn-profile" onclick="switchTab('profile')" style="margin-right: 32px;">
-      <div style="font-size: 20px; margin-bottom: 2px;">👤</div> Профиль
+      <div style="font-size: 20px;">👤</div> Профиль
     </button>
-    
     <button class="fab-btn" onclick="openModal('add-modal')">➕</button>
   </div>
 
-  <!-- Модалка Добавления -->
+  <!-- Модалка Добавления / Редактирования -->
   <div id="add-modal" class="modal">
     <div class="modal-header">
-      <button onclick="closeModals()" style="background: none; border: none; color: white; font-size: 20px;">✕</button>
-      <h2 style="font-size: 16px; font-weight: bold;">Новое объявление</h2>
+      <button onclick="closeModals()" style="background:none; border:none; color:white; font-size:20px;">✕</button>
+      <h2 id="modal-form-title" style="font-size: 16px; font-weight: bold;">Новое объявление</h2>
       <div style="width: 20px;"></div>
     </div>
-    <div style="flex: 1; padding: 16px;">
+    <div style="flex: 1; padding: 16px; overflow-y:auto;">
+      <input type="hidden" id="edit-id" value="">
       <input type="text" id="add-title" class="input-field" placeholder="Название вещи">
       <input type="number" id="add-price" class="input-field" placeholder="Цена (₽)">
-      <textarea id="add-desc" class="input-field" placeholder="Описание" rows="4"></textarea>
+      <input type="text" id="add-location" class="input-field" placeholder="Город">
+      <input type="text" id="add-image" class="input-field" placeholder="Ссылка на фото (URL)">
+      <textarea id="add-desc" class="input-field" placeholder="Описание, состояние, размер..." rows="4"></textarea>
     </div>
     <div style="padding: 16px;" class="pb-safe">
-      <button class="btn-primary" onclick="submitItem()">Опубликовать лот</button>
+      <button class="btn-primary" onclick="saveItem()" id="save-btn">Опубликовать</button>
     </div>
   </div>
 
-  <!-- Модалка Деталей -->
+  <!-- Модалка Просмотра Товара -->
   <div id="item-modal" class="modal" style="z-index: 60;">
     <div style="position: relative; height: 40%; background: #262626;">
       <img id="detail-img" src="" style="width: 100%; height: 100%; object-fit: cover;">
-      <button onclick="closeModals()" style="position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.5); border: none; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; font-size: 18px;">✕</button>
+      <button onclick="closeModals()" style="position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.5); border:none; color:white; border-radius:50%; width:32px; height:32px; font-size:16px;">✕</button>
     </div>
     <div style="flex: 1; padding: 16px; overflow-y: auto;">
       <h1 id="detail-title" style="font-size: 20px; font-weight: bold;"></h1>
       <p id="detail-price" class="text-yellow font-bold" style="font-size: 24px; margin-top: 4px;"></p>
+      
+      <div style="display:flex; justify-content: space-between; margin-top: 12px; color: var(--muted); font-size: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+        <span id="detail-location">📍 Город</span>
+        <span id="detail-seller">👤 Продавец</span>
+      </div>
       <p id="detail-desc" style="color: var(--muted); font-size: 14px; margin-top: 16px; line-height: 1.5;"></p>
+    </div>
+    <div class="pb-safe" style="padding: 16px; background: var(--bg);" id="detail-action-container">
+      <!-- Кнопка появится тут через JS (Написать или Редактировать) -->
     </div>
   </div>
 
   <script>
-    // Инициализация Telegram
+    // ==========================================
+    // ВСТАВЬ СВОИ КЛЮЧИ ИЗ SUPABASE СЮДА:
+    // ==========================================
+    const SUPABASE_URL = 'ТВОЙ_PROJECT_URL';
+    const SUPABASE_KEY = 'ТВОЙ_ANON_PUBLIC_KEY';
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Данные пользователя Telegram
+    let tgUser = { id: 123456789, first_name: "Тестовый Юзер", photo_url: "" }; // Заглушка для ПК
+    
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
       window.Telegram.WebApp.setHeaderColor('#0a0a0a');
+      
+      if (window.Telegram.WebApp.initDataUnsafe?.user) {
+        tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+      }
     }
 
-    // Данные
-    let items = [
-      { id: 1, title: 'Nike Dunk Low', price: 12500, desc: 'Оригинал, 9/10', isMine: false, img: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80' },
-      { id: 2, title: 'Yeezy Boost 350', price: 22000, desc: 'Новые с бирками', isMine: true, img: 'https://images.unsplash.com/photo-1615714316900-51743f55447b?w=400&q=80' }
-    ];
+    // Синхронизация профиля
+    document.getElementById('welcome-text').innerText = `Добрый день, ${tgUser.first_name}!`;
+    document.getElementById('profile-name').innerText = tgUser.first_name;
+    if (tgUser.photo_url) {
+      document.getElementById('profile-avatar').src = tgUser.photo_url;
+    }
 
-    // Рендер Ленты
+    let items = []; // Локальный массив для отрисовки
+
+    // Загрузка товаров из базы
+    async function fetchItems() {
+      const { data, error } = await supabase
+        .from('items')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Ошибка загрузки:', error);
+        return;
+      }
+      
+      items = data || [];
+      renderFeed();
+      renderMyLots();
+    }
+
     function renderFeed() {
       const container = document.getElementById('feed-items');
       container.innerHTML = items.map(item => `
         <div class="item-card" onclick="openItem(${item.id})">
-          <div class="item-img-container"><img src="${item.img}" class="item-img"></div>
-          <div class="item-info">
+          <div style="width:100%; aspect-ratio:4/5; background:#262626;">
+            <img src="${item.image || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80'}" style="width:100%; height:100%; object-fit:cover;">
+          </div>
+          <div style="padding: 12px;">
             <p class="text-yellow font-bold">${item.price.toLocaleString()} ₽</p>
             <p style="font-size: 12px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.title}</p>
+            <p style="font-size: 10px; color: var(--muted); margin-top: 4px;">📍 ${item.location || 'Уфа'}</p>
           </div>
         </div>
       `).join('');
     }
 
-    // Рендер Моих лотов
     function renderMyLots() {
-      const myItems = items.filter(i => i.isMine);
-      document.getElementById('mylots-count').innerText = `${myItems.length} лотов всего`;
+      const myItems = items.filter(i => Number(i.user_id) === tgUser.id);
+      document.getElementById('mylots-count').innerText = `${myItems.length} лотов активно`;
+      document.getElementById('profile-stats').innerText = `${myItems.length} лотов`;
       
       const container = document.getElementById('mylots-items');
       container.innerHTML = myItems.map(item => `
-        <div class="bg-card rounded-2xl" style="padding: 16px; cursor:pointer;" onclick="openItem(${item.id})">
+        <div class="bg-card" style="border-radius:16px; padding:16px; cursor:pointer;" onclick="openItem(${item.id})">
           <h3 style="font-size: 14px; font-weight: 500;">${item.title}</h3>
-          <p class="text-yellow font-bold" style="font-size: 18px; margin-top: 4px;">${item.price.toLocaleString()} ₽</p>
+          <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:4px;">
+            <p class="text-yellow font-bold" style="font-size: 18px;">${item.price.toLocaleString()} ₽</p>
+            <button onclick="event.stopPropagation(); startEdit(${item.id})" style="background:var(--border); color:white; border:none; padding:6px 12px; border-radius:8px; font-size:12px;">Редактировать</button>
+          </div>
         </div>
       `).join('');
     }
 
-    // Переключение вкладок
+    // Сохранение (Создание или Обновление)
+    async function saveItem() {
+      const id = document.getElementById('edit-id').value;
+      const title = document.getElementById('add-title').value;
+      const price = document.getElementById('add-price').value;
+      const desc = document.getElementById('add-desc').value;
+      const loc = document.getElementById('add-location').value;
+      const img = document.getElementById('add-image').value;
+
+      if (!title || !price) {
+        window.Telegram.WebApp.showAlert('Введите название и цену!');
+        return;
+      }
+
+      document.getElementById('save-btn').innerText = 'Сохранение...';
+
+      const itemData = {
+        user_id: tgUser.id,
+        user_name: tgUser.first_name,
+        title: title,
+        price: parseInt(price),
+        description: desc,
+        location: loc || 'Уфа',
+        image: img || 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80',
+        status: 'active'
+      };
+
+      if (id) {
+        // Обновляем существующий лот
+        await supabase.from('items').update(itemData).eq('id', id);
+      } else {
+        // Создаем новый
+        await supabase.from('items').insert([itemData]);
+      }
+
+      closeModals();
+      await fetchItems(); // Перезапрашиваем базу
+    }
+
+    // Подготовка формы для редактирования
+    function startEdit(id) {
+      const item = items.find(i => i.id === id);
+      document.getElementById('modal-form-title').innerText = 'Редактировать лот';
+      document.getElementById('edit-id').value = item.id;
+      document.getElementById('add-title').value = item.title;
+      document.getElementById('add-price').value = item.price;
+      document.getElementById('add-desc').value = item.description || '';
+      document.getElementById('add-location').value = item.location || '';
+      document.getElementById('add-image').value = item.image || '';
+      document.getElementById('save-btn').innerText = 'Сохранить изменения';
+      openModal('add-modal');
+    }
+
+    // Просмотр товара
+    function openItem(id) {
+      const item = items.find(i => i.id === id);
+      const isMine = Number(item.user_id) === tgUser.id;
+
+      document.getElementById('detail-img').src = item.image || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80';
+      document.getElementById('detail-title').innerText = item.title;
+      document.getElementById('detail-price').innerText = item.price.toLocaleString() + ' ₽';
+      document.getElementById('detail-desc').innerText = item.description || 'Нет описания';
+      document.getElementById('detail-location').innerText = '📍 ' + (item.location || 'Уфа');
+      document.getElementById('detail-seller').innerText = '👤 ' + (item.user_name || 'Продавец');
+
+      const actionContainer = document.getElementById('detail-action-container');
+      if (isMine) {
+        actionContainer.innerHTML = `<button onclick="closeModals(); startEdit(${item.id})" style="width:100%; background:var(--border); color:white; border:none; padding:16px; border-radius:16px; font-weight:bold;">Редактировать свой лот</button>`;
+      } else {
+        actionContainer.innerHTML = `<button class="btn-primary">Написать продавцу</button>`;
+      }
+      
+      openModal('item-modal');
+    }
+
+    // Утилиты UI
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.getElementById('tab-' + tabId).classList.add('active');
-      
       document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('btn-' + tabId).classList.add('active');
     }
 
-    // Управление модалками
-    function openModal(id) { document.getElementById(id).classList.add('show'); }
-    function closeModals() { document.querySelectorAll('.modal').forEach(el => el.classList.remove('show')); }
-
-    function openItem(id) {
-      const item = items.find(i => i.id === id);
-      document.getElementById('detail-img').src = item.img;
-      document.getElementById('detail-title').innerText = item.title;
-      document.getElementById('detail-price').innerText = item.price.toLocaleString() + ' ₽';
-      document.getElementById('detail-desc').innerText = item.desc;
-      openModal('item-modal');
+    function openModal(id) {
+      if(id === 'add-modal' && !document.getElementById('edit-id').value) {
+        // Очищаем форму если это создание нового
+        document.getElementById('modal-form-title').innerText = 'Новое объявление';
+        document.getElementById('edit-id').value = '';
+        document.getElementById('add-title').value = '';
+        document.getElementById('add-price').value = '';
+        document.getElementById('add-desc').value = '';
+        document.getElementById('add-location').value = '';
+        document.getElementById('add-image').value = '';
+        document.getElementById('save-btn').innerText = 'Опубликовать';
+      }
+      document.getElementById(id).classList.add('show');
     }
 
-    // Добавление товара
-    function submitItem() {
-      const title = document.getElementById('add-title').value;
-      const price = document.getElementById('add-price').value;
-      if (!title || !price) return;
-      
-      items.unshift({
-        id: Date.now(), title: title, price: parseInt(price), desc: document.getElementById('add-desc').value,
-        isMine: true, img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80'
-      });
-      
-      document.getElementById('add-title').value = '';
-      document.getElementById('add-price').value = '';
-      document.getElementById('add-desc').value = '';
-      
-      renderFeed();
-      renderMyLots();
-      closeModals();
-      switchTab('mylots');
+    function closeModals() { 
+      document.querySelectorAll('.modal').forEach(el => el.classList.remove('show'));
+      document.getElementById('edit-id').value = ''; // Сброс ID
     }
 
-    // Запуск
-    renderFeed();
-    renderMyLots();
+    // Запуск при старте
+    fetchItems();
   </script>
 </body>
 </html>
