@@ -13,7 +13,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background-color: var(--bg); color: var(--text);
-      font-family: "MiSans", "Mi Lanting", system-ui, -apple-system, sans-serif; 
+      font-family: system-ui, -apple-system, sans-serif; 
       font-weight: 500; -webkit-tap-highlight-color: transparent;
       user-select: none; height: 100vh; display: flex; flex-direction: column; overflow: hidden;
     }
@@ -32,7 +32,7 @@
     .nav-btn {
       background: none; border: none; color: var(--muted);
       display: flex; flex-direction: column; align-items: center; gap: 4px;
-      font-size: 10px; font-weight: 600; cursor: pointer; font-family: inherit;
+      font-size: 10px; font-weight: 600; cursor: pointer;
     }
     .fab-btn {
       position: absolute; left: 50%; transform: translateX(-50%); top: -24px; width: 56px; height: 56px; border-radius: 50%;
@@ -50,13 +50,14 @@
     }
     .btn-primary {
       width: 100%; background: var(--accent); color: #000; border: none;
-      padding: 16px; border-radius: 16px; font-weight: bold; font-size: 16px; cursor: pointer; text-align: center; font-family: inherit;
+      padding: 16px; border-radius: 16px; font-weight: bold; font-size: 16px; cursor: pointer; text-align: center;
     }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .item-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; cursor: pointer;}
   </style>
 </head>
 <body>
+
   <div class="hide-scrollbar" style="flex: 1;" id="main-scroll">
     <div id="tab-feed" class="tab-content" style="display: block;">
       <div style="margin-bottom: 20px;">
@@ -282,7 +283,7 @@
             var maxW = 500; var maxH = 500;
             var w = img.width; var h = img.height;
             if (w > h && w > maxW) { h = h * (maxW / w); w = maxW; }
-            else if (h > maxH) { w = w * (maxH / h); h = maxH; }
+            else if (h > maxW) { w = w * (maxH / h); h = maxH; }
             canvas.width = w; canvas.height = h;
             ctx.drawImage(img, 0, 0, w, h);
             currentImages.push(canvas.toDataURL('image/jpeg', 0.6));
@@ -402,4 +403,5 @@
       for(var j=0; j<pReviews.length; j++) {
         var r = pReviews[j];
         html += '<div style="background: #262626; padding: 12px; border-radius: 8px;">' +
-                  '<p style="font-size:12px; color:var(--muted);">' + r.reviewer_name + ' -> ID: ' + r.se
+                  '<p style="font-size:12px; color:var(--muted);">' + r.reviewer_name + ' -> ID: ' + r.seller_id + '</p>' +
+                  '<p style="color:#facc15;">Оце
