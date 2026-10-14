@@ -1,340 +1,1191 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Resale Platform</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Market Mini App</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
   <style>
-    :root { --bg:#0a0a0a; --card:#1a1a1c; --brd:#262626; --acc:#ffffff; --txt:#ffffff; --mut:#a3a3a3; }
-    * { box-sizing:border-box; margin:0; padding:0; }
-    body { background:var(--bg); color:var(--txt); font-family:sans-serif; -webkit-tap-highlight-color:transparent; user-select:none; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
-    .scroll { overflow-y:auto; scrollbar-width:none; flex:1; }
-    .scroll::-webkit-scrollbar { display:none; }
-    .pb { padding-bottom:max(env(safe-area-inset-bottom),20px); }
-    .tab { display:none; padding:16px 16px 90px; }
-    .tab.active { display:block; }
-    .card { background:var(--card); border:1px solid var(--brd); border-radius:16px; }
-    .nav { position:absolute; bottom:0; left:0; width:100%; background:rgba(10,10,10,0.95); border-top:1px solid var(--brd); display:flex; justify-content:space-around; padding:12px 24px; z-index:40; }
-    .nav-b { background:none; border:none; color:var(--mut); display:flex; flex-direction:column; align-items:center; gap:4px; font-size:10px; font-weight:600; flex:1; }
-    .nav-b.active { color:var(--acc); }
-    .fab { position:absolute; left:50%; transform:translateX(-50%); top:-24px; width:56px; height:56px; border-radius:50%; background:var(--acc); color:#000; border:none; font-size:24px; display:flex; align-items:center; justify-content:center; }
-    .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:50; display:none; flex-direction:column; }
-    .modal.show { display:flex; }
-    .m-hd { display:flex; justify-content:space-between; padding:16px; border-bottom:1px solid var(--brd); align-items:center; }
-    .inp { width:100%; background:var(--card); border:1px solid var(--brd); color:var(--txt); padding:14px; border-radius:12px; margin-bottom:12px; outline:none; font-size:14px; }
-    .btn { width:100%; background:var(--acc); color:#000; border:none; padding:14px; border-radius:14px; font-weight:bold; font-size:15px; text-align:center; }
-    .btn-d { background:var(--card); color:#fff; border:1px solid var(--brd); }
-    .btn-r { background:#ef4444; color:#fff; }
-    .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .slider { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; height:100%; width:100%; }
-    .slide { min-width:100%; height:100%; object-fit:cover; scroll-snap-align:start; }
-    .p-wrap { display:flex; gap:8px; overflow-x:auto; margin-bottom:12px; padding-bottom:4px; }
-    .p-box { position:relative; width:80px; height:80px; flex-shrink:0; border-radius:10px; overflow:hidden; border:1px solid var(--brd); }
-    .p-box img { width:100%; height:100%; object-fit:cover; }
-    .p-act { position:absolute; top:3px; right:3px; display:flex; gap:3px; }
-    .p-btn { background:rgba(0,0,0,0.8); color:#fff; border:none; border-radius:50%; width:22px; height:22px; font-size:11px; }
+    :root {
+      --bg: #08080a;
+      --card: #121215;
+      --card-hover: #1a1a1f;
+      --border: #242429;
+      --text: #ffffff;
+      --text-muted: #8e8e93;
+      --accent: #ffffff;
+      --accent-fg: #000000;
+      --danger: #ff453a;
+      --success: #32d74b;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding-bottom: 105px;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .hidden { display: none !important; }
+    .container { padding: 14px 16px; max-width: 520px; margin: 0 auto; }
+    button { cursor: pointer; border: none; background: none; color: inherit; font: inherit; }
+    input, textarea, select { font: inherit; color: var(--text); }
+
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+      gap: 10px;
+    }
+    .greeting-sub {
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .admin-badge {
+      background: var(--accent);
+      color: var(--accent-fg);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+    .greeting-title {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+    .city-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .city-pill svg { width: 14px; height: 14px; }
+
+    .search-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .search-box {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 0 14px;
+      height: 46px;
+    }
+    .search-box svg { width: 18px; height: 18px; color: var(--text-muted); flex-shrink: 0; }
+    .search-box input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 14px;
+    }
+    .search-box input::placeholder { color: var(--text-muted); }
+    .filter-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: var(--radius-md);
+      background: var(--accent);
+      color: var(--accent-fg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .filter-btn svg { width: 20px; height: 20px; }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .qa-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: transform 0.15s ease, background 0.15s;
+    }
+    .qa-card:active { transform: scale(0.96); }
+    .qa-card.primary {
+      background: var(--accent);
+      color: var(--accent-fg);
+      border-color: var(--accent);
+    }
+    .qa-card svg { width: 22px; height: 22px; }
+    .qa-card span { font-size: 12px; font-weight: 700; }
+
+    .promo-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .promo-card {
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 86px;
+      text-align: left;
+      transition: transform 0.15s ease;
+    }
+    .promo-card:active { transform: scale(0.97); }
+    .promo-card.white {
+      background: var(--accent);
+      color: var(--accent-fg);
+    }
+    .promo-card.dark {
+      background: var(--card);
+      border: 1px solid var(--border);
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 18px 18px;
+    }
+    .promo-card.active-filter {
+      outline: 2px solid var(--accent);
+    }
+    .promo-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .promo-arrow {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--accent-fg);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .promo-arrow svg { width: 15px; height: 15px; }
+    .promo-title { font-size: 15px; font-weight: 800; line-height: 1.15; }
+    .promo-sub { font-size: 11px; opacity: 0.7; font-weight: 500; margin-top: 2px; }
+    .radar-dots {
+      position: absolute;
+      right: 12px;
+      top: 14px;
+      width: 44px;
+      height: 36px;
+    }
+    .radar-dot-main {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 0 5px rgba(255,255,255,0.18);
+      position: absolute; left: 8px; top: 10px;
+    }
+    .radar-dot-sm {
+      width: 5px; height: 5px; border-radius: 3px;
+      background: rgba(255,255,255,0.65);
+      position: absolute;
+    }
+
+    .listings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .item-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .item-card:active { transform: scale(0.98); }
+    .item-img-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: #1c1c21;
+      overflow: hidden;
+    }
+    .item-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .badge-exchange {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(10, 10, 12, 0.78);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .badge-exchange::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #fff;
+    }
+    .fav-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(15, 15, 18, 0.65);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      z-index: 2;
+    }
+    .fav-btn.liked svg { fill: #fff; }
+    .fav-btn svg { width: 16px; height: 16px; }
+    .photo-dots {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(15, 15, 18, 0.65);
+      backdrop-filter: blur(4px);
+      padding: 4px 7px;
+      border-radius: 999px;
+      display: flex;
+      gap: 4px;
+    }
+    .photo-dots span {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.45);
+    }
+    .photo-dots span.active { background: #fff; }
+    .item-body {
+      padding: 10px 12px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .item-price {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+    .item-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #e5e5ea;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .item-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -0.6px;
+      margin-bottom: 2px;
+    }
+    .page-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .pills-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .pill-tab {
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    .pill-tab.active {
+      background: var(--accent);
+      color: var(--accent-fg);
+      border-color: var(--accent);
+    }
+    .bump-info-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .bump-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .my-lot-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .my-lot-status {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+    .my-lot-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .my-lot-price {
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+    .my-lot-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .my-lot-stats {
+      display: flex;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .my-lot-stats span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .my-lot-stats svg { width: 15px; height: 15px; }
+    .my-lot-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .btn-white-sm {
+      background: var(--accent);
+      color: var(--accent-fg);
+      padding: 8px 13px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-white-sm svg { width: 14px; height: 14px; }
+    .btn-ghost-sm {
+      background: #1f1f24;
+      color: #fff;
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-ghost-sm.danger { color: var(--danger); }
+    .btn-ghost-sm svg { width: 14px; height: 14px; }
+
+    .profile-hero {
+      position: relative;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(255,255,255,0.18), transparent 70%),
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 10px, transparent 10px, transparent 20px);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 16px 20px;
+      text-align: center;
+      margin: -14px -16px 16px;
+    }
+    .profile-avatar {
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      margin: 0 auto 10px;
+      overflow: hidden;
+      background: #1c1c22;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 900;
+    }
+    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-name { font-size: 22px; font-weight: 900; margin-bottom: 2px; }
+    .profile-since { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+    .profile-badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+    .p-badge {
+      background: rgba(18, 18, 21, 0.9);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .p-badge .rate-highlight { color: var(--success); }
+
+    .menu-group {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .menu-section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin: 14px 4px 8px;
+    }
+    .menu-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      transition: background 0.15s;
+    }
+    .menu-item:last-child { border-bottom: none; }
+    .menu-item:active { background: var(--card-hover); }
+    .menu-item-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .menu-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: #1d1d22;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .menu-icon svg { width: 18px; height: 18px; }
+    .menu-title { font-size: 14px; font-weight: 700; }
+    .menu-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+    .menu-chevron { color: var(--text-muted); width: 18px; height: 18px; }
+
+    .bottom-nav-wrap {
+      position: fixed;
+      bottom: 14px;
+      left: 0;
+      right: 0;
+      z-index: 40;
+      padding: 0 14px;
+      max-width: 520px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .bottom-dock {
+      pointer-events: auto;
+      flex: 1;
+      background: rgba(15, 15, 18, 0.92);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      height: 62px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding: 4px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 999px;
+      position: relative;
+      transition: color 0.2s;
+    }
+    .nav-btn svg { width: 20px; height: 20px; }
+    .nav-btn.active {
+      color: var(--accent);
+      background: radial-gradient(circle at 50% 60%, rgba(255,255,255,0.16), transparent 70%);
+    }
+    .fab-add {
+      pointer-events: auto;
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      background: rgba(15, 15, 18, 0.92);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      transition: transform 0.15s;
+    }
+    .fab-add:active { transform: scale(0.92); }
+    .fab-add svg { width: 26px; height: 26px; }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-sheet {
+      width: 100%;
+      max-width: 520px;
+      max-height: 92vh;
+      background: #101013;
+      border-top: 1px solid var(--border);
+      border-radius: 24px 24px 0 0;
+      overflow-y: auto;
+      padding: 18px 16px 30px;
+      animation: slideUp 0.22s ease-out;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .modal-title { font-size: 18px; font-weight: 800; }
+    .close-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .close-btn svg { width: 18px; height: 18px; }
+
+    .form-group { margin-bottom: 14px; }
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .form-input, .form-textarea {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      font-size: 14px;
+      outline: none;
+    }
+    .form-input:focus, .form-textarea:focus { border-color: var(--accent); }
+    .form-textarea { min-height: 90px; resize: vertical; }
+
+    .photo-upload-box {
+      border: 1px dashed var(--border);
+      background: var(--card);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .preview-list {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .preview-item {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      border-radius: 10px;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+    }
+    .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-remove {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--accent);
+      color: var(--accent-fg);
+      font-weight: 800;
+      font-size: 15px;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .btn-secondary {
+      width: 100%;
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 14px;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .btn-danger {
+      width: 100%;
+      background: rgba(255, 69, 58, 0.14);
+      color: var(--danger);
+            border: 1px solid rgba(255, 69, 58, 0.3);
+      font-weight: 700;
+      font-size: 14px;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .detail-gallery { position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: var(--radius-lg); overflow: hidden; background: #18181c; margin-bottom: 14px; }
+    .detail-gallery img { width: 100%; height: 100%; object-fit: cover; }
+    .gallery-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; border-radius: 50%; background: rgba(0,0,0,0.6); color: #fff; display: flex; align-items: center; justify-content: center; }
+    .gallery-nav.prev { left: 10px; }
+    .gallery-nav.next { right: 10px; }
+    .seller-strip { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; margin: 14px 0; cursor: pointer; }
+    .seller-strip-left { display: flex; align-items: center; gap: 10px; }
+    .seller-mini-ava { width: 44px; height: 44px; border-radius: 50%; background: #222; overflow: hidden; display: flex; align-items: center; justify-content: center; font-weight: 800; border: 1px solid var(--border); }
+    .seller-mini-ava img { width: 100%; height: 100%; object-fit: cover; }
+    .review-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; margin-bottom: 8px; }
+    .review-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 13px; font-weight: 700; }
+    .stars-select { display: flex; gap: 6px; margin-bottom: 10px; }
+    .star-btn { font-size: 24px; color: #3a3a42; }
+    .star-btn.active { color: #ffffff; }
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 14px; }
   </style>
 </head>
 <body>
-  <div class="scroll">
-    <div id="tab-feed" class="tab active">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+  <section id="tab-feed" class="container">
+    <div class="top-header">
+      <div>
+        <div class="greeting-sub">
+          <span id="greeting-text">Доброго времени, Гость</span>
+          <span id="user-admin-tag" class="admin-badge hidden">ADMIN</span>
+        </div>
+        <h1 class="greeting-title">Что ищем сегодня?</h1>
+      </div>
+      <button class="city-pill" onclick="openCityModal()">
+        <i data-lucide="map-pin"></i>
+        <span id="current-city-label">Уфа</span>
+      </button>
+    </div>
+    <div class="search-row">
+      <div class="search-box">
+        <i data-lucide="search"></i>
+        <input type="text" id="search-input" placeholder="Поиск по объявлениям..." oninput="renderFeed()" />
+      </div>
+      <button class="filter-btn" onclick="cycleSortOrder()">
+        <i data-lucide="sliders-horizontal"></i>
+      </button>
+    </div>
+    <div class="quick-actions">
+      <button class="qa-card primary" onclick="openListingModal()">
+        <i data-lucide="plus"></i>
+        <span>Продать</span>
+      </button>
+      <button class="qa-card" onclick="openMyReviewsModal()">
+        <i data-lucide="star"></i>
+        <span>Отзывы</span>
+      </button>
+      <button class="qa-card" onclick="toggleFavoritesFilter()">
+        <i data-lucide="heart"></i>
+        <span id="qa-fav-label">Избранное</span>
+      </button>
+      <button class="qa-card" onclick="openSellerCheckModal()">
+        <i data-lucide="user-check"></i>
+        <span>Продавец</span>
+      </button>
+    </div>
+    <div class="promo-grid">
+      <button id="banner-all" class="promo-card white" onclick="setFeedMode('all')">
+        <div class="promo-top">
+          <i data-lucide="zap" style="width:18px;height:18px;"></i>
+          <div class="promo-arrow"><i data-lucide="arrow-right"></i></div>
+        </div>
         <div>
-          <p style="color:var(--mut); font-size:14px;" id="welcome-text">Добрый день!</p>
-          <h1 style="font-size:22px; font-weight:bold; margin-top:2px;">Маркетплейс</h1>
+          <div class="promo-title">Листать новое</div>
+          <div class="promo-sub" id="stat-total-count">0 объявлений</div>
         </div>
-        <button id="top-mod-btn" onclick="openM('mod-modal')" style="background:#ef4444; color:#fff; border:none; padding:10px 12px; border-radius:12px; font-size:12px; font-weight:bold;">🛡 Отзывы (<span id="mod-cnt">0</span>)</button>
-      </div>
-      <input type="text" id="search-input" placeholder="Поиск по объявлениям..." class="inp" oninput="renderFeed()">
-      <div id="feed-items" class="grid"></div>
-    </div>
-
-    <div id="tab-profile" class="tab">
-      <div style="text-align:center; padding:16px 0; border-bottom:1px solid var(--brd);">
-        <div style="width:76px; height:76px; background:#262626; border-radius:50%; margin:0 auto 10px; overflow:hidden;">
-          <img id="profile-avatar" src="https://images.unsplash.com/photo-1517849845537-4d257902454a?w=400&q=80" style="width:100%; height:100%; object-fit:cover;">
+      </button>
+      <button id="banner-nearby" class="promo-card dark" onclick="setFeedMode('nearby')">
+        <div class="radar-dots">
+          <span class="radar-dot-main"></span>
+          <span class="radar-dot-sm" style="right:4px; top:4px;"></span>
+          <span class="radar-dot-sm" style="right:10px; bottom:4px;"></span>
+          <span class="radar-dot-sm" style="left:22px; top:2px;"></span>
         </div>
-        <h1 id="profile-name" style="font-size:20px; font-weight:bold;">Пользователь</h1>
-        <p id="admin-badge" style="color:#ef4444; font-size:12px; font-weight:bold; margin-top:4px;">👑 АДМИНИСТРАТОР</p>
-        <button id="prof-mod-btn" onclick="openM('mod-modal')" class="btn btn-r" style="margin-top:12px;">Модерация отзывов (<span id="mod-cnt-2">0</span>)</button>
+        <div style="margin-top:auto;">
+          <div class="promo-title">Рядом</div>
+          <div class="promo-sub" id="stat-city-count">0 в городе</div>
+        </div>
+      </button>
+    </div>
+    <div id="active-filter-bar" class="hidden" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:12px; color:var(--text-muted);">
+      <span id="active-filter-text">Фильтр активен</span>
+      <button onclick="resetFilters()" style="color:#fff; font-weight:700;">Сбросить ×</button>
+    </div>
+    <div id="feed-grid" class="listings-grid"></div>
+  </section>
+
+  <section id="tab-mylots" class="container hidden">
+    <h1 class="page-title">Мои лоты</h1>
+    <div class="page-subtitle" id="mylots-subtitle">0 в ленте · 0 лотов всего</div>
+    <div class="pills-row">
+      <button id="mylots-tab-own" class="pill-tab active" onclick="switchMyLotsMode('own')">Мои <span id="count-own-lots">0</span></button>
+      <button id="mylots-tab-admin" class="pill-tab hidden" onclick="switchMyLotsMode('all_admin')">Все лоты (Админ) <span id="count-all-lots">0</span></button>
+    </div>
+    <div class="bump-info-box">
+      <div class="bump-icon"><i data-lucide="arrow-up"></i></div>
+      <div>
+        <div style="font-size:14px; font-weight:800;">Управление объявлениями</div>
+        <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Жми «Поднять», «Изменить» или «Удалить» на карточке нужного лота</div>
       </div>
-      <h2 style="font-size:18px; font-weight:bold; margin:16px 0 12px;">Выложенные лоты (<span id="mylots-count">0</span>)</h2>
-      <div id="mylots-items" style="display:flex; flex-direction:column; gap:10px;"></div>
     </div>
-  </div>
+    <div id="mylots-list"></div>
+  </section>
 
-  <div class="nav pb">
-    <button class="nav-b active" id="btn-feed" onclick="swTab('feed')"><div style="font-size:20px;">🏠</div>Лента</button>
-    <div style="flex:1; position:relative;"><button class="fab" onclick="openAdd()">➕</button></div>
-    <button class="nav-b" id="btn-profile" onclick="swTab('profile')"><div style="font-size:20px;">👤</div>Профиль</button>
-  </div>
-
-  <div id="add-modal" class="modal">
-    <div class="m-hd">
-      <button onclick="closeM()" style="background:none; border:none; color:#fff; font-size:20px;">✕</button>
-      <h2 id="m-title" style="font-size:16px;">Новое объявление</h2>
-      <div style="width:20px;"></div>
-    </div>
-    <div class="scroll" style="padding:16px;">
-      <input type="hidden" id="edit-id">
-      <p style="font-size:12px; color:var(--mut); margin-bottom:8px;">Фото (<span id="img-cnt">0</span>/10):</p>
-      <div id="img-prev" class="p-wrap"></div>
-      <button onclick="addPhClick()" class="btn btn-d" style="margin-bottom:12px; padding:12px;">+ Выбрать фото (до 10 шт)</button>
-      <input type="file" id="f-add" accept="image/*" multiple style="display:none;" onchange="hFiles(this)">
-      <input type="file" id="f-rep" accept="image/*" style="display:none;" onchange="hRep(this)">
-      <input type="text" id="a-title" class="inp" placeholder="Название вещи">
-      <input type="number" id="a-price" class="inp" placeholder="Цена (₽)">
-      <input type="text" id="a-loc" class="inp" placeholder="Город">
-      <textarea id="a-desc" class="inp" placeholder="Описание, состояние, размер..." rows="4"></textarea>
-    </div>
-    <div style="padding:16px;" class="pb"><button class="btn" onclick="saveIt()" id="save-btn">Опубликовать</button></div>
-  </div>
-
-  <div id="item-modal" class="modal" style="z-index:60;">
-    <div style="position:relative; height:44%; background:#262626;">
-      <div id="d-slider" class="slider"></div>
-      <button onclick="closeM()" style="position:absolute; top:16px; left:16px; background:rgba(0,0,0,0.6); border:none; color:#fff; border-radius:50%; width:34px; height:34px;">✕</button>
-      <div id="d-pcnt" style="position:absolute; bottom:10px; right:12px; background:rgba(0,0,0,0.6); padding:4px 8px; border-radius:8px; font-size:11px;"></div>
-    </div>
-    <div class="scroll" style="padding:16px;">
-      <h1 id="d-title" style="font-size:20px;"></h1>
-      <p id="d-price" style="font-size:24px; font-weight:bold; margin-top:4px;"></p>
-      <p id="d-rate" style="font-size:14px; margin-top:6px; color:#facc15; font-weight:bold;"></p>
-      <div style="display:flex; justify-content:space-between; margin-top:10px; color:var(--mut); font-size:12px; padding-bottom:10px; border-bottom:1px solid var(--brd);">
-        <span id="d-loc"></span><span id="d-sell"></span>
+  <section id="tab-profile" class="container hidden">
+    <div class="profile-hero">
+      <div class="profile-avatar" id="prof-avatar">U</div>
+      <div class="profile-name" id="prof-name">Пользователь</div>
+      <div class="profile-since" id="prof-id-label">Telegram ID: —</div>
+      <div class="profile-badges">
+        <button class="p-badge" onclick="openMyReviewsModal()">
+          <span class="rate-highlight" id="prof-rate-percent">100%</span>
+          <span id="prof-rate-count">довольны · 0 оценок</span>
+        </button>
+        <div class="p-badge" id="prof-lots-badge">0 лотов всего</div>
+        <button class="p-badge" onclick="openCityModal()">
+          <i data-lucide="map-pin" style="width:13px;height:13px;"></i>
+          <span id="prof-city-badge">Уфа</span>
+        </button>
       </div>
-      <p id="d-desc" style="color:var(--mut); font-size:14px; margin-top:12px; line-height:1.4;"></p>
-      <div id="d-revs" style="margin-top:16px; border-top:1px solid var(--brd); padding-top:12px;"></div>
     </div>
-    <div class="pb" style="padding:16px; background:var(--bg); display:flex; flex-direction:column; gap:8px;" id="d-acts"></div>
+    <div class="menu-group">
+      <button class="menu-item" onclick="showFavoritesFromProfile()">
+        <div class="menu-item-left">
+          <div class="menu-icon"><i data-lucide="heart"></i></div>
+          <div>
+            <div class="menu-title">Избранное</div>
+            <div class="menu-sub">Сохранённые объявления</div>
+          </div>
+        </div>
+        <i data-lucide="chevron-right" class="menu-chevron"></i>
+      </button>
+      <button class="menu-item" onclick="openSellerShowcase(currentUser.tg_id)">
+        <div class="menu-item-left">
+          <div class="menu-icon"><i data-lucide="layout-grid"></i></div>
+          <div>
+            <div class="menu-title">Моя витрина и отзывы</div>
+            <div class="menu-sub">Как тебя видят покупатели</div>
+          </div>
+        </div>
+        <i data-lucide="chevron-right" class="menu-chevron"></i>
+      </button>
+      <button class="menu-item" onclick="openCityModal()">
+        <div class="menu-item-left">
+          <div class="menu-icon"><i data-lucide="map-pin"></i></div>
+          <div>
+            <div class="menu-title">Мой город</div>
+            <div class="menu-sub" id="menu-city-sub">Уфа</div>
+          </div>
+        </div>
+        <i data-lucide="chevron-right" class="menu-chevron"></i>
+      </button>
+    </div>
+    <div class="menu-section-label">Проверки и инструменты</div>
+    <div class="menu-group">
+      <button class="menu-item" onclick="openSellerCheckModal()">
+        <div class="menu-item-left">
+          <div class="menu-icon"><i data-lucide="user-check"></i></div>
+          <div>
+            <div class="menu-title">Проверка продавца</div>
+            <div class="menu-sub">Поиск профиля и отзывов по Telegram ID</div>
+          </div>
+        </div>
+        <i data-lucide="chevron-right" class="menu-chevron"></i>
+      </button>
+      <button id="admin-menu-btn" class="menu-item hidden" onclick="openAdminModal()">
+        <div class="menu-item-left">
+          <div class="menu-icon" style="background:#fff; color:#000;"><i data-lucide="shield"></i></div>
+          <div>
+            <div class="menu-title">Панель администратора</div>
+            <div class="menu-sub">Управление админами по ID и модерация</div>
+          </div>
+        </div>
+        <i data-lucide="chevron-right" class="menu-chevron"></i>
+      </button>
+    </div>
+  </section>
+
+  <div class="bottom-nav-wrap">
+    <nav class="bottom-dock">
+      <button class="nav-btn active" id="nav-feed" onclick="switchTab('feed')">
+        <i data-lucide="home"></i>
+        <span>Лента</span>
+      </button>
+      <button class="nav-btn" id="nav-mylots" onclick="switchTab('mylots')">
+        <i data-lucide="layers"></i>
+        <span>Мои лоты</span>
+      </button>
+      <button class="nav-btn" id="nav-profile" onclick="switchTab('profile')">
+        <i data-lucide="user"></i>
+        <span>Профиль</span>
+      </button>
+    </nav>
+    <button class="fab-add" onclick="openListingModal()">
+      <i data-lucide="plus"></i>
+    </button>
   </div>
 
-  <div id="review-modal" class="modal" style="z-index:70;">
-    <div class="m-hd">
-      <button onclick="$('review-modal').classList.remove('show')" style="background:none; border:none; color:#fff; font-size:20px;">✕</button>
-      <h2 style="font-size:16px;">Оставить отзыв</h2><div style="width:20px;"></div>
+  <div id="modal-form" class="modal-overlay hidden" onclick="if(event.target===this) closeModal('modal-form')">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div class="modal-title" id="form-modal-title">Новое объявление</div>
+        <button class="close-btn" onclick="closeModal('modal-form')"><i data-lucide="x"></i></button>
+      </div>
+      <input type="hidden" id="edit-listing-id" />
+      <div class="form-group">
+        <label class="form-label">Фотографии (с устройства или по ссылке)</label>
+        <div class="photo-upload-box" onclick="document.getElementById('file-input').click()">
+          <i data-lucide="camera" style="width:24px;height:24px;margin-bottom:4px;"></i>
+          <div style="font-size:13px; font-weight:700;">Выбрать фото из галереи</div>
+          <div style="font-size:11px; color:var(--text-muted);">Можно прикрепить несколько фото</div>
+          <input type="file" id="file-input" accept="image/*" multiple class="hidden" onchange="handleFilesSelected(event)" />
+        </div>
+        <div style="display:flex; gap:6px; margin-bottom:10px;">
+          <input type="url" id="photo-url-input" class="form-input" placeholder="Или вставь прямую ссылку на фото..." />
+          <button class="btn-white-sm" onclick="addPhotoByUrl()" style="flex-shrink:0;">+ URL</button>
+        </div>
+        <div id="photo-previews" class="preview-list"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Название</label>
+        <input type="text" id="inp-title" class="form-input" placeholder="Например: Худи Balenciaga / Куртка..." />
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div class="form-group">
+          <label class="form-label">Цена (₽) — 0 если договорная</label>
+          <input type="number" id="inp-price" class="form-input" placeholder="5000" min="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Местоположение</label>
+          <input type="text" id="inp-location" class="form-input" placeholder="Уфа" />
+        </div>
+      </div>
+      <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+        <input type="checkbox" id="inp-exchange" style="width:18px; height:18px; accent-color:#fff;" />
+        <label for="inp-exchange" style="font-size:13px; font-weight:600;">Рассматриваю обмен (плашка «Обмен»)</label>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Описание (размер, состояние, детали)</label>
+        <textarea id="inp-desc" class="form-textarea" placeholder="Опиши состояние, замеры, комплектацию..."></textarea>
+      </div>
+      <button id="save-listing-btn" class="btn-primary" onclick="submitListingForm()">
+        <i data-lucide="check"></i>
+        <span>Опубликовать</span>
+      </button>
     </div>
-    <div class="scroll" style="padding:16px;">
-      <input type="hidden" id="r-sid">
-      <select id="r-star" class="inp">
-        <option value="5">⭐⭐⭐⭐⭐ (5)</option><option value="4">⭐⭐⭐⭐ (4)</option>
-        <option value="3">⭐⭐⭐ (3)</option><option value="2">⭐⭐ (2)</option><option value="1">⭐ (1)</option>
-      </select>
-      <textarea id="r-txt" class="inp" placeholder="Напишите отзыв..." rows="4"></textarea>
-    </div>
-    <div style="padding:16px;" class="pb"><button class="btn" onclick="sendRev()">Отправить</button></div>
   </div>
 
-  <div id="mod-modal" class="modal" style="z-index:80;">
-    <div class="m-hd">
-      <button onclick="closeM()" style="background:none; border:none; color:#fff; font-size:20px;">✕</button>
-      <h2 style="font-size:16px;">Модерация отзывов</h2><div style="width:20px;"></div>
+  <div id="modal-detail" class="modal-overlay hidden" onclick="if(event.target===this) closeModal('modal-detail')">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div class="modal-title">Объявление</div>
+        <button class="close-btn" onclick="closeModal('modal-detail')"><i data-lucide="x"></i></button>
+      </div>
+      <div id="detail-content"></div>
     </div>
-    <div class="scroll" style="padding:16px; display:flex; flex-direction:column; gap:10px;" id="mod-list"></div>
+  </div>
+
+  <div id="modal-showcase" class="modal-overlay hidden" onclick="if(event.target===this) closeModal('modal-showcase')">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div class="modal-title">Профиль продавца</div>
+        <button class="close-btn" onclick="closeModal('modal-showcase')"><i data-lucide="x"></i></button>
+      </div>
+      <div id="showcase-content"></div>
+    </div>
+  </div>
+
+  <div id="modal-city" class="modal-overlay hidden" onclick="if(event.target===this) closeModal('modal-city')">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div class="modal-title">Выбрать город</div>
+        <button class="close-btn" onclick="closeModal('modal-city')"><i data-lucide="x"></i></button>
+      </div>
+      <div class="form-group">
+        <input type="text" id="custom-city-input" class="form-input" placeholder="Введи свой город..." />
+        <button class="btn-primary" onclick="saveCity(document.getElementById('custom-city-input').value)">Сохранить город</button>
+      </div>
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;">
+        <button class="pill-tab" onclick="saveCity('Уфа')">Уфа</button>
+        <button class="pill-tab" onclick="saveCity('Москва')">Москва</button>
+        <button class="pill-tab" onclick="saveCity('Санкт-Петербург')">Санкт-Петербург</button>
+        <button class="pill-tab" onclick="saveCity('Казань')">Казань</button>
+        <button class="pill-tab" onclick="saveCity('Екатеринбург')">Екатеринбург</button>
+        <button class="pill-tab" onclick="saveCity('Новосибирск')">Новосибирск</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-admin" class="modal-overlay hidden" onclick="if(event.target===this) closeModal('modal-admin')">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div class="modal-title">Панель администратора</div>
+        <button class="close-btn" onclick="closeModal('modal-admin')"><i data-lucide="x"></i></button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Добавить / забрать права админа по Telegram ID</label>
+        <div style="display:flex; gap:8px;">
+          <input type="number" id="admin-target-id" class="form-input" placeholder="Например: 1879880417" />
+          <button class="btn-white-sm" onclick="setAdminStatus(true)">+ Админ</button>
+          <button class="btn-ghost-sm danger" onclick="setAdminStatus(false)">Снять</button>
+        </div>
+      </div>
+      <div class="form-label" style="margin-top:14px;">Текущие администраторы:</div>
+      <div id="admin-list-box" style="margin-top:8px;"></div>
+    </div>
   </div>
 
   <script>
-    function $(id){ return document.getElementById(id); }
-    var ADMIN_ID = 1879880417;
-    var sb = window.supabase.createClient('https://qlomefucenvjktwacwow.supabase.co', 'sb_publishable_cIsEZCsfm19S9mnS2YYorA_4mpyVYyp');
-    var usr = { id:1879880417, first_name:"Админ", username:"", photo_url:"" };
-    if (window.Telegram && window.Telegram.WebApp) {
-      var tw = window.Telegram.WebApp; tw.ready(); tw.expand();
-      if (tw.initDataUnsafe && tw.initDataUnsafe.user) usr = tw.initDataUnsafe.user;
-    }
-    var isAdm = (Number(usr.id) === ADMIN_ID);
-    $('welcome-text').innerText = 'Привет, ' + usr.first_name + '!';
-    $('profile-name').innerText = usr.first_name;
-    if (usr.photo_url) $('profile-avatar').src = usr.photo_url;
-    if (!isAdm) {
-      $('admin-badge').style.display = 'none';
-      $('top-mod-btn').style.display = 'none';
-      $('prof-mod-btn').style.display = 'none';
-    }
+    const SUPABASE_URL = 'https://yznxjjprcadsdacrchon.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_VT7pFKAyF8lbTw0Ybt8ZPg_jb410xH6';
+    const ROOT_ADMIN_ID = 1879880417;
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const tg = window.Telegram?.WebApp;
 
-    var items = [], revs = [], cImgs = [], repI = -1, curIt = null;
-    var defIm = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80';
+    let currentUser = {
+      tg_id: ROOT_ADMIN_ID,
+      username: 'admin_user',
+      first_name: 'Администратор',
+      avatar_url: '',
+      city: localStorage.getItem('user_city') || 'Уфа',
+      is_admin: true
+    };
 
-    function pImgs(v) {
-      if (!v) return [];
-      try { var a = JSON.parse(v); return Array.isArray(a) ? a : [v]; } catch(e) { return [v]; }
-    }
+    let allListings = [];
+    let allReviews = [];
+    let favorites = JSON.parse(localStorage.getItem('fav_ids') || '[]');
+    let feedMode = 'all';
+    let sortMode = 'newest';
+    let myLotsMode = 'own';
+    let formPhotos = [];
+    let detailSlideIndex = 0;
+    let selectedReviewRating = 5;
 
-    function loadAll() {
-      sb.from('items').select('*').order('created_at',{ascending:false}).then(function(r){
-        if (!r.error) { items = r.data || []; renderFeed(); renderMy(); }
-      });
-      sb.from('reviews').select('*').order('created_at',{ascending:false}).then(function(r){
-        if (!r.error) { revs = r.data || []; renderMod(); }
-      });
-    }
-
-    function renderFeed() {
-      var q = ($('search-input').value || '').toLowerCase(), h = '';
-      for (var i=0; i<items.length; i++) {
-        var it = items[i];
-        if (q && (it.title||'').toLowerCase().indexOf(q) === -1) continue;
-        var im = pImgs(it.image)[0] || defIm;
-        h += '<div class="card" style="overflow:hidden;" onclick="openIt('+it.id+')">' +
-          '<div style="width:100%;aspect-ratio:4/5;background:#262626;"><img src="'+im+'" style="width:100%;height:100%;object-fit:cover;"></div>' +
-          '<div style="padding:10px;"><p style="font-weight:bold;">'+(it.price||0).toLocaleString()+' ₽</p>' +
-          '<p style="font-size:12px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+it.title+'</p>' +
-          '<p style="font-size:10px;color:var(--mut);margin-top:4px;">📍 '+(it.location||'Уфа')+'</p></div></div>';
-      }
-      $('feed-items').innerHTML = h;
-    }
-
-    function renderMy() {
-      var c = 0, h = '';
-      for (var i=0; i<items.length; i++) {
-        var it = items[i];
-        if (Number(it.user_id) === Number(usr.id)) {
-          c++;
-          h += '<div class="card" style="padding:14px;" onclick="openIt('+it.id+')"><b>'+it.title+'</b><p style="margin-top:4px;">'+(it.price||0).toLocaleString()+' ₽</p></div>';
+    async function initApp() {
+      if (tg) {
+        tg.ready();
+        tg.expand();
+        if (tg.setHeaderColor) tg.setHeaderColor('#08080a');
+        if (tg.setBackgroundColor) tg.setBackgroundColor('#08080a');
+        const u = tg.initDataUnsafe?.user;
+        if (u && u.id) {
+          currentUser.tg_id = Number(u.id);
+          currentUser.username = u.username || '';
+          currentUser.first_name = [u.first_name, u.last_name].filter(Boolean).join(' ') || 'Пользователь';
+          currentUser.avatar_url = u.photo_url || '';
+          currentUser.is_admin = (Number(u.id) === ROOT_ADMIN_ID);
         }
       }
-      $('mylots-count').innerText = c;
-      $('mylots-items').innerHTML = h || '<p style="color:var(--mut);text-align:center;">Нет объявлений</p>';
+      await syncUserProfile();
+      await loadAllData();
+      lucide.createIcons();
     }
 
-    function compr(file, cb) {
-      var rd = new FileReader();
-      rd.onload = function(e) {
-        var im = new Image();
-        im.onload = function() {
-          var cv = document.createElement('canvas'), w = im.width, h = im.height, m = 600;
-          if (w>h && w>m) { h*=m/w; w=m; } else if (h>m) { w*=m/h; h=m; }
-          cv.width = w; cv.height = h; cv.getContext('2d').drawImage(im,0,0,w,h);
-          cb(cv.toDataURL('image/jpeg',0.7));
-        };
-        im.src = e.target.result;
-      };
-      rd.readAsDataURL(file);
+    async function syncUserProfile() {
+      try {
+        const { data: existing } = await sb.from('profiles').select('*').eq('tg_id', currentUser.tg_id).maybeSingle();
+        currentUser.is_admin = (currentUser.tg_id === ROOT_ADMIN_ID) || Boolean(existing?.is_admin);
+        currentUser.city = existing?.city || currentUser.city || 'Уфа';
+        await sb.from('profiles').upsert({
+          tg_id: currentUser.tg_id,
+          username: currentUser.username,
+          first_name: currentUser.first_name,
+          avatar_url: currentUser.avatar_url,
+          city: currentUser.city,
+          is_admin: currentUser.is_admin
+        }, { onConflict: 'tg_id' });
+      } catch (e) { console.warn(e); }
+      updateHeaderAndProfileUI();
     }
 
-    function addPhClick() { if (cImgs.length>=10) alert('Максимум 10 фото'); else $('f-add').click(); }
-    function hFiles(inp) {
-      for (var i=0; i<inp.files.length; i++) {
-        if (cImgs.length>=10) break;
-        compr(inp.files[i], function(b){ if (cImgs.length<10){ cImgs.push(b); rPrev(); } });
-      }
-      inp.value = '';
-    }
-    function sRep(i) { repI = i; $('f-rep').click(); }
-    function hRep(inp) {
-      if (inp.files[0] && repI>-1) compr(inp.files[0], function(b){ cImgs[repI]=b; rPrev(); });
-      inp.value = '';
-    }
-    function rmImg(i) { cImgs.splice(i,1); rPrev(); }
-    function rPrev() {
-      $('img-cnt').innerText = cImgs.length;
-      var h = '';
-      for (var i=0; i<cImgs.length; i++) {
-        h += '<div class="p-box"><img src="'+cImgs[i]+'"><div class="p-act">' +
-          '<button class="p-btn" onclick="sRep('+i+')">🔄</button><button class="p-btn" onclick="rmImg('+i+')">✕</button></div></div>';
-      }
-      $('img-prev').innerHTML = h;
+    function updateHeaderAndProfileUI() {
+      const hour = new Date().getHours();
+      let greet = hour < 5 ? 'Доброй ночи' : hour < 12 ? 'Доброе утро' : hour < 18 ? 'Добрый день' : 'Добрый вечер';
+      document.getElementById('greeting-text').textContent = `${greet}, ${currentUser.first_name}`;
+      document.getElementById('current-city-label').textContent = currentUser.city;
+      document.getElementById('prof-city-badge').textContent = currentUser.city;
+      document.getElementById('menu-city-sub').textContent = currentUser.city;
+      document.getElementById('prof-name').textContent = currentUser.first_name;
+      document.getElementById('prof-id-label').textContent = `ID: ${currentUser.tg_id}` + (currentUser.username ? ` · @${currentUser.username}` : '');
+      const avaEl = document.getElementById('prof-avatar');
+      avaEl.innerHTML = currentUser.avatar_url ? `<img src="${escapeHtml(currentUser.avatar_url)}" alt="avatar" />` : (currentUser.first_name || 'U')[0].toUpperCase();
+      document.getElementById('user-admin-tag').classList.toggle('hidden', !currentUser.is_admin);
+      document.getElementById('admin-menu-btn').classList.toggle('hidden', !currentUser.is_admin);
+      document.getElementById('mylots-tab-admin').classList.toggle('hidden', !currentUser.is_admin);
     }
 
-    function openAdd() {
-      $('m-title').innerText = 'Новое объявление'; $('edit-id').value = '';
-      $('a-title').value = ''; $('a-price').value = ''; $('a-loc').value = ''; $('a-desc').value = '';
-      cImgs = []; rPrev(); $('save-btn').innerText = 'Опубликовать'; openM('add-modal');
+    async function loadAllData() {
+      try {
+        const [lRes, rRes] = await Promise.all([
+          sb.from('listings').select('*').order('created_at', { ascending: false }),
+          sb.from('reviews').select('*').order('created_at', { ascending: false })
+        ]);
+        if (lRes.data) allListings = lRes.data;
+        if (rRes.data) allReviews = rRes.data;
+      } catch (e) { console.error(e); }
+      renderFeed();
+      renderMyLots();
+      updateProfileStats();
     }
 
-    function startEd(id) {
-      var it = items.find(function(x){return x.id===id;}); if (!it) return;
-      closeM(); $('m-title').innerText = 'Редактировать'; $('edit-id').value = it.id;
-      $('a-title').value = it.title; $('a-price').value = it.price;
-      $('a-loc').value = it.location||''; $('a-desc').value = it.description||'';
-      cImgs = pImgs(it.image); rPrev(); $('save-btn').innerText = 'Сохранить'; openM('add-modal');
-    }
-
-    function saveIt() {
-      var id = $('edit-id').value, t = $('a-title').value, p = $('a-price').value;
-      if (!t || !p) { alert('Введите название и цену'); return; }
-      $('save-btn').innerText = 'Ждите...';
-      var d = { title:t, price:parseInt(p), location:$('a-loc').value||'Уфа', description:$('a-desc').value, image:JSON.stringify(cImgs), status:'active' };
-      if (id) sb.from('items').update(d).eq('id',id).then(function(){ closeM(); loadAll(); });
-      else {
-        d.user_id = usr.id; d.user_name = usr.first_name + (usr.username ? ' (@'+usr.username+')' : '');
-        sb.from('items').insert([d]).then(function(){ closeM(); loadAll(); });
-      }
-    }
-
-    function delIt(id) {
-      if (confirm('Удалить лот?')) { closeM(); sb.from('items').delete().eq('id',id).then(loadAll); }
-    }
-
-    function openIt(id) {
-      var it = items.find(function(x){return x.id===id;}); if (!it) return;
-      curIt = it; var ims = pImgs(it.image); if (!ims.length) ims = [defIm];
-      $('d-slider').innerHTML = ims.map(function(u){return '<img class="slide" src="'+u+'">';}).join('');
-      $('d-pcnt').innerText = ims.length + ' фото';
-      $('d-title').innerText = it.title; $('d-price').innerText = (it.price||0).toLocaleString() + ' ₽';
-      $('d-loc').innerText = '📍 ' + (it.location||'Уфа'); $('d-sell').innerText = '👤 ' + (it.user_name||'Продавец');
-      $('d-desc').innerText = it.description || 'Без описания';
-
-      var c = 0, s = 0, rh = '';
-      for (var i=0; i<revs.length; i++) {
-        var r = revs[i];
-        if (Number(r.seller_id)===Number(it.user_id) && r.status==='active') {
-          c++; s += Number(r.rating);
-          rh += '<div style="background:var(--card);padding:8px;border-radius:8px;margin-top:6px;"><b style="color:#facc15;font-size:12px;">⭐ '+r.rating+'/5 — '+r.reviewer_name+'</b><p style="font-size:13px;margin-top:2px;">'+r.comment+'</p></div>';
-        }
-      }
-      $('d-rate').innerText = c ? '⭐ '+(s/c).toFixed(1)+' ('+c+' отз.)' : '⭐ Нет отзывов';
-      $('d-revs').innerHTML = rh;
-
-      var my = (Number(it.user_id) === Number(usr.id));
-      var b = '<button onclick="chatSell()" class="btn">Написать продавцу</button>' +
-              '<button onclick="openRev('+it.user_id+')" class="btn btn-d">Оставить отзыв</button>';
-      if (my || isAdm) {
-        b += '<div style="display:flex;gap:8px;"><button onclick="startEd('+it.id+')" class="btn btn-d" style="flex:1;">Редакт.</button>' +
-             '<button onclick="delIt('+it.id+')" class="btn btn-r" style="flex:1;">Удалить</button></div>';
-      }
-      $('d-acts').innerHTML = b; openM('item-modal');
-    }
-
-    function chatSell() {
-      if (!curIt) return;
-      var m = (curIt.user_name||'').match(/@(\w+)/);
-      if (m && window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.openTelegramLink('https://t.me/'+m[1]);
-      else alert('Связь с продавцом: ' + (curIt.user_name || 'ID ' + curIt.user_id));
-    }
-
-    function openRev(sId) { $('r-sid').value = sId; $('r-txt').value = ''; openM('review-modal'); }
-    function sendRev() {
-      var tx = $('r-txt').value; if (!tx) return;
-      sb.from('reviews').insert([{ seller_id:Number($('r-sid').value), reviewer_name:usr.first_name, rating:Number($('r-star').value), comment:tx, status:'pending' }]).then(function(){
-        $('review-modal').classList.remove('show'); alert('Отзыв отправлен на модерацию!'); loadAll();
-      });
-    }
-
-    function renderMod() {
-      var p = revs.filter(function(r){return r.status==='pending';});
-      $('mod-cnt').innerText = p.length; $('mod-cnt-2').innerText = p.length;
-      var h = '';
-      for (var i=0; i<p.length; i++) {
-        var r = p[i];
-        h += '<div class="card" style="padding:12px;"><p style="font-size:12px;color:var(--mut);">От '+r.reviewer_name+' ➔ ID '+r.seller_id+'</p>' +
-          '<p style="color:#facc15;font-weight:bold;margin:4px 0;">⭐ '+r.rating+'/5</p><p style="font-size:14px;margin-bottom:8px;">'+r.comment+'</p>' +
-          '<div style="display:flex;gap:8px;"><button onclick="modAct('+r.id+',1)" class="btn" style="flex:1;padding:8px;">Одобрить</button>' +
-          '<button onclick="modAct('+r.id+',0)" class="btn btn-r" style="flex:1;padding:8px;">Удалить</button></div></div>';
-      }
-      $('mod-list').innerHTML = h || '<p style="color:var(--mut);text-align:center;">Нет новых отзывов</p>';
-    }
-
-    function modAct(id, ok) {
-      if (ok) sb.from('reviews').update({status:'active'}).eq('id',id).then(loadAll);
-      else sb.from('reviews').delete().eq('id',id).then(loadAll);
-    }
-
-    function swTab(t) {
-      $('tab-feed').classList.remove('active'); $('tab-profile').classList.remove('active'); $('tab-'+t).classList.add('active');
-      $('btn-feed').classList.remove('active'); $('btn-profile').classList.remove('active'); $('btn-'+t).classList.add('active');
-    }
-    function openM(id) { $(id).classList.add('show'); }
-    function closeM() { var m = document.querySelectorAll('.modal'); for (var i=0;i<m.length;i++) m[i].classList
+    function updateProfileStats() {
+      const myLots = allListings.filter(x => Number(x.seller_id) === cu
