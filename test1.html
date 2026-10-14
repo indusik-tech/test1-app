@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>ARCHIVE MARKET</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+<style>
+:root{--bg:#070709;--surf:#111115;--surf2:#18181e;--brd:#25252d;--txt:#ffffff;--mut:#8b8b95;--acc:#ffffff;--acc-fg:#000000;--nav-bg:rgba(14,14,18,0.92);--ok:#32d74b;--err:#ff453a;--ease:cubic-bezier(0.16,1,0.3,1)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-family:'Inter',sans-serif}
+body{background:var(--bg);color:var(--txt);min-height:100vh;padding-bottom:112px;overflow-x:hidden;user-select:none;transition:background .35s ease,color .35s ease}
+.hidden{display:none!important}
+button{cursor:pointer;border:none;background:none;color:inherit;font:inherit;transition:transform .24s var(--ease),background .24s ease,border-color .24s ease,opacity .24s ease}
+button:active{transform:scale(0.95)}
+input,textarea,select{font:inherit;color:var(--txt)}
+.wrap{max-width:520px;margin:0 auto;padding:0 14px}
+.tab-pane{animation:tabFade .52s var(--ease)}
+@keyframes tabFade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.ico{width:19px;height:19px;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;fill:none;flex-shrink:0}
+.top-bar{position:sticky;top:0;z-index:35;background:var(--nav-bg);backdrop-filter:blur(20px);border-bottom:1px solid var(--brd);padding:10px 14px;margin:0 -14px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.user-chip{display:flex;align-items:center;gap:9px;background:var(--surf);border:1px solid var(--brd);padding:5px 12px 5px 6px;border-radius:99px;text-align:left}
+.ava-xs{width:30px;height:30px;border-radius:50%;background:var(--surf2);border:1px solid var(--acc);overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0}
+.ava-xs img{width:100%;height:100%;object-fit:cover}
+.u-chip-name{font-size:12px;font-weight:800;line-height:1.1}
+.u-chip-sub{font-size:10px;color:var(--mut);font-weight:600}
+.top-right{display:flex;align-items:center;gap:6px}
+.adm-pill{background:var(--acc);color:var(--acc-fg);font-size:10px;font-weight:900;padding:6px 10px;border-radius:99px;letter-spacing:.4px}
+.city-btn{background:var(--surf);border:1px solid var(--brd);padding:7px 11px;border-radius:99px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px}
+.bento{display:grid;grid-template-columns:1.08fr 0.92fr;gap:8px;margin-bottom:12px}
+.bento-main{background:var(--acc);color:var(--acc-fg);border-radius:22px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;min-height:122px;text-align:left}
+.bento-main-top{display:flex;justify-content:space-between;align-items:center}
+.bento-plus{width:36px;height:36px;border-radius:50%;background:var(--acc-fg);color:var(--acc);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800}
+.bento-stack{display:grid;grid-template-rows:1fr 1fr;gap:8px}
+.bento-sub{background:var(--surf);border:1px solid var(--brd);border-radius:16px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;text-align:left}
+.bento-t{font-size:16px;font-weight:900;letter-spacing:-0.4px}
+.bento-s{font-size:11px;opacity:.75;font-weight:600;margin-top:2px}
+.search-row{display:flex;gap:8px;margin-bottom:10px}
+.search-box{flex:1;display:flex;align-items:center;gap:8px;background:var(--surf);border:1px solid var(--brd);border-radius:16px;padding:0 13px;height:44px}
+.search-box input{width:100%;background:transparent;border:none;outline:none;font-size:13px}
+.search-box input::placeholder{color:var(--mut)}
+.sq-btn{height:44px;padding:0 13px;border-radius:16px;background:var(--surf);border:1px solid var(--brd);display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;font-weight:700;flex-shrink:0}
+.sq-btn.white{background:var(--acc);color:var(--acc-fg);border-color:var(--acc);font-weight:800}
+.seg-bar{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surf);border:1px solid var(--brd);border-radius:14px;padding:4px;margin-bottom:10px;gap:4px}
+.seg-btn{padding:8px 4px;border-radius:10px;font-size:11px;font-weight:700;color:var(--mut);text-align:center}
+.seg-btn.active{background:var(--acc);color:var(--acc-fg);font-weight:800}
+.rail{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.chip{padding:7px 13px;border-radius:12px;background:var(--surf);border:1px solid var(--brd);font-size:12px;font-weight:700;color:var(--mut);white-space:nowrap}
+.chip.active{background:var(--acc);color:var(--acc-fg);border-color:var(--acc)}
+.sz-chip{min-width:40px;height:30px;padding:0 10px;border-radius:9px;background:var(--surf);border:1px solid var(--brd);font-size:11px;font-weight:800;color:var(--mut);display:flex;align-items:center;justify-content:center;white-space:nowrap}
+.sz-chip.active{background:var(--acc);color:var(--acc-fg);border-color:var(--acc)}
+.feed-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.feed-grid.single{grid-template-columns:1fr}
+.card{background:var(--surf);border:1px solid var(--brd);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:transform .24s var(--ease)}
+.card:active{transform:scale(0.97)}
+.card-img{position:relative;width:100%;aspect-ratio:4/5;background:var(--surf2);overflow:hidden}
+.feed-grid.single .card-img{aspect-ratio:16/11}
+.card-img img{width:100%;height:100%;object-fit:cover;display:block}
+.tags-tl{position:absolute;top:8px;left:8px;display:flex;gap:4px;flex-wrap:wrap}
+.t-badge{background:rgba(7,7,9,0.84);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:99px}
+.t-badge.w{background:var(--acc);color:var(--acc-fg);border-color:var(--acc)}
+.fav-btn{position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:50%;background:rgba(10,10,14,0.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;color:#fff;z-index:2}
+.fav-btn.liked{background:var(--acc);color:var(--acc-fg)}
+.fav-btn.liked svg{fill:currentColor}
+.cnt-tag{position:absolute;bottom:8px;right:8px;background:rgba(8,8,12,0.78);color:#fff;padding:3px 7px;border-radius:99px;font-size:10px;font-weight:800}
+.card-b{padding:10px 12px 12px;display:flex;flex-direction:column;gap:3px}
+.card-pr-row{display:flex;justify-content:space-between;align-items:center}
+.card-pr{font-size:15px;font-weight:900;font-family:'Space Grotesk',sans-serif}
+.card-cnd{font-size:10px;font-weight:700;color:var(--mut);background:var(--surf2);padding:2px 6px;border-radius:6px}
+.card-tit{font-size:13px;font-weight:600;color:var(--txt);opacity:.92;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-loc{font-size:11px;color:var(--mut);display:flex;justify-content:space-between;margin-top:2px}
+.sec-h{font-size:24px;font-weight:900;letter-spacing:-0.5px;margin:6px 0 3px}
+.sec-s{font-size:12px;color:var(--mut);margin-bottom:12px}
+.row-card{background:var(--surf);border:1px solid var(--brd);border-radius:18px;padding:14px;margin-bottom:9px}
+.row-top{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--mut);margin-bottom:6px;flex-wrap:wrap;gap:6px}
+.btn-xs-w{background:var(--acc);color:var(--acc-fg);padding:7px 12px;border-radius:10px;font-size:12px;font-weight:800;display:inline-flex;align-items:center;gap:4px}
+.btn-xs-g{background:var(--surf2);color:var(--txt);border:1px solid var(--brd);padding:7px 10px;border-radius:10px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
+.btn-xs-d{background:rgba(255,69,58,0.14);color:var(--err);border:1px solid rgba(255,69,58,0.3);padding:7px 10px;border-radius:10px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
+.prof-hero{background:var(--surf);border:1px solid var(--brd);border-radius:22px;padding:22px 16px 16px;text-align:center;margin:6px 0 14px}
+.ava-lg{width:80px;height:80px;border-radius:50%;border:2px solid var(--acc);margin:0 auto 10px;overflow:hidden;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900}
+.ava-lg img{width:100%;height:100%;object-fit:cover}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.stat-box{background:var(--surf2);border:1px solid var(--brd);border-radius:14px;padding:9px 6px;cursor:pointer}
+.stat-val{font-size:15px;font-weight:900}
+.stat-lbl{font-size:10px;color:var(--mut);margin-top:2px;font-weight:600}
+.list-grp{background:var(--surf);border:1px solid var(--brd);border-radius:20px;overflow:hidden;margin-bottom:14px}
+.list-it{width:100%;display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-bottom:1px solid var(--brd);text-align:left}
+.list-it:last-child{border-bottom:none}
+.list-it-l{display:flex;align-items:center;gap:11px}
+.list-ico{width:36px;height:36px;border-radius:11px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-weight:800}
+.dock-wrap{position:fixed;bottom:12px;left:0;right:0;z-index:45;max-width:520px;margin:0 auto;padding:0 12px;pointer-events:none}
+.dock{pointer-events:auto;background:var(--nav-bg);backdrop-filter:blur(22px);border:1px solid var(--brd);border-radius:22px;height:64px;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;padding:4px;box-shadow:0 14px 36px rgba(0,0,0,0.45)}
+.dock-b{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--mut);font-size:10px;font-weight:700;border-radius:16px}
+.dock-b.active{color:var(--txt);background:var(--surf2)}
+.dock-sell{height:48px;margin:0 4px;border-radius:15px;background:var(--acc);color:var(--acc-fg);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;font-weight:900;gap:1px}
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s ease,visibility .45s ease}
+.modal-ov.open{opacity:1;visibility:visible;pointer-events:auto}
+.sheet{width:100%;max-width:520px;max-height:91vh;background:var(--bg);border-top:1px solid var(--brd);border-radius:24px 24px 0 0;overflow-y:auto;padding:12px 16px 32px;transform:translateY(100%);transition:transform .52s var(--ease)}
+.modal-ov.open .sheet{transform:translateY(0)}
+.handle{width:40px;height:4px;border-radius:99px;background:var(--brd);margin:0 auto 12px}
+.sheet-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.sheet-t{font-size:17px;font-weight:900}
+.close-x{width:34px;height:34px;border-radius:50%;background:var(--surf);border:1px solid var(--brd);display:flex;align-items:center;justify-content:center;font-weight:800}
+.f-grp{margin-bottom:11px}
+.f-lbl{display:block;font-size:11px;font-weight:700;color:var(--mut);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+.f-inp,.f-area,.f-sel{width:100%;background:var(--surf);border:1px solid var(--brd);border-radius:12px;padding:11px 13px;font-size:14px;outline:none;transition:border-color .2s}
+.f-inp:focus,.f-area:focus{border-color:var(--acc)}
+.f-area{min-height:80px;resize:vertical}
+.dropzone{border:1px dashed var(--brd);background:var(--surf);border-radius:14px;padding:14px;text-align:center;cursor:pointer;margin-bottom:8px}
+.prev-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.prev-box{position:relative;width:68px;height:68px;border-radius:10px;overflow:hidden;flex-shrink:0;border:1px solid var(--brd)}
+.prev-box img{width:100%;height:100%;object-fit:cover}
+.prev-rm{position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.8);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center}
+.btn-w{width:100%;background:var(--acc);color:var(--acc-fg);font-weight:800;font-size:14px;padding:13px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:8px}
+.btn-g{width:100%;background:var(--surf);color:var(--txt);border:1px solid var(--brd);font-weight:700;font-size:13px;padding:12px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-d{width:100%;background:rgba(255,69,58,0.15);color:var(--err);border:1px solid rgba(255,69,58,0.35);font-weight:700;font-size:13px;padding:12px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:6px}
+.gal-box{position:relative;width:100%;aspect-ratio:1/1;border-radius:20px;overflow:hidden;background:var(--surf2);margin-bottom:12px}
+.gal-box img{width:100%;height:100%;object-fit:cover}
+.g-arr{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.68);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900}
+.g-arr.l{left:8px}.g-arr.r{right:8px}
+.g-cnt{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.75);color:#fff;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700}
+.offer-box{background:var(--surf);border:1px solid var(--brd);border-radius:16px;padding:12px;margin:12px 0}
+.cities-grid{display:flex;flex-wrap:wrap;gap:6px;max-height:48vh;overflow-y:auto;padding-top:4px}
+.preset-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.preset-btn{background:var(--surf);border:1px solid var(--brd);border-radius:14px;padding:10px;display:flex;align-items:center;gap:10px;text-align:left}
+.preset-sw{display:flex;border-radius:8px;overflow:hidden;border:1px solid var(--brd);flex-shrink:0}
+.preset-sw span{width:16px;height:28px;display:block}
+.color-pick-box{background:var(--surf);border:1px solid var(--brd);border-radius:14px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between}
+.color-inp{width:38px;height:32px;border:none;background:none;cursor:pointer;padding:0}
+.empty{text-align:center;padding:34px 16px;color:var(--mut);font-size:13px;background:var(--surf);border:1px dashed var(--brd);border-radius:18px}
+.toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-24px);background:var(--acc);color:var(--acc-fg);font-weight:800;font-size:13px;padding:10px 18px;border-radius:99px;box-shadow:0 10px 30px rgba(0,0,0,0.5);z-index:300;opacity:0;pointer-events:none;transition:all .38s var(--ease)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<div class="wrap">
+  <header class="top-bar">
+    <button type="button" class="user-chip" onclick="switchTab('profile')">
+      <div class="ava-xs" id="top-ava">U</div>
+      <div>
+        <div class="u-chip-name" id="top-name">Гость</div>
+        <div class="u-chip-sub" id="top-rate">★ 5.0 · Профиль</div>
+      </div>
+    </button>
+    <div class="top-right">
+      <button type="button" id="top-adm-btn" class="adm-pill hidden" onclick="switchTab('admin')">АДМИН</button>
+      <button type="button" class="city-btn" onclick="openModal('modal-theme')" title="Оформление">🎨</button>
+      <button type="button" class="city-btn" onclick="openCityModal()">📍 <span id="top-city-lbl">Уфа</span></button>
+    </div>
+  </header>
+</div>
+
+<section id="tab-feed" class="wrap tab-pane">
+  <div class="bento">
+    <button type="button" class="bento-main" onclick="openListingModal()">
+      <div class="bento-main-top">
+        <span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px">Маркетплейс</span>
+        <div class="bento-plus">＋</div>
+      </div>
+      <div>
+        <div class="bento-t">Продать</div>
+        <div class="bento-s">Разместить объявление в каталоге</div>
+      </div>
+    </button>
+    <div class="bento-stack">
+      <button type="button" class="bento-sub" onclick="openModal('modal-fit')">
+        <div><div style="font-size:13px;font-weight:800">Мой размер</div><div class="bento-s" id="bento-fit-lbl">Подбор по параметрам</div></div>
+        <span style="font-size:16px">📏</span>
+      </button>
+      <button type="button" class="bento-sub" onclick="openModal('modal-filter')">
+        <div><div style="font-size:13px;font-weight:800">Фильтры</div><div class="bento-s" id="bento-flt-lbl">Цена и сортировка</div></div>
+        <span style="font-size:16px">⚙</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="search-row">
+    <div class="search-box">
+      <svg class="ico" style="color:var(--mut);width:16px;height:16px" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="search-inp" placeholder="Поиск по названию, бренду, городу..." oninput="renderFeed()" />
+    </div>
+    <button type="button" class="sq-btn" onclick="toggleGridView()" title="Вид карточек">
+      <svg class="ico" style="width:17px;height:17px" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+    </button>
+  </div>
+
+  <div class="seg-bar">
+    <button type="button" id="seg-all" class="seg-btn active" onclick="setScope('all')">Все объявления (<span id="seg-cnt-all">0</span>)</button>
+    <button type="button" id="seg-city" class="seg-btn" onclick="setScope('nearby')">В моём городе (<span id="seg-cnt-city">0</span>)</button>
+    <button type="button" id="seg-fit" class="seg-btn" onclick="setScope('myfit')">Мой размер</button>
+  </div>
+
+  <div class="rail" id="cat-bar">
+    <button type="button" class="chip active" onclick="setCategory('all')">Все</button>
+    <button type="button" class="chip" onclick="setCategory('Верхняя одежда')">Верхняя одежда</button>
+    <button type="button" class="chip" onclick="setCategory('Худи и свитшоты')">Худи и свитшоты</button>
+    <button type="button" class="chip" onclick="setCategory('Брюки и джинсы')">Брюки и джинсы</button>
+    <button type="button" class="chip" onclick="setCategory('Обувь')">Обувь</button>
+    <button type="button" class="chip" onclick="setCategory('Аксессуары')">Аксессуары</button>
+  </div>
+
+  <div class="rail" id="size-bar">
+    <button type="button" class="sz-chip active" onclick="setSizeFilter('all')">Все разм.</button>
+    <button type="button" class="sz-chip" onclick="setSizeFilter('XS')">XS</button>
+    <button type="button" class="sz-chip" onclick="setSizeFilter('S')">S</button>
+    <button type="button" class="sz-chip" onclick="setSizeFilter('M')">M</button>
+    <button type="button" class="sz-chip" onclick="setSizeFilter('L')">L</button>
+    <button type="button" class="sz-chip" onclick="setSizeFilter('XL')">XL</button>
+    <button type="button" class="sz-chip" onclick="setSizeFilter('One Size')">One Size</button>
+  </div>
+
+  <div id="feed-grid" class="feed-grid"></div>
+</section>
+
+<section id="tab-mylots" class="wrap tab-pane hidden">
+  <h1 class="sec-h" id="mylots-title">Мои объявления</h1>
+  <div class="sec-s">Управление опубликованными вещами и избранным</div>
+  <div class="rail" style="margin-bottom:12px">
+    <button type="button" id="my-pill-own" class="chip active" onclick="setMyLotsTab('own')">Мои лоты (<span id="cnt-own">0</span>)</button>
+    <button type="button" id="my-pill-fav" class="chip" onclick="setMyLotsTab('fav')">Избранное (<span id="cnt-fav">0</span>)</button>
+    <button type="button" id="my-pill-all" class="chip hidden" onclick="setMyLotsTab('all')">Все в базе (<span id="cnt-all">0</span>)</button>
+  </div>
+  <div id="mylots-list"></div>
+</section>
+
+<section id="tab-profile" class="wrap tab-pane hidden">
+  <div class="prof-hero">
+    <div class="ava-lg" id="prof-ava">U</div>
+    <div style="font-size:20px;font-weight:900" id="prof-name">Пользователь</div>
+    <div style="font-size:12px;color:var(--mut);margin-top:2px" id="prof-tg">ID: —</div>
+    <div class="stat-grid">
+      <div class="stat-box" onclick="openSellerProfileModal(currentUser.tg_id)"><div class="stat-val" id="prof-stat-rate">5.0 ★</div><div class="stat-lbl">Рейтинг</div></div>
+      <div class="stat-box" onclick="switchTab('mylots');setMyLotsTab('own')"><div class="stat-val" id="prof-stat-lots">0</div><div class="stat-lbl">Объявления</div></div>
+      <div class="stat-box" onclick="openModal('modal-fit')"><div class="stat-val" id="prof-stat-fit">—</div><div class="stat-lbl">Мой размер</div></div>
+    </div>
+  </div>
+
+  <div class="list-grp">
+    <button type="button" class="list-it" onclick="openListingModal()"><div class="list-it-l"><div class="list-ico" style="background:var(--acc);color:var(--acc-fg)">＋</div><div><div style="font-size:14px;font-weight:700">Продать вещь</div><div style="font-size:11px;color:var(--mut)">Разместить новое объявление</div></div></div><span>›</span></button>
+    <button type="button" class="list-it" onclick="openModal('modal-theme')"><div class="list-it-l"><div class="list-ico">🎨</div><div><div style="font-size:14px;font-weight:700">Оформление и палитра</div><div style="font-size:11px;color:var(--mut)">Темы, готовые стили и свои цвета</div></div></div><span>›</span></button>
+    <button type="button" class="list-it" onclick="openSellerProfileModal(currentUser.tg_id)"><div class="list-it-l"><div class="list-ico">★</div><div><div style="font-size:14px;font-weight:700">Моя витрина и отзывы</div><div style="font-size:11px;color:var(--mut)">Публичный профиль и оценки</div></div></div><span>›</span></button>
+    <button type="button" class="list-it" onclick="openModal('modal-fit')"><div class="list-it-l"><div class="list-ico">📏</div><div><div style="font-size:14px;font-weight:700">Параметры и подбор размера</div><div style="font-size:11px;color:var(--mut)">Расчёт размера по росту и весу</div></div></div><span>›</span></button>
+    <button type="button" class="list-it" onclick="openCityModal()"><div class="list-it-l"><div class="list-ico">📍</div><div><div style="font-size:14px;font-weight:700">Город поиска</div><div style="font-size:11px;color:var(--mut)" id="prof-city-lbl">Уфа</div></div></div><span>›</span></button>
+    <button type="button" id="prof-adm-btn" class="list-it hidden" onclick="switchTab('admin')"><div class="list-it-l"><div class="list-ico" style="background:var(--acc);color:var(--acc-fg)">⚡</div><div><div style="font-size:14px;font-weight:700">Панель администратора</div><div style="font-size:11px;color:var(--mut)">Лоты, отзывы, продавцы и права</div></div></div><span>›</span></button>
+  </div>
+</section>
+
+<section id="tab-admin" class="wrap tab-pane hidden">
+  <h1 class="sec-h">Панель администратора</h1>
+  <div class="sec-s">Управление каталогом, отзывами, продавцами и правами</div>
+  <div class="rail" style="margin-bottom:12px">
+    <button type="button" id="adm-btn-lots" class="chip active" onclick="switchAdminSub('lots')">Лоты (<span id="adm-cnt-lots">0</span>)</button>
+    <button type="button" id="adm-btn-revs" class="chip" onclick="switchAdminSub('revs')">Отзывы (<span id="adm-cnt-revs">0</span>)</button>
+    <button type="button" id="adm-btn-sellers" class="chip" onclick="switchAdminSub('sellers')">Продавцы (<span id="adm-cnt-sellers">0</span>)</button>
+    <button type="button" id="adm-btn-users" class="chip" onclick="switchAdminSub('users')">Админы</button>
+  </div>
+  <div id="adm-box-lots"></div>
+  <div id="adm-box-revs" class="hidden"></div>
+  <div id="adm-box-sellers" class="hidden">
+    <div class="f-grp">
+      <input type="text" id="adm-seller-q" class="f-inp" placeholder="Поиск продавца по имени, @username или ID..." oninput="renderAdminSellers()" />
+    </div>
+    <div id="adm-sellers-list"></div>
+  </div>
+  <div id="adm-box-users" class="hidden">
+    <div class="row-card">
+      <label class="f-lbl">Управление правами по Telegram ID</label>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <input type="number" id="adm-id-inp" class="f-inp" placeholder="Telegram ID (1879880417)" />
+        <button type="button" class="btn-xs-w" onclick="setAdminRole(true)">+ Назначить</button>
+        <button type="button" class="btn-xs-d" onclick="setAdminRole(false)">Снять</button>
+      </div>
+    </div>
+    <div id="adm-users-list"></div>
+  </div>
+</section>
+
+<div class="dock-wrap">
+  <nav class="dock">
+    <button type="button" class="dock-b active" id="nav-feed" onclick="switchTab('feed')"><svg class="ico" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg><span>Каталог</span></button>
+    <button type="button" class="dock-b" id="nav-fav" onclick="openFavoritesTab()"><svg class="ico" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg><span>Избранное</span></button>
+    <button type="button" class="dock-sell" onclick="openListingModal()"><span style="font-size:17px;line-height:1">＋</span><span>Продать</span></button>
+    <button type="button" class="dock-b" id="nav-mylots" onclick="switchTab('mylots');setMyLotsTab('own')"><svg class="ico" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><span>Мои лоты</span></button>
+    <button type="button" class="dock-b" id="nav-profile" onclick="switchTab('profile')"><svg class="ico" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Профиль</span></button>
+  </nav>
+</div>
+
+<div id="modal-form" class="modal-ov" onclick="if(event.target===this)closeModal('modal-form')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-hd"><div class="sheet-t" id="form-hdr">Разместить объявление</div><button type="button" class="close-x" onclick="closeModal('modal-form')">✕</button></div>
+    <input type="hidden" id="f-id" />
+    <div class="f-grp">
+      <label class="f-lbl">Фотографии изделия</label>
+      <div class="dropzone" onclick="el('f-file').click()">
+        <div style="font-size:13px;font-weight:800">📷 Выбрать фотографии из галереи</div>
+        <input type="file" id="f-file" accept="image/*" multiple class="hidden" onchange="handleFiles(event)" />
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <input type="url" id="f-url" class="f-inp" placeholder="Или вставьте ссылку на изображение..." />
+        <button type="button" class="btn-xs-w" onclick="addUrlPhoto()">+ URL</button>
+      </div>
+      <div id="f-prevs" class="prev-row"></div>
+    </div>
+    <div class="f-grp"><label class="f-lbl">Наименование и бренд *</label><input type="text" id="f-title" class="f-inp" placeholder="Например: Куртка Stone Island / Джинсы Levi's" /></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="f-grp"><label class="f-lbl">Категория</label><select id="f-cat" class="f-sel"><option value="Верхняя одежда">Верхняя одежда</option><option value="Худи и свитшоты">Худи и свитшоты</option><option value="Брюки и джинсы">Брюки и джинсы</option><option value="Обувь">Обувь</option><option value="Аксессуары">Аксессуары</option></select></div>
+      <div class="f-grp"><label class="f-lbl">Размер</label><input type="text" id="f-size" class="f-inp" placeholder="XS / S / M / L / XL / 42" /></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="f-grp"><label class="f-lbl">Цена ₽ (0 = Договорная)</label><input type="number" id="f-price" class="f-inp" placeholder="6500" min="0" /></div>
+      <div class="f-grp"><label class="f-lbl">Состояние</label><select id="f-cond" class="f-sel"><option value="Новое с биркой">Новое с биркой</option><option value="Отличное" selected>Отличное</option><option value="Хорошее">Хорошее</option><option value="Б/У">Б/У</option></select></div>
+    </div>
+    <div class="f-grp">
+      <label class="f-lbl">Замеры изделия в см (по желанию)</label>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+        <input type="text" id="f-m1" class="f-inp" placeholder="Длина (см)" />
+        <input type="text" id="f-m2" class="f-inp" placeholder="Грудь / Пояс" />
+        <input type="text" id="f-m3" class="f-inp" placeholder="Рукав / Шаг" />
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center">
+      <div class="f-grp"><label class="f-lbl">Город</label><input type="text" id="f-loc" class="f-inp" placeholder="Уфа" /></div>
+      <div style="display:flex;align-items:center;gap:8px;padding-top:10px"><input type="checkbox" id="f-exch" style="width:18px;height:18px;accent-color:#fff" /><label for="f-exch" style="font-size:12px;font-weight:700">Возможен обмен</label></div>
+    </div>
+    <div class="f-grp"><label class="f-lbl">Описание и условия доставки</label><textarea id="f-desc" class="f-area" placeholder="Опишите детали, оригинальность и способы отправки..."></textarea></div>
+    <button type="button" id="f-sub-btn" class="btn-w" onclick="saveListing()">Опубликовать объявление</button>
+  </div>
+</div>
+
+<div id="modal-detail" class="modal-ov" onclick="if(event.target===this)closeModal('modal-detail')">
+  <div class="sheet"><div class="handle"></div><div class="sheet-hd"><div class="sheet-t">Информация о лоте</div><button type="button" class="close-x" onclick="closeModal('modal-detail')">✕</button></div><div id="detail-body"></div></div>
+</div>
+
+<div id="modal-seller" class="modal-ov" onclick="if(event.target===this)closeModal('modal-seller')">
+  <div class="sheet"><div class="handle"></div><div class="sheet-hd"><div class="sheet-t" id="seller-hdr">Профиль продавца</div><button type="button" class="close-x" onclick="closeModal('modal-seller')">✕</button></div><div id="seller-body"></div></div>
+</div>
+
+<div id="modal-fit" class="modal-ov" onclick="if(event.target===this)closeModal('modal-fit')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-hd"><div class="sheet-t">📏 Подбор размера</div><button type="button" class="close-x" onclick="closeModal('modal-fit')">✕</button></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="f-grp"><label class="f-lbl">Ваш рост (см)</label><input type="number" id="fit-h" class="f-inp" placeholder="178" oninput="calcFit()" /></div>
+      <div class="f-grp"><label class="f-lbl">Ваш вес (кг)</label><input type="number" id="fit-w" class="f-inp" placeholder="72" oninput="calcFit()" /></div>
+    </div>
+    <div class="f-grp"><label class="f-lbl">Предпочитаемая посадка</label><select id="fit-style" class="f-sel" onchange="calcFit()"><option value="0">Классическая (Regular)</option><option value="1" selected>Свободная (Oversize)</option></select></div>
+    <div id="fit-res-box" class="row-card" style="text-align:center;padding:16px">Введите рост и вес для расчёта вашего размера</div>
+    <button type="button" class="btn-w" onclick="applyMyFitFilter()">Показать объявления моего размера</button>
+  </div>
+</div>
+
+<div id="modal-filter" class="modal-ov" onclick="if(event.target===this)closeModal('modal-filter')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-hd"><div class="sheet-t">Параметры фильтрации</div><button type="button" class="close-x" onclick="closeModal('modal-filter')">✕</button></div>
+    <div class="f-grp"><label class="f-lbl">Сортировка</label><select id="flt-sort" class="f-sel"><option value="newest">Сначала новые</option><option value="cheapest">Сначала дешевле</option><option value="expensive">Сначала дороже</option><option value="popular">По популярности</option></select></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="f-grp"><label class="f-lbl">Цена от (₽)</label><input type="number" id="flt-min" class="f-inp" placeholder="0" /></div>
+      <div class="f-grp"><label class="f-lbl">Цена до (₽)</label><input type="number" id="flt-max" class="f-inp" placeholder="100000" /></div>
+    </div>
+    <div class="f-grp" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="flt-exch" style="width:18px;height:18px;accent-color:#fff" /><label for="flt-exch" style="font-size:13px;font-weight:700">Только предложения с обменом</label></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+      <button type="button" class="btn-g" onclick="resetFilters();closeModal('modal-filter')">Сбросить</button>
+      <button type="button" class="btn-w" style="margin-top:0" onclick="applyFilterModal()">Применить</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-city" class="modal-ov" onclick="if(event.target===this)closeModal('modal-city')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-hd"><div class="sheet-t">Выбор города</div><button type="button" class="close-x" onclick="closeModal('modal-city')">✕</button></div>
+    <div class="f-grp">
+      <label class="f-lbl">Поиск или ввод своего города</label>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="city-inp" class="f-inp" placeholder="Начните вводить название города..." oninput="renderCitiesList()" />
+        <button type="button" class="btn-xs-w" onclick="saveCity(el('city-inp').value)">Выбрать</button>
+      </div>
+    </div>
+    <div class="f-lbl" style="margin-top:8px">Популярные города России</div>
+    <div id="cities-box" class="cities-grid"></div>
+  </div>
+</div>
+
+<div id="modal-theme" class="modal-ov" onclick="if(event.target===this)closeModal('modal-theme')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-hd"><div class="sheet-t">🎨 Оформление и цвета</div><button type="button" class="close-x" onclick="closeModal('modal-theme')">✕</button></div>
+    <div class="f-lbl">Базовая тема</div>
+    <div class="seg-bar" style="grid-template-columns:1fr 1fr;margin-bottom:14px">
+      <button type="button" id="thm-btn-dark" class="seg-btn active" onclick="setThemeMode('dark')">🌙 Тёмная</button>
+      <button type="button" id="thm-btn-light" class="seg-btn" onclick="setThemeMode('light')">☀️ Светлая</button>
+    </div>
+    <div class="f-lbl">Готовые сочетания цветов</div>
+    <div class="preset-grid">
+      <button type="button" class="preset-btn" onclick="applyPreset('#070709','#ffffff')"><div class="preset-sw"><span style="background:#070709"></span><span style="background:#ffffff"></span></div><div><div style="font-size:12px;font-weight:800">Чёрный / Белый</div><div style="font-size:10px;color:var(--mut)">Монохром</div></div></button>
+      <button type="button" class="preset-btn" onclick="applyPreset('#f4f4f7','#111115')"><div class="preset-sw"><span style="background:#f4f4f7"></span><span style="background:#111115"></span></div><div><div style="font-size:12px;font-weight:800">Белый / Чёрный</div><div style="font-size:10px;color:var(--mut)">Светлая классика</div></div></button>
+      <button type="button" class="preset-btn" onclick="applyPreset('#09090b','#facc15')"><div class="preset-sw"><span style="background:#09090b"></span><span style="background:#facc15"></span></div><div><div style="font-size:12px;font-weight:800">Чёрный / Жёлтый</div><div style="font-size:10px;color:var(--mut)">Контраст</div></div></button>
+      <button type="button" class="preset-btn" onclick="applyPreset('#ffffff','#eab308')"><div class="preset-sw"><span style="background:#ffffff"></span><span style="background:#eab308"></span></div><div><div style="font-size:12px;font-weight:800">Белый / Жёлтый</div><div style="font-size:10px;color:var(--mut)">Тёплый дневной</div></div></button>
+      <button type="button" class="preset-btn" onclick="applyPreset('#0a0d0a','#a3e635')"><div class="preset-sw"><span style="background:#0a0d0a"></span><span style="background:#a3e635"></span></div><div><div style="font-size:12px;font-weight:800">Графит / Лайм</div><div style="font-size:10px;color:var(--mut)">Стритвир</div></div></button>
+      <button type="button" class="preset-btn" onclick="applyPreset('#080c14','#38bdf8')"><div class="preset-sw"><span style="background:#080c14"></span><span style="background:#38bdf8"></span></div><div><div style="font-size:12px;font-weight:800">Оникс / Кобальт</div><div style="font-size:10px;color:var(--mut)">Холодный неон</div></div></button>
+    </div>
+    <div class="f-lbl">Своя палитра (2 цвета)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <div class="color-pick-box">
+        <div><div style="font-size:12px;font-weight:800">Основной</div><div style="font-size:10px;color:var(--mut)">Фон и база</div></div>
+        <input type="color" id="col-pri" class="color-inp" value="#070709" oninput="applyCustomColors()" />
+      </div>
+      <div class="color-pick-box">
+        <div><div style="font-size:12px;font-weight:800">Вторичный</div><div style="font-size:10px;color:var(--mut)">Акцент и кнопки</div></div>
+        <input type="color" id="col-sec" class="color-inp" value="#ffffff" oninput="applyCustomColors()" />
+      </div>
+    </div>
+    <button type="button" class="btn-w" onclick="closeModal('modal-theme')">Готово</button>
+  </div>
+</div>
+
+<div id="modal-confirm" class="modal-ov" onclick="if(event.target===this)closeModal('modal-confirm')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-hd"><div class="sheet-t" id="conf-t">Подтверждение</div><button type="button" class="close-x" onclick="closeModal('modal-confirm')">✕</button></div>
+    <div id="conf-m" style="font-size:14px;color:var(--mut);margin-bottom:16px"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button type="button" class="btn-g" onclick="closeModal('modal-confirm')">Отмена</button>
+      <button type="button" id="conf-yes" class="btn-d">Подтвердить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL='https://yznxjjprcadsdacrchon.supabase.co',SUPABASE_KEY='sb_publishable_VT7pFKAyF8lbTw0Ybt8ZPg_jb410xH6',ROOT_ADMIN_ID=1879880417;
+const CITIES=['Москва','Санкт-Петербург','Уфа','Казань','Екатеринбург','Новосибирск','Краснодар','Нижний Новгород','Самара','Челябинск','Ростов-на-Дону','Омск','Воронеж','Пермь','Волгоград','Красноярск','Тюмень','Саратов','Тольятти','Ижевск','Барнаул','Ульяновск','Иркутск','Хабаровск','Ярославль','Владивосток','Махачкала','Томск','Оренбург','Кемерово','Новокузнецк','Рязань','Набережные Челны','Астрахань','Пенза','Киров','Липецк','Чебоксары','Калининград','Тула','Сочи','Курск','Ставрополь','Тверь','Магнитогорск','Иваново','Брянск','Белгород','Сургут','Владимир','Чита'];
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY),tg=window.Telegram?window.Telegram.WebApp:null;
+let currentUser={tg_id:ROOT_ADMIN_ID,username:'admin',first_name:'Администратор',avatar_url:'',city:localStorage.getItem('u_city')||'Уфа',is_admin:true};
+let allListings=[],allProfiles=[],allReviews=[],favIds=JSON.parse(localStorage.getItem('u_favs')||'[]'),mySize=localStorage.getItem('u_fit')||'';
+let formPhotos=[],detPhotos=[],detIdx=0,scopeMode='all',activeCat='all',activeSize='all',sortBy='newest',minP=0,maxP=0,onlyExch=false,singleCol=false,myTab='own',revStars=5,tTimer=null;
+const el=id=>document.getElementById(id),esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function showToast(m){const b=el('toast');b.textContent=m;b.classList.add('show');if(tTimer)clearTimeout(tTimer);tTimer=setTimeout(()=>b.classList.remove('show'),2500);}
+function openModal(id){el(id)?.classList.add('open');}
+function closeModal(id){el(id)?.classList.remove('open');}
+function askConfirm(t,m,fn){el('conf-t').textContent=t;el('conf-m').textContent=m;el('conf-yes').onclick=async()=>{closeModal('modal-confirm');await fn();};openModal('modal-confirm');}
+
+function hexRgb(h){const v=h.replace('#','');return{r:parseInt(v.substring(0,2),16)||0,g:parseInt(v.substring(2,4),16)||0,b:parseInt(v.substring(4,6),16)||0};}
+function lum(r,g,b){return(0.299*r+0.587*g+0.114*b)/255;}
+function mix(c,t,a){return`rgb(${Math.round(c.r+(t-c.r)*a)},${Math.round(c.g+(t-c.g)*a)},${Math.round(c.b+(t-c.b)*a)})`;}
+
+function applyPalette(pri,sec){
+  const p=hexRgb(pri),s=hexRgb(sec),isLight=lum(p.r,p.g,p.b)>0.55,sLight=lum(s.r,s.g,s.b)>0.58;
+  const r=document.documentElement.style;
+  r.setProperty('--bg',pri);
+  r.setProperty('--surf',isLight?mix(p,0,0.05):mix(p,255,0.06));
+  r.setProperty('--surf2',isLight?mix(p,0,0.1):mix(p,255,0.11));
+  r.setProperty('--brd',isLight?mix(p,0,0.16):mix(p,255,0.16));
+  r.setProperty('--txt',isLight?'#0b0b0f':'#ffffff');
+  r.setProperty('--mut',isLight?'#62626d':'#8b8b95');
+  r.setProperty('--nav-bg',`rgba(${p.r},${p.g},${p.b},0.9)`);
+  r.setProperty('--acc',sec);
+  r.setProperty('--acc-fg',sLight?'#000000':'#ffffff');
+  if(el('col-pri'))el('col-pri').value=pri;
+  if(el('col-sec'))el('col-sec').value=sec;
+  el('thm-btn-dark')?.classList.toggle('active',!isLight);
+  el('thm-btn-light')?.classList.toggle('active',isLight);
+  if(tg){tg.setHeaderColor?.(pri);tg.setBackgroundColor?.(pri);}
+  localStorage.setItem('u_theme',JSON.stringify({pri,sec}));
+}
+function applyPreset(pri,sec){applyPalette(pri,sec);showToast('Палитра применена');}
+function applyCustomColors(){applyPalette(el('col-pri').value,el('col-sec').value);}
+function setThemeMode(m){
+  const curSec=el('col-sec')?.value||'#ffffff';
+  if(m==='light')applyPalette('#f4f4f7',curSec.toLowerCase()==='#ffffff'?'#111115':curSec);
+  else applyPalette('#070709',curSec.toLowerCase()==='#111115'?'#ffffff':curSec);
+}
+
+async function initApp(){
+  try{const saved=JSON.parse(localStorage.getItem('u_theme')||'null');if(saved?.pri&&saved?.sec)applyPalette(saved.pri,saved.sec);}catch(e){}
+  if(tg){tg.ready();tg.expand();const u=tg.initDataUnsafe?.user;if(u?.id){currentUser.tg_id=Number(u.id);currentUser.username=u.username||'';currentUser.first_name=[u.first_name,u.last_name].filter(Boolean).join(' ')||'Пользователь';currentUser.avatar_url=u.photo_url||'';currentUser.is_admin=(Number(u.id)===ROOT_ADMIN_ID);}}
+  try{const {data:ex}=await sb.from('profiles').select('*').eq('tg_id',currentUser.tg_id).maybeSingle();currentUser.is_admin=(currentUser.tg_id===ROOT_ADMIN_ID)||Boolean(ex?.is_admin);if(ex?.city)currentUser.city=ex.city;await sb.from('profiles').upsert({tg_id:currentUser.tg_id,username:currentUser.username,first_name:currentUser.first_name,avatar_url:currentUser.avatar_url,city:currentUser.city,is_admin:currentUser.is_admin},{onConflict:'tg_id'});}catch(e){}
+  updateUI();await loadData();
+}
+
+function updateUI(){
+  el('top-city-lbl').textContent=el('prof-city-lbl').textContent=currentUser.city;
+  el('top-name').textContent=el('prof-name').textContent=currentUser.first_name;
+  el('prof-tg').textContent=`Telegram ID: ${currentUser.tg_id}`+(currentUser.username?` · @${currentUser.username}`:'');
+  const avaHtml=currentUser.avatar_url?`<img src="${esc(currentUser.avatar_url)}"/>`:(currentUser.first_name||'U')[0].toUpperCase();
+  el('top-ava').innerHTML=avaHtml;el('prof-ava').innerHTML=avaHtml;
+  el('prof-stat-fit').textContent=mySize||'—';
+  el('bento-fit-lbl').textContent=mySize?`Ваш размер: ${mySize}`:'Подбор по параметрам';
+  ['top-adm-btn','prof-adm-btn','my-pill-all'].forEach(k=>el(k)?.classList.toggle('hidden',!currentUser.is_admin));
+}
+
+async function loadData(){
+  try{const [l,p,r]=await Promise.all([sb.from('listings').select('*').order('created_at',{ascending:false}),sb.from('profiles').select('*'),sb.from('reviews').select('*').order('created_at',{ascending:false})]);allListings=l.data||[];allProfiles=p.data||[];allReviews=r.data||[];}catch(e){}
+  const own=allListings.filter(x=>Number(x.seller_id)===currentUser.tg_id).length,st=getSellerStats(currentUser.tg_id);
+  el('prof-stat-lots').textContent=own;el('prof-stat-rate').textContent=`${st.avg} ★`;
+  el('top-rate').textContent=`★ ${st.avg} · Профиль`;
+  renderFeed();renderMyLots();renderAdmin();
+}
+
+function toggleGridView(){singleCol=!singleCol;el('feed-grid').classList.toggle('single',singleCol);}
+function setScope(s){if(s==='myfit'&&!mySize){openModal('modal-fit');return;}scopeMode=s;['all','city','fit'].forEach(k=>el(`seg-${k}`)?.classList.remove('active'));el(s==='nearby'?'seg-city':s==='myfit'?'seg-fit':'seg-all')?.classList.add('active');renderFeed();}
+function setCategory(c){activeCat=c;Array.from(el('cat-bar').children).forEach(b=>b.classList.toggle('active',b.getAttribute('onclick').includes(`'${c}'`)));renderFeed();}
+function setSizeFilter(s){activeSize=s;Array.from(el('size-bar').children).forEach(b=>b.classList.toggle('active',b.getAttribute('onclick').includes(`'${s}'`)));renderFeed();}
+
+function renderFeed(){
+  const q=(el('search-inp').value||'').trim().toLowerCase();
+  el('seg-cnt-all').textContent=allListings.length;
+  const cityCnt=allListings.filter(x=>(x.location||'').toLowerCase()===currentUser.city.toLowerCase()).length;
+  el('seg-cnt-city').textContent=cityCnt;
+  let list=[...allListings];
+  if(scopeMode==='nearby')list=list.filter(x=>(x.location||'').toLowerCase()===currentUser.city.toLowerCase());
+  else if(scopeMode==='myfit'&&mySize)list=list.filter(x=>(x.size||'').toUpperCase()===mySize.toUpperCase());
+  if(activeCat!=='all')list=list.filter(x=>(x.description||'').includes(`[${activeCat}]`)||(x.title||'').toLowerCase().includes(activeCat.split(' ')[0].toLowerCase()));
+  if(activeSize!=='all')list=list.filter(x=>(x.size||'').toUpperCase()===activeSize.toUpperCase());
+  if(q)list=list.filter(x=>[x.title,x.description,x.location,x.size,x.seller_name].some(v=>(v||'').toLowerCase().includes(q)));
+  if(minP>0)list=list.filter(x=>Number(x.price)>=minP);
+  if(maxP>0)list=list.filter(x=>Number(x.price)<=maxP);
+  if(onlyExch)list=list.filter(x=>Boolean(x.is_exchange));
+  if(sortBy==='cheapest')list.sort((a,b)=>Number(a.price)-Number(b.price));
+  else if(sortBy==='expensive')list.sort((a,b)=>Number(b.price)-Number(a.price));
+  else if(sortBy==='popular')list.sort((a,b)=>Number(b.views||0)-Number(a.views||0));
+
+  const grid=el('feed-grid');
+  if(!list.length){grid.innerHTML=`<div class="empty" style="grid-column:1/-1">Объявлений по выбранным параметрам не найдено<br><button type="button" class="btn-xs-w" style="margin-top:10px" onclick="resetFilters()">Сбросить параметры</button></div>`;return;}
+  grid.innerHTML=list.map(it=>{
+    const ph=Array.isArray(it.photos)&&it.photos.length?it.photos:['https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=600&q=60'],pr=Number(it.price)>0?`${Number(it.price).toLocaleString('ru-RU')} ₽`:'Договорная',fav=favIds.includes(it.id);
+    return `<div class="card" onclick="openDetail(${it.id})"><div class="card-img"><img src="${esc(ph[0])}" loading="lazy"/><div class="tags-tl">${it.size?`<span class="t-badge w">${esc(it.size)}</span>`:''}${it.is_exchange?`<span class="t-badge">Обмен</span>`:''}</div><button type="button" class="fav-btn ${fav?'liked':''}" onclick="event.stopPropagation();toggleFav(${it.id})"><svg class="ico" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></button>${ph.length>1?`<div class="cnt-tag">1/${ph.length}</div>`:''}</div><div class="card-b"><div class="card-pr-row"><span class="card-pr">${pr}</span><span class="card-cnd">${esc((it.condition||'Отличное').split(' ')[0])}</span></div><div class="card-tit">${esc(it.title)}</div><div class="card-loc"><span>📍 ${esc(it.location||'Уфа')}</span><span>${fmtAgo(it.created_at)}</span></div></div></div>`;
+  }).join('');
+}
+
+function toggleFav(id){favIds=favIds.includes(id)?favIds.filter(x=>x!==id):[...favIds,id];localStorage.setItem('u_favs',JSON.stringify(favIds));renderFeed();renderMyLots();}
+function applyFilterModal(){sortBy=el('flt-sort').value;minP=Number(el('flt-min').value||0);maxP=Number(el('flt-max').value||0);onlyExch=el('flt-exch').checked;el('bento-flt-lbl').textContent=(minP||maxP||onlyExch||sortBy!=='newest')?'Фильтр активен':'Цена и сортировка';closeModal('modal-filter');renderFeed();}
+function resetFilters(){scopeMode='all';activeCat='all';activeSize='all';sortBy='newest';minP=0;maxP=0;onlyExch=false;el('search-inp').value='';el('bento-flt-lbl').textContent='Цена и сортировка';setScope('all');setCategory('all');setSizeFilter('all');}
+
+function calcFit(){
+  const h=Number(el('fit-h').value||0),w=Number(el('fit-w').value||0),ov=Number(el('fit-style').value||0);
+  if(h<130||w<35){el('fit-res-box').innerHTML='Введите корректные параметры роста и веса';return;}
+  let idx=0;if(h>186||w>88)idx=4;else if(h>179||w>76)idx=3;else if(h>171||w>64)idx=2;else if(h>163||w>53)idx=1;
+  const sizes=['XS','S','M','L','XL'];mySize=sizes[Math.min(4,idx+ov)];
+  localStorage.setItem('u_fit',mySize);updateUI();
+  el('fit-res-box').innerHTML=`<div style="font-size:12px;color:var(--mut)">Рекомендуемый размер</div><div style="font-size:28px;font-weight:900;margin:4px 0">${mySize}</div><div style="font-size:11px;color:var(--ok)">Сохранено в профиле</div>`;
+}
+function applyMyFitFilter(){if(!mySize)return showToast('Укажите рост и вес');closeModal('modal-fit');switchTab('feed');setScope('myfit');}
+
+function openFavoritesTab(){switchTab('mylots');setMyLotsTab('fav');el('nav-mylots').classList.remove('active');el('nav-fav').classList.add('active');}
+function setMyLotsTab(m){myTab=m;['own','fav','all'].forEach(k=>el(`my-pill-${k}`)?.classList.toggle('active',k===m));el('mylots-title').textContent=m==='fav'?'Избранные объявления':'Мои объявления';renderMyLots();}
+function renderMyLots(){
+  const own=allListings.filter(x=>Number(x.seller_id)===currentUser.tg_id),fav=allListings.filter(x=>favIds.includes(x.id));
+  el('cnt-own').textContent=own.length;el('cnt-fav').textContent=fav.length;el('cnt-all').textContent=allListings.length;
+  const list=myTab==='fav'?fav:(myTab==='all'&&currentUser.is_admin)?allListings:own;
+  el('mylots-list').innerHTML=!list.length?`<div class="empty">В этом разделе пока нет объявлений</div>`:list.map(it=>{
+    const pr=Number(it.price)>0?`${Number(it.price).toLocaleString('ru-RU')} ₽`:'Договорная',can=Number(it.seller_id)===currentUser.tg_id||currentUser.is_admin;
+    return `<div class="row-card" onclick="openDetail(${it.id})"><div class="row-top"><span>● ${fmtAgo(it.created_at)} · 📍 ${esc(it.location||'Уфа')}</span><span>👁 ${it.views||0}</span></div><div style="font-size:15px;font-weight:800">${esc(it.title)} ${it.size?`(${esc(it.size)})`:''}</div><div style="font-size:18px;font-weight:900;margin:4px 0 10px">${pr}</div><div style="display:flex;gap:6px;flex-wrap:wrap" onclick="event.stopPropagation()">${can?`<button type="button" class="btn-xs-g" onclick="openListingModal(${it.id})">✎ Изменить</button><button type="button" class="btn-xs-d" onclick="delListing(${it.id})">✕ Удалить</button><button type="button" class="btn-xs-w" onclick="bumpLot(${it.id})">↑ Поднять</button>`:''}</div></div>`;
+  }).join('');
+}
+async function bumpLot(id){await sb.from('listings').update({created_at:new Date().toISOString()}).eq('id',id);await loadData();showToast('Объявление поднято в начало ленты');}
+
+function openListingModal(editId=null){
+  el('f-id').value=editId||'';el('f-m1').value='';el('f-m2').value='';el('f-m3').value='';
+  if(editId){
+    const it=allListings.find(x=>x.id===editId);if(!it)return;
+    el('form-hdr').textContent='Редактировать объявление';el('f-title').value=it.title||'';el('f-price').value=it.price||0;el('f-loc').value=it.location||currentUser.city;el('f-size').value=it.size||'';el('f-cond').value=it.condition||'Отличное';el('f-exch').checked=Boolean(it.is_exchange);el('f-desc').value=it.description||'';formPhotos=Array.isArray(it.photos)?[...it.photos]:[];
+  }else{
+    el('form-hdr').textContent='Разместить объявление';el('f-title').value='';el('f-price').value='';el('f-loc').value=currentUser.city;el('f-size').value=mySize||'M';el('f-exch').checked=false;el('f-desc').value='';formPhotos=[];
+  }
+  renderPrevs();closeModal('modal-detail');openModal('modal-form');
+}
+function renderPrevs(){el('f-prevs').innerHTML=formPhotos.map((s,i)=>`<div class="prev-box"><img src="${esc(s)}"/><button type="button" class="prev-rm" onclick="formPhotos.splice(${i},1);renderPrevs()">✕</button></div>`).join('');}
+function addUrlPhoto(){const v=(el('f-url').value||'').trim();if(v){formPhotos.push(v);el('f-url').value='';renderPrevs();}}
+async function handleFiles(e){for(const f of Array.from(e.target.files||[]))formPhotos.push(await compressImg(f));e.target.value='';renderPrevs();}
+function compressImg(file){return new Promise(res=>{const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height,m=800;if(w>h&&w>m){h=Math.round(h*m/w);w=m;}else if(h>=w&&h>m){w=Math.round(w*m/h);h=m;}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);res(c.toDataURL('image/jpeg',0.72));};img.src=e.target.result;};r.readAsDataURL(file);});}
+
+async function saveListing(){
+  const id=el('f-id').value,title=(el('f-title').value||'').trim();if(!title)return showToast('Укажите наименование изделия');
+  const cat=el('f-cat').value,m1=el('f-m1').value.trim(),m2=el('f-m2').value.trim(),m3=el('f-m3').value.trim();
+  let rawDesc=(el('f-desc').value||'').trim();
+  const meas=[m1?`Длина: ${m1}см`:'',m2?`Грудь/Пояс: ${m2}см`:'',m3?`Рукав/Шаг: ${m3}см`:''].filter(Boolean).join(' · ');
+  if(!id){rawDesc=`[${cat}]`+(meas?`\n📏 ${meas}`:'')+(rawDesc?`\n${rawDesc}`:'');}
+  const base={title,price:Number(el('f-price').value||0),location:(el('f-loc').value||'').trim()||currentUser.city,is_exchange:el('f-exch').checked,description:rawDesc,photos:formPhotos};
+  const full={...base,size:(el('f-size').value||'').trim(),condition:el('f-cond').value};
+  el('f-sub-btn').disabled=true;
+  try{
+    if(id){let {error}=await sb.from('listings').update(full).eq('id',Number(id));if(error)await sb.from('listings').update(base).eq('id',Number(id));}
+    else{const meta={seller_id:currentUser.tg_id,seller_username:currentUser.username,seller_name:currentUser.first_name,seller_avatar:currentUser.avatar_url};let {error}=await sb.from('listings').insert({...full,...meta});if(error)await sb.from('listings').insert({...base,...meta});}
+    closeModal('modal-form');await loadData();showToast('Объявление опубликовано');
+  }catch(e){showToast('Ошибка при сохранении');}finally{el('f-sub-btn').disabled=false;}
+}
+
+function delListing(id){const it=allListings.find(x=>x.id===id);if(!it)return;askConfirm('Удаление объявления',`Вы действительно хотите удалить «${it.title}»?`,async()=>{await sb.from('listings').delete().eq('id',id);closeModal('modal-detail');await loadData();showToast('Объявление удалено');});}
+
+function openDetail(id){
+  const it=allListings.find(x=>x.id===id);if(!it)return;
+  detPhotos=Array.isArray(it.photos)&&it.photos.length?it.photos:['https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=600&q=60'];detIdx=0;
+  it.views=(it.views||0)+1;sb.from('listings').update({views:it.views}).eq('id',id);
+  const pNum=Number(it.price||0),pr=pNum>0?`${pNum.toLocaleString('ru-RU')} ₽`:'Договорная',can=Number(it.seller_id)===currentUser.tg_id||currentUser.is_admin,st=getSellerStats(it.seller_id);
+  const p90=Math.round(pNum*0.9),p85=Math.round(pNum*0.85);
+  el('detail-body').innerHTML=`
+    <div class="gal-box"><img id="det-img" src="${esc(detPhotos[0])}"/>${detPhotos.length>1?`<button type="button" class="g-arr l" onclick="stepGallery(-1)">‹</button><button type="button" class="g-arr r" onclick="stepGallery(1)">›</button><div class="g-cnt" id="det-cnt">1/${detPhotos.length}</div>`:''}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:24px;font-weight:900">${pr}</div><div style="display:flex;gap:6px">${it.size?`<span class="adm-pill">Размер: ${esc(it.size)}</span>`:''}${it.is_exchange?`<span class="adm-pill">Обмен</span>`:''}</div></div>
+    <div style="font-size:18px;font-weight:800;margin:5px 0 8px">${esc(it.title)}</div>
+    <div class="rail" style="margin-bottom:10px"><span class="city-btn">✨ ${esc(it.condition||'Отличное')}</span><span class="city-btn">📍 ${esc(it.location||'Уфа')}</span><span class="city-btn">👁 ${it.views} просм.</span></div>
+    ${it.description?`<div class="row-card" style="font-size:13px;line-height:1.45;white-space:pre-wrap">${esc(it.description)}</div>`:''}
+    ${pNum>0?`<div class="offer-box"><div style="font-size:11px;font-weight:800;color:var(--mut);margin-bottom:8px;text-transform:uppercase">Предложить свою цену продавцу</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" class="btn-xs-g" onclick="sendOffer('${esc(it.seller_username||'')}',${it.seller_id},'${esc(it.title)}',${p90})">-10% (${p90} ₽)</button><button type="button" class="btn-xs-g" onclick="sendOffer('${esc(it.seller_username||'')}',${it.seller_id},'${esc(it.title)}',${p85})">-15% (${p85} ₽)</button><input type="number" id="custom-offer" class="f-inp" style="flex:1;min-width:95px;padding:6px 10px;height:32px;font-size:12px" placeholder="Ваша сумма ₽"/><button type="button" class="btn-xs-w" onclick="if(el('custom-offer').value)sendOffer('${esc(it.seller_username||'')}',${it.seller_id},'${esc(it.title)}',el('custom-offer').value)">Отправить</button></div></div>`:''}
+    <div class="row-card" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="openSellerProfileModal(${it.seller_id},'${esc(it.seller_name||'Продавец')}','${esc(it.seller_username||'')}','${esc(it.seller_avatar||'')}')">
+      <div><div style="font-size:14px;font-weight:800">${esc(it.seller_name||'Продавец')}</div><div style="font-size:12px;color:var(--mut)"><span style="color:var(--ok)">${st.pct}% положительных</span> · ★ ${st.avg} (${st.count} отз.)</div></div>
+      <span style="font-size:12px;font-weight:800">Профиль ›</span>
+    </div>
+    <button type="button" class="btn-w" onclick="contactSeller('${esc(it.seller_username||'')}',${it.seller_id})">✉ Написать продавцу в Telegram</button>
+    ${can?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button type="button" class="btn-g" onclick="openListingModal(${it.id})">✎ Редактировать</button><button type="button" class="btn-d" onclick="delListing(${it.id})">✕ Удалить</button></div>`:''}`;
+  openModal('modal-detail');
+}
+
+function stepGallery(d){detIdx=(detIdx+d+detPhotos.length)%detPhotos.length;el('det-img').src=detPhotos[detIdx];if(el('det-cnt'))el('det-cnt').textContent=`${detIdx+1}/${detPhotos.length}`;}
+function contactSeller(u,id,txt=''){const c=(u||'').replace(/^@/,'').trim(),q=txt?`?text=${encodeURIComponent(txt)}`:'';if(c){const url=`https://t.me/${c}${q}`;tg?.openTelegramLink?tg.openTelegramLink(url):window.open(url,'_blank');}else window.location.href=`tg://user?id=${id}`;}
+function sendOffer(u,id,title,price){contactSeller(u,id,`Здравствуйте! Интересует объявление «${title}». Готов приобрести за ${price} ₽.`);}
+function getSellerStats(id){const r=allReviews.filter(x=>Number(x.seller_id)===Number(id)&&x.status==='approved');if(!r.length)return{count:0,avg:'5.0',pct:100,list:[]};return{count:r.length,avg:(r.reduce((a,b)=>a+Number(b.rating),0)/r.length).toFixed(1),pct:Math.round((r.filter(x=>Number(x.rating)>=4).length/r.length)*100),list:r};}
+
+function openSellerProfileModal(sellerId,fbName='Продавец',fbUser='',fbAva=''){
+  closeModal('modal-detail');el('seller-hdr').textContent='Витрина и отзывы продавца';revStars=5;
+  const p=allProfiles.find(x=>Number(x.tg_id)===Number(sellerId)),sName=p?.first_name||fbName,sUser=p?.username||fbUser,sAva=p?.avatar_url||fbAva,lots=allListings.filter(x=>Number(x.seller_id)===Number(sellerId)),st=getSellerStats(sellerId);
+  el('seller-body').innerHTML=`
+    <div style="text-align:center;padding-bottom:12px;border-bottom:1px solid var(--brd)">
+      <div class="ava-lg" style="width:68px;height:68px;font-size:22px">${sAva?`<img src="${esc(sAva)}"/>`:(sName||'П')[0].toUpperCase()}</div>
+      <div style="font-size:18px;font-weight:900">${esc(sName)}</div>
+      <div style="font-size:12px;color:var(--mut)">ID: ${sellerId}${sUser?` · @${esc(sUser)}`:''} · ★ ${st.avg} (${st.count} отз.) · ${lots.length} объявл.</div>
+      <button type="button" class="btn-w" style="margin-top:10px" onclick="contactSeller('${esc(sUser)}',${sellerId})">✉ Написать в Telegram</button>
+    </div>
+    <div class="row-card" style="margin-top:12px">
+      <div style="font-size:13px;font-weight:800;margin-bottom:6px">Оставить отзыв о продавце</div>
+      <div id="star-box" style="display:flex;gap:8px;margin-bottom:8px">${[1,2,3,4,5].map(n=>`<button type="button" onclick="pickStar(${n})" style="font-size:24px;color:#fff">★</button>`).join('')}</div>
+      <textarea id="rev-txt" class="f-area" style="min-height:60px;margin-bottom:8px" placeholder="Поделитесь впечатлениями о сделке..."></textarea>
+      <button type="button" class="btn-w" style="margin-top:0" onclick="sendReview(${sellerId})">Отправить на модерацию</button>
+    </div>
+    <div style="font-size:13px;font-weight:800;margin:10px 0 6px">Опубликованные отзывы (${st.count})</div>
+    ${!st.list.length?`<div class="empty" style="padding:18px">Отзывов пока нет</div>`:st.list.map(r=>`<div class="row-card"><div class="row-top"><b style="color:#fff">${esc(r.author_name)}</b><span>${'★'.repeat(r.rating)}</span></div><div style="font-size:13px">${esc(r.comment)}</div></div>`).join('')}`;
+  openModal('modal-seller');
+}
+
+function pickStar(n){revStars=n;(el('star-box')?.querySelectorAll('button')||[]).forEach((b,i)=>{b.style.color=i<n?'#fff':'#3a3a44';});}
+async function sendReview(sellerId){const txt=(el('rev-txt')?.value||'').trim();if(!txt)return showToast('Введите текст отзыва');const {error}=await sb.from('reviews').insert({seller_id:Number(sellerId),author_id:currentUser.tg_id,author_name:currentUser.first_name,rating:revStars,comment:txt,status:'pending'});if(error)return showToast('Ошибка базы данных');showToast('Отзыв отправлен на модерацию');await loadData();openSellerProfileModal(sellerId);}
+async function approveRev(id){await sb.from('reviews').update({status:'approved'}).eq('id',id);showToast('Отзыв опубликован');await loadData();}
+async function delRev(id){await sb.from('reviews').delete().eq('id',id);showToast('Отзыв удалён');await loadData();}
+
+function switchAdminSub(s){['lots','revs','sellers','users'].forEach(k=>{el(`adm-btn-${k}`)?.classList.toggle('active',k===s);el(`adm-box-${k}`)?.classList.toggle('hidden',k!==s);});}
+function getActiveSellers(){
+  const map=new Map();
+  allListings.forEach(it=>{
+    const sid=Number(it.seller_id);
+    if(!map.has(sid)){
+      const prof=allProfiles.find(p=>Number(p.tg_id)===sid);
+      map.set(sid,{id:sid,name:prof?.first_name||it.seller_name||'Продавец',user:prof?.username||it.seller_username||'',ava:prof?.avatar_url||it.seller_avatar||'',count:0});
+    }
+    map.get(sid).count++;
+  });
+  return Array.from(map.values());
+}
+
+function renderAdminSellers(){
+  const sellers=getActiveSellers();
+  el('adm-cnt-sellers').textContent=sellers.length;
+  const q=(el('adm-seller-q')?.value||'').trim().toLowerCase();
+  const list=sellers.filter(s=>!q||s.name.toLowerCase().includes(q)||s.user.toLowerCase().includes(q)||String(s.id).includes(q));
+  el('adm-sellers-list').innerHTML=!list.length?`<div class="empty">Продавцов с объявлениями пока нет</div>`:list.map(s=>{
+    const st=getSellerStats(s.id);
+    return `<div class="row-card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div style="display:flex;align-items:center;gap:10px"><div class="ava-xs">${s.ava?`<img src="${esc(s.ava)}"/>`:(s.name||'П')[0].toUpperCase()}</div><div><div style="font-size:14px;font-weight:800">${esc(s.name)}</div><div style="font-size:11px;color:var(--mut)">ID: ${s.id}${s.user?` · @${esc(s.user)}`:''}</div><div style="font-size:11px;color:var(--ok);font-weight:700">Объявлений: ${s.count} · ★ ${st.avg} (${st.count} отз.)</div></div></div><div style="display:flex;gap:6px"><button type="button" class="btn-xs-g" onclick="openSellerProfileModal(${s.id},'${esc(s.name)}','${esc(s.user)}','${esc(s.ava)}')">Витрина</button><button type="button" class="btn-xs-w" onclick="contactSeller('${esc(s.user)}',${s.id})">✉</button></div></div></div>`;
+  }).join('');
+}
+
+function renderAdmin(){
+  if(!currentUser.is_admin)return;
+  const pend=allReviews.filter(r=>r.status==='pending'),appr=allReviews.filter(r=>r.status==='approved');
+  el('adm-cnt-lots').textContent=allListings.length;el('adm-cnt-revs').textContent=pend.length;
+  el('adm-box-lots').innerHTML=!allListings.length?`<div class="empty">Объявлений нет</div>`:allListings.map(it=>`<div class="row-card" onclick="openDetail(${it.id})"><div class="row-top"><span class="adm-pill">#${it.id}</span><span>${esc(it.seller_name)} (ID: ${it.seller_id})</span></div><div style="font-weight:800">${esc(it.title)} — ${Number(it.price)>0?it.price+' ₽':'Договорная'}</div><div style="display:flex;gap:6px;margin-top:8px" onclick="event.stopPropagation()"><button type="button" class="btn-xs-g" onclick="contactSeller('${esc(it.seller_username||'')}',${it.seller_id})">✉ Связаться</button><button type="button" class="btn-xs-g" onclick="openListingModal(${it.id})">✎ Изм.</button><button type="button" class="btn-xs-d" onclick="delListing(${it.id})">✕ Удалить</button></div></div>`).join('');
+  el('adm-box-revs').innerHTML=`<div style="font-size:12px;font-weight:800;margin-bottom:6px">Ожидают модерации (${pend.length})</div>`+(!pend.length?`<div class="empty" style="margin-bottom:10px">Новых отзывов нет</div>`:pend.map(r=>`<div class="row-card"><div class="row-top"><span class="adm-pill">НОВЫЙ</span><span>${esc(r.author_name)} → ID ${r.seller_id} (${'★'.repeat(r.rating)})</span></div><div style="font-size:13px;margin:6px 0">${esc(r.comment)}</div><div style="display:flex;gap:6px"><button type="button" class="btn-xs-w" onclick="approveRev(${r.id})">✓ Одобрить</button><button type="button" class="btn-xs-d" onclick="delRev(${r.id})">✕ Отклонить</button></div></div>`).join(''))+`<div style="font-size:12px;font-weight:800;margin:10px 0 6px">Опубликованные (${appr.length})</div>`+appr.map(r=>`<div class="row-card"><div class="row-top"><span>${esc(r.author_name)} → ID ${r.seller_id} (${'★'.repeat(r.rating)})</span><button type="button" style="color:var(--err);font-weight:800" onclick="delRev(${r.id})">✕ Удалить</button></div><div style="font-size:13px">${esc(r.comment)}</div></div>`).join('');
+  renderAdminSellers();
+  el('adm-users-list').innerHTML=allProfiles.filter(p=>p.is_admin||Number(p.tg_id)===ROOT_ADMIN_ID).map(a=>`<div class="row-card" style="display:flex;justify-content:space-between;align-items:center"><div><b>${esc(a.first_name||'Администратор')}</b><div style="font-size:11px;color:var(--mut)">ID: ${a.tg_id}</div></div><span class="adm-pill">ADMIN</span></div>`).join('');
+}
+
+async function setAdminRole(flag){const id=Number((el('adm-id-inp').value||'').trim());if(!id||(id===ROOT_ADMIN_ID&&!flag))return showToast('Некорректный ID');await sb.from('profiles').upsert({tg_id:id,first_name:`Admin ${id}`,is_admin:flag},{onConflict:'tg_id'});el('adm-id-inp').value='';await loadData();showToast(flag?'Права администратора выданы':'Права сняты');}
+
+function openCityModal(){el('city-inp').value='';renderCitiesList();openModal('modal-city');}
+function renderCitiesList(){
+  const q=(el('city-inp').value||'').trim().toLowerCase();
+  const filtered=CITIES.filter((c,i)=>CITIES.indexOf(c)===i&&(!q||c.toLowerCase().includes(q)));
+  el('cities-box').innerHTML=filtered.map(c=>`<button type="button" class="chip ${c.toLowerCase()===currentUser.city.toLowerCase()?'active':''}" onclick="saveCity('${esc(c)}')">${esc(c)}</button>`).join('');
+}
+async function saveCity(c){if(!c?.trim())return;currentUser.city=c.trim();localStorage.setItem('u_city',currentUser.city);await sb.from('profiles').update({city:currentUser.city}).eq('tg_id',currentUser.tg_id);updateUI();renderFeed();closeModal('modal-city');showToast(`Город: ${currentUser.city}`);}
+function switchTab(t){['feed','mylots','profile','admin'].forEach(k=>{el(`tab-${k}`)?.classList.toggle('hidden',k!==t);el(`nav-${k}`)?.classList.toggle('active',k===t);});el('nav-fav')?.classList.remove('active');window.scrollTo({top:0,behavior:'smooth'});}
+function fmtAgo(d){if(!d)return 'только что';const s=Math.floor((Date.now()-new Date(d).getTime())/1000);return s<60?'только что':s<3600?`${Math.floor(s/60)} мин`:s<86400?`${Math.floor(s/3600)} ч`:`${Math.floor(s/86400)} дн`;}
+window.addEventListener('DOMContentLoaded',initApp);
+</script>
+</body>
+</html>
