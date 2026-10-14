@@ -1363,15 +1363,198 @@ function stepDetailGallery(d){currentDetailPhotoIdx=(currentDetailPhotoIdx+d+cur
 function contactSellerInTelegram(u,id){const c=(u||'').replace(/^@/,'').trim();if(c){const url=`https://t.me/${c}`;tg?.openTelegramLink?tg.openTelegramLink(url):window.open(url,'_blank');}else window.location.href=`tg://user?id=${id}`;}
 
 function openSellerProfileModal(sellerId,fbName='Продавец',fbUser='',fbAva=''){
-  closeModal('modal-detail');el('seller-modal-title').textContent='Профиль продавца';
-  const p=allProfiles.find(x=>Number(x.tg_id)===Number(sellerId)),sName=p?.first_name||fbName,sUser=p?.username||fbUser,sAva=p?.avatar_url||fbAva,lots=allListings.filter(x=>Number(x.seller_id)===Number(sellerId));
-  el('seller-modal-body').innerHTML=`<div style="text-align:center;padding-bottom:14px;border-bottom:1px solid var(--border)"><div class="avatar-circle" style="width:74px;height:74px;font-size:24px">${sAva?`<img src="${escapeHtml(sAva)}" />`:(sName||'П')[0].toUpperCase()}</div><div style="font-size:19px;font-weight:900">${escapeHtml(sName)}</div><div style="font-size:12px;color:var(--muted)">ID: ${sellerId}${sUser?` · @${escapeHtml(sUser)}`:''}</div><button type="button" class="btn-full-white" style="margin-top:12px" onclick="contactSellerInTelegram('${escapeHtml(sUser)}',${sellerId})">✉ Написать в Telegram</button></div><div class="section-caption">Лоты продавца (${lots.length})</div><div class="listings-grid">${lots.map(it=>`<div class="product-card" onclick="closeModal('modal-seller');openListingDetails(${it.id})"><div class="product-info"><div class="product-price">${Number(it.price)>0?it.price+' ₽':'Договорная'}</div><div class="product-title">${escapeHtml(it.title)}</div></div></div>`).join('')}</div>`;
+let allReviews = [];
+let selectedReviewStars = 5;
+
+async function fetchMarketplaceData() {
+  try {
+    const [lRes, pRes, rRes] = await Promise.all([
+      sb.from('listings').select('*').order('created_at', { ascending: false }),
+      sb.from('profiles').select('*'),
+      sb.from('reviews').select('*').order('created_at', { ascending: false })
+    ]);
+    allListings = lRes.data || [];
+    allProfiles = pRes.data || [];
+    allReviews = rRes.data || [];
+  } catch (e) {}
+  const ownCount = allListings.filter(x => Number(x.seller_id) === currentUser.tg_id).length;
+  const myApproved = allReviews.filter(r => Number(r.seller_id) === currentUser.tg_id && r.status === 'approved');
+  const myAvg = myApproved.length ? (myApproved.reduce((a, b) => a + Number(b.rating), 0) / myApproved.length).toFixed(1) : '5.0';
+  if (el('prof-lots-count')) el('prof-lots-count').textContent = `${ownCount} лотов · ★ ${myAvg} (${myApproved.length} отз.)`;
+  renderFeed();
+  renderMyLotsSection();
+  renderAdminPanelSection();
+}
+
+function getSellerStats(sellerId) {
+  const revs = allReviews.filter(r => Number(r.seller_id) === Number(sellerId) && r.status === 'approved');
+  if (!revs.length) return { count: 0, avg: '5.0', pct: 100, list: [] };
+  const sum = revs.reduce((a, b) => a + Number(b.rating), 0);
+  const pos = revs.filter(r => Number(r.rating) >= 4).length;
+  return { count: revs.length, avg: (sum / revs.length).toFixed(1), pct: Math.round((pos / revs.length) * 100), list: revs };
+}
+
+function openSellerProfileModal(sellerId, fbName = 'Продавец', fbUser = '', fbAva = '') {
+  closeModal('modal-detail');
+  el('seller-modal-title').textContent = 'Профиль и отзывы';
+  selectedReviewStars = 5;
+  const p = allProfiles.find(x => Number(x.tg_id) === Number(sellerId));
+  const sName = p?.first_name || fbName, sUser = p?.username || fbUser, sAva = p?.avatar_url || fbAva;
+  const lots = allListings.filter(x => Number(x.seller_id) === Number(sellerId));
+  const st = getSellerStats(sellerId);
+  const myPending = allReviews.filter(r => Number(r.seller_id) === Number(sellerId) && Number(r.author_id) === currentUser.tg_id && r.status === 'pending');
+
+  el('seller-modal-body').innerHTML = `
+    <div style="text-align:center;padding-bottom:14px;border-bottom:1px solid var(--border)">
+      <div class="avatar-circle" style="width:74px;height:74px;font-size:24px">${sAva ? `<img src="${escapeHtml(sAva)}" />` : (sName || 'П')[0].toUpperCase()}</div>
+      <div style="font-size:19px;font-weight:900">${escapeHtml(sName)}</div>
+      <div style="font-size:12px;color:var(--muted)">ID: ${sellerId}${sUser ? ` · @${escapeHtml(sUser)}` : ''}</div>
+      <div style="display:flex;justify-content:center;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <span class="stat-pill"><span style="color:var(--success)">${st.pct}% довольны</span> · ★ ${st.avg} (${st.count})</span>
+        <span class="stat-pill">${lots.length} лотов</span>
+      </div>
+      <button type="button" class="btn-full-white" style="margin-top:12px" onclick="contactSellerInTelegram('${escapeHtml(sUser)}',${sellerId})">✉ Написать в Telegram</button>
+    </div>
+
+    <div class="lot-row-card" style="margin-top:14px">
+      <div style="font-size:14px;font-weight:800;margin-bottom:8px">Оставить отзыв (через модерацию)</div>
+      <div id="rev-star-row" style="display:flex;gap:8px;margin-bottom:10px">
+        ${[1,2,3,4,5].map(n => `<button type="button" onclick="pickReviewStar(${n})" style="font-size:26px;color:#fff">${'★'}</button>`).join('')}
+      </div>
+      <textarea id="rev-comment-txt" class="field-textarea" style="min-height:68px;margin-bottom:8px" placeholder="Опиши, как прошла сделка..."></textarea>
+      <button type="button" class="btn-full-white" style="margin-top:0" onclick="submitNewReview(${sellerId})">Отправить отзыв на проверку</button>
+    </div>
+
+    ${myPending.map(r => `<div class="lot-row-card" style="border-color:rgba(255,255,255,0.35)"><div class="lot-row-top"><span class="badge-white">На проверке у админа</span><span>${'★'.repeat(r.rating)}</span></div><div style="font-size:13px">${escapeHtml(r.comment)}</div></div>`).join('')}
+
+    <div class="section-caption">Отзывы о продавце (${st.count})</div>
+    ${!st.list.length ? `<div class="empty-box" style="padding:20px;margin-bottom:12px">Одобренных отзывов пока нет</div>` : st.list.map(r => `
+      <div class="lot-row-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <b style="font-size:13px">${escapeHtml(r.author_name || 'Покупатель')}</b>
+          <span style="font-size:13px">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
+        </div>
+        <div style="font-size:13px;line-height:1.4">${escapeHtml(r.comment)}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:11px;color:var(--muted)">
+          <span>${formatTimeAgo(r.created_at)}</span>
+          ${currentUser.is_admin ? `<button type="button" style="color:var(--danger);font-weight:800" onclick="removeReview(${r.id},${sellerId})">✕ Удалить</button>` : ''}
+        </div>
+      </div>`).join('')}
+
+    <div class="section-caption">Лоты продавца (${lots.length})</div>
+    <div class="listings-grid">${lots.map(it => `<div class="product-card" onclick="closeModal('modal-seller');openListingDetails(${it.id})"><div class="product-info"><div class="product-price">${Number(it.price) > 0 ? it.price + ' ₽' : 'Договорная'}</div><div class="product-title">${escapeHtml(it.title)}</div></div></div>`).join('')}</div>`;
   openModal('modal-seller');
 }
 
-function openSellersModal(){
-  el('seller-modal-title').textContent='Поиск продавца по ID';
-  el('seller-modal-body').innerHTML=`<div class="field-block"><div style="display:flex;gap:8px"><input type="number" id="lookup-seller-id" class="field-input" placeholder="Введи Telegram ID..." /><button type="button" class="btn-sm-white" onclick="if(el('lookup-seller-id').value)openSellerProfileModal(Number(el('lookup-seller-id').value))">Найти</button></div></div>`;
+function pickReviewStar(n) {
+  selectedReviewStars = n;
+  const btns = el('rev-star-row')?.querySelectorAll('button') || [];
+  btns.forEach((b, i) => { b.style.color = i < n ? '#ffffff' : '#3a3a44'; });
+}
+
+async function submitNewReview(sellerId) {
+  const txt = (el('rev-comment-txt')?.value || '').trim();
+  if (!txt) return showToast('Напиши текст отзыва!');
+  const { error } = await sb.from('reviews').insert({
+    seller_id: Number(sellerId),
+    author_id: currentUser.tg_id,
+    author_name: currentUser.first_name,
+    author_username: currentUser.username || '',
+    rating: selectedReviewStars,
+    comment: txt,
+    status: 'pending'
+  });
+  if (error) return showToast('Ошибка БД: выполни SQL для таблицы reviews');
+  showToast('Отзыв отправлен на модерацию админу!');
+  await fetchMarketplaceData();
+  openSellerProfileModal(sellerId);
+}
+
+async function approveReview(revId) {
+  await sb.from('reviews').update({ status: 'approved' }).eq('id', revId);
+  showToast('Отзыв одобрен и опубликован!');
+  await fetchMarketplaceData();
+}
+
+async function removeReview(revId, sellerId = null) {
+  await sb.from('reviews').delete().eq('id', revId);
+  showToast('Отзыв удалён');
+  await fetchMarketplaceData();
+  if (sellerId && !el('modal-seller').classList.contains('hidden')) openSellerProfileModal(sellerId);
+}
+
+function switchAdminView(v) {
+  ['listings', 'reviews', 'admins'].forEach(k => {
+    el(`adm-tab-${k}`)?.classList.toggle('active', k === v);
+    el(`adm-section-${k}`)?.classList.toggle('hidden', k !== v);
+  });
+}
+
+function renderAdminPanelSection() {
+  if (!currentUser.is_admin) return;
+  const bar = el('adm-tab-listings')?.parentElement;
+  if (bar && !el('adm-tab-reviews')) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'adm-tab-reviews';
+    btn.className = 'pill-btn';
+    btn.onclick = () => switchAdminView('reviews');
+    bar.insertBefore(btn, el('adm-tab-admins'));
+    const sec = document.createElement('div');
+    sec.id = 'adm-section-reviews';
+    sec.className = 'hidden';
+    el('tab-admin').insertBefore(sec, el('adm-section-admins'));
+  }
+
+  const pending = allReviews.filter(r => r.status === 'pending');
+  const approved = allReviews.filter(r => r.status === 'approved');
+  if (el('adm-tab-reviews')) el('adm-tab-reviews').innerHTML = `Отзывы (${pending.length} новых)`;
+  if (el('adm-count-listings')) el('adm-count-listings').textContent = allListings.length;
+
+  if (el('adm-section-listings')) {
+    el('adm-section-listings').innerHTML = !allListings.length ? `<div class="empty-box">Нет лотов</div>` : allListings.map(it => `<div class="lot-row-card" onclick="openListingDetails(${it.id})"><div class="lot-row-top"><span class="badge-white">#${it.id}</span><span>Продавец: <b>${escapeHtml(it.seller_name)}</b> (ID: ${it.seller_id})</span></div><div class="lot-row-title">${escapeHtml(it.title)}</div><div class="lot-row-price">${Number(it.price) > 0 ? it.price + ' ₽' : 'Договорная'}</div><div class="lot-row-footer" onclick="event.stopPropagation()"><button type="button" class="btn-sm-ghost" onclick="contactSellerInTelegram('${escapeHtml(it.seller_username || '')}',${it.seller_id})">✉ Написать</button><div class="lot-row-actions"><button type="button" class="btn-sm-ghost" onclick="openListingModal(${it.id})">✎ Изм.</button><button type="button" class="btn-sm-danger" onclick="confirmDeleteListing(${it.id})">✕ Удалить</button></div></div></div>`).join('');
+  }
+
+  if (el('adm-section-reviews')) {
+    el('adm-section-reviews').innerHTML = `
+      <div class="section-caption">Ожидают проверки (${pending.length})</div>
+      ${!pending.length ? `<div class="empty-box" style="margin-bottom:14px">Новых отзывов на модерации нет</div>` : pending.map(r => `
+        <div class="lot-row-card">
+          <div class="lot-row-top"><span class="badge-white">НА ПРОВЕРКЕ</span><span>От: <b>${escapeHtml(r.author_name)}</b> (ID: ${r.author_id}) → Продавцу ID: <b>${r.seller_id}</b></span></div>
+          <div style="font-size:15px;margin:4px 0">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+          <div style="font-size:14px;margin-bottom:12px">${escapeHtml(r.comment)}</div>
+          <div class="lot-row-actions">
+            <button type="button" class="btn-sm-white" onclick="approveReview(${r.id})">✓ Одобрить</button>
+            <button type="button" class="btn-sm-danger" onclick="removeReview(${r.id})">✕ Отклонить</button>
+            <button type="button" class="btn-sm-ghost" onclick="openSellerProfileModal(${r.seller_id})">Профиль продавца</button>
+          </div>
+        </div>`).join('')}
+      <div class="section-caption">Опубликованные отзывы (${approved.length})</div>
+      ${!approved.length ? `<div class="empty-box">Опубликованных отзывов пока нет</div>` : approved.map(r => `
+        <div class="lot-row-card">
+          <div class="lot-row-top"><span>От: <b>${escapeHtml(r.author_name)}</b> → Продавцу ID: <b>${r.seller_id}</b></span><span>· ${'★'.repeat(r.rating)}</span></div>
+          <div style="font-size:13px;margin:6px 0">${escapeHtml(r.comment)}</div>
+          <div class="lot-row-actions"><button type="button" class="btn-sm-danger" onclick="removeReview(${r.id})">✕ Удалить</button></div>
+        </div>`).join('')}`;
+  }
+
+  if (el('adm-admins-list')) {
+    el('adm-admins-list').innerHTML = allProfiles.filter(p => p.is_admin || Number(p.tg_id) === ROOT_ADMIN_ID).map(a => `<div class="lot-row-card" style="display:flex;justify-content:space-between;align-items:center"><div><b>${escapeHtml(a.first_name || 'Админ')}</b><div style="font-size:12px;color:var(--muted)">ID: ${a.tg_id}</div></div><span class="badge-white">ADMIN</span></div>`).join('');
+  }
+}
+
+function openSellersModal() {
+  el('seller-modal-title').textContent = 'Продавцы и отзывы по ID';
+  const map = new Map();
+  allProfiles.forEach(p => map.set(Number(p.tg_id), { id: Number(p.tg_id), name: p.first_name || 'Пользователь', user: p.username || '', ava: p.avatar_url || '' }));
+  allListings.forEach(l => { if (!map.has(Number(l.seller_id))) map.set(Number(l.seller_id), { id: Number(l.seller_id), name: l.seller_name || 'Продавец', user: l.seller_username || '', ava: l.seller_avatar || '' }); });
+  el('seller-modal-body').innerHTML = `
+    <div class="field-block"><div style="display:flex;gap:8px"><input type="number" id="lookup-seller-id" class="field-input" placeholder="Введи Telegram ID продавца..." /><button type="button" class="btn-sm-white" onclick="if(el('lookup-seller-id').value)openSellerProfileModal(Number(el('lookup-seller-id').value))">Найти</button></div></div>
+    <div class="section-caption">Продавцы площадки</div>
+    ${Array.from(map.values()).map(s => {
+      const st = getSellerStats(s.id);
+      return `<div class="seller-card-strip" style="margin:8px 0" onclick="openSellerProfileModal(${s.id},'${escapeHtml(s.name)}','${escapeHtml(s.user)}','${escapeHtml(s.ava)}')"><div class="seller-card-left"><div class="seller-ava-sm">${s.ava ? `<img src="${escapeHtml(s.ava)}" />` : (s.name || 'П')[0].toUpperCase()}</div><div><div style="font-size:14px;font-weight:800">${escapeHtml(s.name)}</div><div style="font-size:12px;color:var(--muted)">ID: ${s.id} · ★ ${st.avg} (${st.count} отз.)</div></div></div><span style="font-size:12px;font-weight:800">Отзывы ›</span></div>`;
+    }).join('')}`;
   openModal('modal-seller');
 }
 
