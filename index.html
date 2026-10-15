@@ -9,17 +9,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #08080a;
-  --card: #121216;
-  --card-hi: #1b1b22;
-  --border: #262630;
-  --text: #ffffff;
-  --muted: #8e8e98;
-  --accent: #ffffff;
-  --accent-fg: #000000;
-  --danger: #ff453a;
-  --success: #32d74b;
-  --warn: #ffd60a;
+  --bg: #08080a; --card: #121216; --card-hi: #1b1b22; --border: #262630;
+  --text: #ffffff; --muted: #8e8e98; --accent: #ffffff; --accent-fg: #000000;
+  --danger: #ff453a; --success: #32d74b; --warn: #ffd60a;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: 'Inter', -apple-system, sans-serif; }
 body { background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 108px; overflow-x: hidden; transition: background 0.35s ease, color 0.35s ease; }
@@ -41,7 +33,7 @@ input, textarea, select { font: inherit; color: var(--text); }
 .pill-action { display: flex; align-items: center; gap: 5px; background: var(--card); border: 1px solid var(--border); padding: 8px 13px; border-radius: 999px; font-size: 12px; font-weight: 700; }
 .badge-adm { background: var(--accent); color: var(--accent-fg); font-size: 10px; font-weight: 900; padding: 5px 9px; border-radius: 999px; letter-spacing: 0.4px; }
 .bento-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 10px; margin-bottom: 14px; }
-.bento-main { background: var(--accent); color: var(--accent-fg); border-radius: 22px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; min-height: 118px; text-align: left; }
+.bento-main { background: var(--accent); color: var(--accent-fg); border-radius: 22px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; min-height: 112px; text-align: left; }
 .bento-side { display: flex; flex-direction: column; gap: 8px; }
 .bento-mini { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; text-align: left; }
 .search-wrap { position: relative; margin-bottom: 10px; z-index: 30; }
@@ -49,7 +41,7 @@ input, textarea, select { font: inherit; color: var(--text); }
 .search-box { flex: 1; display: flex; align-items: center; gap: 9px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 0 13px; height: 46px; }
 .search-box input { width: 100%; background: transparent; border: none; outline: none; font-size: 14px; }
 .icon-btn { width: 46px; height: 46px; border-radius: 16px; background: var(--card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.suggest-drop { position: absolute; left: 0; right: 0; top: 52px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 10px; box-shadow: 0 16px 38px rgba(0,0,0,0.75); animation: tabFade 0.25s ease; }
+.suggest-drop { position: absolute; left: 0; right: 0; top: 52px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 10px; box-shadow: 0 16px 38px rgba(0,0,0,0.75); animation: tabFade 0.25s ease; max-height: 310px; overflow-y: auto; }
 .suggest-item { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 9px 10px; border-radius: 12px; text-align: left; font-size: 13px; font-weight: 600; }
 .suggest-item:active { background: var(--card-hi); }
 .h-scroll { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 8px; scrollbar-width: none; }
@@ -59,6 +51,8 @@ input, textarea, select { font: inherit; color: var(--text); }
 .seg-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background: var(--card); border: 1px solid var(--border); padding: 4px; border-radius: 14px; margin-bottom: 12px; }
 .seg-btn { padding: 8px 6px; border-radius: 10px; font-size: 12px; font-weight: 700; color: var(--muted); text-align: center; }
 .seg-btn.active { background: var(--accent); color: var(--accent-fg); }
+.home-filter-panel { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 12px 14px; margin-bottom: 12px; }
+.home-filter-head { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
 .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .card-item { background: var(--card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; }
 .card-thumb { position: relative; width: 100%; aspect-ratio: 1 / 1; background: #18181f; overflow: hidden; }
@@ -71,7 +65,7 @@ input, textarea, select { font: inherit; color: var(--text); }
 .card-title { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .card-meta { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .box-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 14px; margin-bottom: 10px; }
-.sec-label { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin: 12px 4px 7px; }
+.sec-label { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin: 10px 4px 6px; }
 .menu-list { background: var(--card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-bottom: 14px; }
 .menu-row { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px; border-bottom: 1px solid var(--border); text-align: left; }
 .menu-row:last-child { border-bottom: none; }
@@ -93,7 +87,7 @@ input, textarea, select { font: inherit; color: var(--text); }
 .close-x { width: 34px; height: 34px; border-radius: 50%; background: var(--card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 800; }
 .inp-group { margin-bottom: 12px; }
 .inp-label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
-.inp-field { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; font-size: 14px; outline: none; }
+.inp-field { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 11px 13px; font-size: 14px; outline: none; }
 .btn-main { width: 100%; background: var(--accent); color: var(--accent-fg); font-weight: 800; font-size: 15px; padding: 14px; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; }
 .btn-sec { width: 100%; background: var(--card); color: var(--text); border: 1px solid var(--border); font-weight: 700; font-size: 13px; padding: 11px; border-radius: 13px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .btn-red { width: 100%; background: rgba(255,69,58,0.15); color: var(--danger); border: 1px solid rgba(255,69,58,0.35); font-weight: 700; font-size: 13px; padding: 11px; border-radius: 13px; display: flex; align-items: center; justify-content: center; gap: 6px; }
@@ -151,10 +145,10 @@ input, textarea, select { font: inherit; color: var(--text); }
         </div>
         <span style="font-size:16px">📏</span>
       </button>
-      <button type="button" class="bento-mini" onclick="openFilterModal()">
+      <button type="button" class="bento-mini" onclick="toggleHomeFilterBox()">
         <div>
-          <div style="font-size:13px;font-weight:800">Фильтры</div>
-          <div style="font-size:11px;color:var(--muted)" id="bento-flt-sub">Цена и сортировка</div>
+          <div style="font-size:13px;font-weight:800">Бренд и фильтр</div>
+          <div style="font-size:11px;color:var(--muted)" id="bento-flt-sub">Модель, цена, сост.</div>
         </div>
         <span style="font-size:16px">⚙</span>
       </button>
@@ -165,15 +159,74 @@ input, textarea, select { font: inherit; color: var(--text); }
     <div class="search-bar">
       <div class="search-box">
         <span>🔍</span>
-        <input type="text" id="search-input" placeholder="Поиск модели, бренда (напр. Nike)..." oninput="onSearchInput()" onfocus="onSearchInput()" onkeydown="if(event.key==='Enter')submitSearchQuery()">
+        <input type="text" id="search-input" placeholder="Поиск: Nike, Rick Owens, Raf Simons..." oninput="onSearchInput()" onfocus="onSearchInput()" onkeydown="if(event.key==='Enter')submitSearchQuery()">
         <button type="button" id="search-clear-x" class="hidden" onclick="clearSearchInput()" style="font-size:14px;color:var(--muted);padding:4px">✕</button>
       </div>
-      <button type="button" class="icon-btn" onclick="submitSearchQuery()" title="Найти">↵</button>
+      <button type="button" class="icon-btn" onclick="submitSearchQuery()">↵</button>
     </div>
     <div id="search-suggest-box" class="suggest-drop hidden"></div>
   </div>
 
   <div id="search-history-bar" class="h-scroll hidden"></div>
+
+  <!-- Меню выбора Бренда -> Модели, Цены и Состояния прямо на главной (все поля необязательные) -->
+  <div class="home-filter-panel">
+    <div class="home-filter-head" onclick="toggleHomeFilterBox()">
+      <div>
+        <div style="font-size:13px;font-weight:800">🎯 Подбор по бренду, модели и параметрам</div>
+        <div id="home-flt-summary" style="font-size:11px;color:var(--muted)">Все поля необязательные — выберите нужные</div>
+      </div>
+      <span id="home-flt-arrow" style="font-size:14px;font-weight:800">▼</span>
+    </div>
+    <div id="home-flt-body" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">
+      <div class="inp-label">1. Бренд (необязательно)</div>
+      <div id="hf-brand-pills" class="h-scroll"></div>
+
+      <div id="hf-model-wrap" class="hidden">
+        <div class="inp-label">2. Модель выбранного бренда (необязательно)</div>
+        <div id="hf-model-pills" class="h-scroll"></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+        <div>
+          <label class="inp-label">Цена от (₽)</label>
+          <input type="number" id="hf-min-price" class="inp-field" placeholder="Любая" oninput="applyHomeInlineFilters()">
+        </div>
+        <div>
+          <label class="inp-label">Цена до (₽)</label>
+          <input type="number" id="hf-max-price" class="inp-field" placeholder="Любая" oninput="applyHomeInlineFilters()">
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+        <div>
+          <label class="inp-label">Состояние</label>
+          <select id="hf-cond" class="inp-field" onchange="applyHomeInlineFilters()">
+            <option value="">Любое состояние</option>
+            <option value="Новое с биркой">Новое с биркой</option>
+            <option value="Отличное">Отличное</option>
+            <option value="Хорошее">Хорошее</option>
+            <option value="Б/У">Б/У</option>
+          </select>
+        </div>
+        <div>
+          <label class="inp-label">Сортировка</label>
+          <select id="hf-sort" class="inp-field" onchange="applyHomeInlineFilters()">
+            <option value="newest">Сначала новые</option>
+            <option value="cheapest">Сначала дешевле</option>
+            <option value="expensive">Сначала дороже</option>
+            <option value="popular">Популярные</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+        <label style="font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px">
+          <input type="checkbox" id="hf-exch" onchange="applyHomeInlineFilters()" style="width:16px;height:16px"> Только с обменом
+        </label>
+        <button type="button" class="btn-sm-sec" onclick="resetAllFilters()">Сбросить фильтр ✕</button>
+      </div>
+    </div>
+  </div>
 
   <div class="seg-row">
     <button type="button" id="scope-all" class="seg-btn active" onclick="selectFeedScope('all')">Все лоты</button>
@@ -192,11 +245,9 @@ input, textarea, select { font: inherit; color: var(--text); }
   </div>
 
   <div id="dynamic-size-bar" class="h-scroll hidden"></div>
-
   <div id="feed-grid" class="grid-2"></div>
 </section>
-
-<section id="tab-favs" class="wrap tab-pane hidden">
+  <section id="tab-favs" class="wrap tab-pane hidden">
   <h1 style="font-size:26px;font-weight:900;margin-bottom:4px">Избранное</h1>
   <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Сохранённые объявления</div>
   <div id="favs-grid" class="grid-2"></div>
@@ -204,7 +255,7 @@ input, textarea, select { font: inherit; color: var(--text); }
 
 <section id="tab-mylots" class="wrap tab-pane hidden">
   <h1 style="font-size:26px;font-weight:900;margin-bottom:4px">Мои объявления</h1>
-  <div style="font-size:13px;color:var(--muted);margin-bottom:14px" id="mylots-sub">Все новые объявления проходят проверку модератором</div>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Все новые объявления проходят проверку модератором</div>
   <div id="mylots-list"></div>
 </section>
 
@@ -242,7 +293,7 @@ input, textarea, select { font: inherit; color: var(--text); }
 
 <section id="tab-admin" class="wrap tab-pane hidden">
   <h1 style="font-size:25px;font-weight:900;margin-bottom:4px">Админ-панель</h1>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Модерация объявлений, отзывов, список продавцов и баны</div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Нажмите на лот или «👁 Просмотр», чтобы полностью проверить объявление</div>
   <div class="h-scroll">
     <button type="button" id="adm-btn-lots" class="chip active" onclick="switchAdminView('lots')">Лоты (<span id="adm-cnt-lots">0</span>)</button>
     <button type="button" id="adm-btn-revs" class="chip" onclick="switchAdminView('revs')">Отзывы (<span id="adm-cnt-revs">0</span>)</button>
@@ -273,7 +324,7 @@ input, textarea, select { font: inherit; color: var(--text); }
     <div class="modal-head"><div class="modal-title" id="form-modal-title">Разместить объявление</div><button type="button" class="close-x" onclick="closeModal('modal-form')">✕</button></div>
     <input type="hidden" id="f-edit-id">
     <div class="inp-group">
-      <label class="inp-label">Категория вещи</label>
+      <label class="inp-label">Что выкладываете? (Категория)</label>
       <div class="h-scroll" id="f-cat-pills">
         <button type="button" class="chip active" onclick="selectFormCategory('Кофта / Худи')">🧥 Кофта / Худи</button>
         <button type="button" class="chip" onclick="selectFormCategory('Кроссовки')">👟 Кроссовки</button>
@@ -283,6 +334,17 @@ input, textarea, select { font: inherit; color: var(--text); }
         <button type="button" class="chip" onclick="selectFormCategory('Аксессуары')">🎒 Аксессуары</button>
       </div>
     </div>
+
+    <div class="inp-group">
+      <label class="inp-label">Бренд (необязательно — выберите или впишите свой)</label>
+      <div class="h-scroll" id="f-brand-pills"></div>
+      <div id="f-model-suggest-wrap" class="hidden" style="margin-top:4px">
+        <label class="inp-label">Быстрый выбор модели бренда:</label>
+        <div class="h-scroll" id="f-model-pills"></div>
+      </div>
+      <input type="text" id="f-brand-inp" class="inp-field" placeholder="Бренд (можно оставить пустым или вписать свой)...">
+    </div>
+
     <div class="inp-group">
       <label class="inp-label">Фотографии</label>
       <div class="box-card" style="text-align:center;border-style:dashed;cursor:pointer" onclick="el('f-file').click()">
@@ -295,7 +357,9 @@ input, textarea, select { font: inherit; color: var(--text); }
       </div>
       <div id="f-previews" class="h-scroll"></div>
     </div>
-    <div class="inp-group"><label class="inp-label">Название и модель *</label><input type="text" id="f-title" class="inp-field" placeholder="Например: Nike Dunk Low / Худи..."></div>
+
+    <div class="inp-group"><label class="inp-label">Название вещи / модель *</label><input type="text" id="f-title" class="inp-field" placeholder="Например: Nike Dunk Low / Чёрное худи..."></div>
+
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="inp-group"><label class="inp-label">Цена ₽ (0 = Договорная)</label><input type="number" id="f-price" class="inp-field" placeholder="6500" min="0"></div>
       <div class="inp-group">
@@ -303,27 +367,31 @@ input, textarea, select { font: inherit; color: var(--text); }
         <button type="button" class="inp-field" style="text-align:left;display:flex;justify-content:space-between;align-items:center" onclick="openCityModal('form')"><span id="f-city-label">Уфа</span><span>📍</span></button>
       </div>
     </div>
+
     <div class="inp-group">
       <label class="inp-label">Размер</label>
       <div id="f-size-pills" class="h-scroll"></div>
       <input type="text" id="f-size-custom" class="inp-field" style="margin-top:6px" placeholder="Выбранный размер">
     </div>
+
     <div id="f-insole-wrap" class="inp-group hidden">
       <label class="inp-label">Длина стельки (см)</label>
       <div id="f-insole-pills" class="h-scroll"></div>
       <input type="text" id="f-insole-inp" class="inp-field" placeholder="Например: 26.5 см">
     </div>
+
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="inp-group"><label class="inp-label">Состояние</label><select id="f-cond" class="inp-field"><option value="Новое с биркой">Новое с биркой</option><option value="Отличное" selected>Отличное</option><option value="Хорошее">Хорошее</option><option value="Б/У">Б/У</option></select></div>
       <div class="inp-group"><label class="inp-label">Замеры (см)</label><input type="text" id="f-meas" class="inp-field" placeholder="72x60 см"></div>
     </div>
+
     <div class="inp-group" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="f-exch" style="width:18px;height:18px"><label for="f-exch" style="font-size:13px;font-weight:700">Возможен обмен</label></div>
-    <div class="inp-group"><label class="inp-label">Описание</label><textarea id="f-desc" class="inp-field" style="min-height:70px" placeholder="Детали, состояние, доставка..."></textarea></div>
+    <div class="inp-group"><label class="inp-label">Описание</label><textarea id="f-desc" class="inp-field" style="min-height:70px" placeholder="Детали, замеры, доставка..."></textarea></div>
     <button type="button" id="f-submit-btn" class="btn-main" onclick="saveListing()">Отправить на модерацию</button>
   </div>
 </div>
 
-<div id="modal-detail" class="modal-bg hidden" onclick="if(event.target===this)closeModal('modal-detail')"><div class="modal-sheet"><div class="sheet-handle-zone"><div class="sheet-handle"></div></div><div class="modal-head"><div class="modal-title">Объявление</div><button type="button" class="close-x" onclick="closeModal('modal-detail')">✕</button></div><div id="detail-body"></div></div></div>
+<div id="modal-detail" class="modal-bg hidden" onclick="if(event.target===this)closeModal('modal-detail')"><div class="modal-sheet"><div class="sheet-handle-zone"><div class="sheet-handle"></div></div><div class="modal-head"><div class="modal-title">Карточка объявления</div><button type="button" class="close-x" onclick="closeModal('modal-detail')">✕</button></div><div id="detail-body"></div></div></div>
 <div id="modal-seller" class="modal-bg hidden" onclick="if(event.target===this)closeModal('modal-seller')"><div class="modal-sheet"><div class="sheet-handle-zone"><div class="sheet-handle"></div></div><div class="modal-head"><div class="modal-title" id="seller-modal-title">Витрина продавца</div><button type="button" class="close-x" onclick="closeModal('modal-seller')">✕</button></div><div id="seller-modal-body"></div></div></div>
 
 <div id="modal-city" class="modal-bg hidden" onclick="if(event.target===this)closeModal('modal-city')">
@@ -342,20 +410,9 @@ input, textarea, select { font: inherit; color: var(--text); }
     <div class="sec-label">Международные (Одежда)</div><div id="sz-grid-intl" style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px"></div>
     <div class="sec-label">Российские (RU)</div><div id="sz-grid-ru" style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px"></div>
     <div class="sec-label">Джинсы (W)</div><div id="sz-grid-jeans" style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px"></div>
-    <div class="sec-label">Обувь EU (35–47)</div><div id="sz-grid-shoes" style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px"></div>
+    <div class="sec-label">Обувь EU (все размеры 35–47)</div><div id="sz-grid-shoes" style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px"></div>
     <div class="sec-label">Стелька (см)</div><div id="sz-grid-insole" style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px"></div>
     <button type="button" class="btn-sec" onclick="pickManualSize('')">Сбросить размер</button>
-  </div>
-</div>
-
-<div id="modal-filter" class="modal-bg hidden" onclick="if(event.target===this)closeModal('modal-filter')">
-  <div class="modal-sheet">
-    <div class="sheet-handle-zone"><div class="sheet-handle"></div></div>
-    <div class="modal-head"><div class="modal-title">Фильтры</div><button type="button" class="close-x" onclick="closeModal('modal-filter')">✕</button></div>
-    <div class="inp-group"><label class="inp-label">Сортировка</label><select id="flt-sort" class="inp-field"><option value="newest">Сначала новые</option><option value="cheapest">Сначала дешевле</option><option value="expensive">Сначала дороже</option><option value="popular">По просмотрам</option></select></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="inp-group"><label class="inp-label">Цена от ₽</label><input type="number" id="flt-min" class="inp-field" placeholder="0"></div><div class="inp-group"><label class="inp-label">Цена до ₽</label><input type="number" id="flt-max" class="inp-field" placeholder="100000"></div></div>
-    <div class="inp-group" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="flt-exch" style="width:18px;height:18px"><label for="flt-exch" style="font-size:13px;font-weight:700">Только обмен</label></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button type="button" class="btn-sec" onclick="resetAllFilters();closeModal('modal-filter')">Сбросить</button><button type="button" class="btn-main" style="margin-top:0" onclick="applyFiltersFromModal()">Применить</button></div>
   </div>
 </div>
 
@@ -372,8 +429,7 @@ input, textarea, select { font: inherit; color: var(--text); }
     <button type="button" class="btn-main" onclick="applyCustomColors()">Применить палитру</button>
   </div>
 </div>
-
-<script>
+  <script>
 const mem={};
 const sGet=(k,d)=>{try{const v=localStorage.getItem(k);return v!==null?v:d;}catch(e){return mem[k]??d;}};
 const sSet=(k,v)=>{mem[k]=v;try{localStorage.setItem(k,v);}catch(e){}};
@@ -382,14 +438,40 @@ const ROOT_ADMIN_ID=1879880417;
 let sb=null;try{if(window.supabase)sb=window.supabase.createClient('https://yznxjjprcadsdacrchon.supabase.co','sb_publishable_VT7pFKAyF8lbTw0Ybt8ZPg_jb410xH6');}catch(e){}
 const tg=window.Telegram?.WebApp;
 
-const SIZES_INTL=['XXS','XS','S','M','L','XL','XXL','3XL','One Size'],SIZES_RU=['40 RU','42 RU','44 RU','46 RU','48 RU','50 RU','52 RU','54 RU','56 RU'],SIZES_JEANS=['W26','W27','W28','W29','W30','W31','W32','W33','W34','W36','W38'],SIZES_SHOES_EU=['35','36','37','38','39','40','41','42','43','44','45','46','47'],SIZES_INSOLE_CM=['22.5 см','23 см','23.5 см','24 см','24.5 см','25 см','25.5 см','26 см','26.5 см','27 см','27.5 см','28 см','28.5 см','29 см','29.5 см','30 см','30.5 см','31 см'];
+const SIZES_INTL=['XXS','XS','S','M','L','XL','XXL','3XL','One Size'];
+const SIZES_RU=['40 RU','42 RU','44 RU','46 RU','48 RU','50 RU','52 RU','54 RU','56 RU'];
+const SIZES_JEANS=['W26','W27','W28','W29','W30','W31','W32','W33','W34','W36','W38'];
+const SIZES_SHOES_EU=['35','36','37','38','39','40','41','42','43','44','45','46','47'];
+const SIZES_INSOLE_CM=['22.5 см','23 см','23.5 см','24 см','24.5 см','25 см','25.5 см','26 см','26.5 см','27 см','27.5 см','28 см','28.5 см','29 см','29.5 см','30 см','30.5 см','31 см'];
+
+const BRAND_CATALOG={
+  'Nike':['Air Force 1 Low','Dunk Low Retro','Air Jordan 1 High','Air Max 95'],
+  'Rick Owens':['Geobasket','Ramones','DRKSHDW Cargo','Bauhaus Hoodie'],
+  'Raf Simons':['Ozweego','Riot Bomber','Redux Cargo','Oversized Knit']
+};
+
+const SEARCH_ITEMS=[
+  {title:'Nike Air Force 1 Low',brand:'Nike',cat:'Кроссовки',keys:['nike','найк','air','force','форс']},
+  {title:'Nike Dunk Low Retro',brand:'Nike',cat:'Кроссовки',keys:['nike','найк','dunk','данк']},
+  {title:'Nike Air Jordan 1 High',brand:'Nike',cat:'Кроссовки',keys:['nike','найк','jordan','джордан']},
+  {title:'Nike Air Max 95',brand:'Nike',cat:'Кроссовки',keys:['nike','найк','air','max','макс']},
+  {title:'Rick Owens Geobasket',brand:'Rick Owens',cat:'Кроссовки',keys:['rick','рик','owens','оуэнс','geo','гео']},
+  {title:'Rick Owens Ramones',brand:'Rick Owens',cat:'Кроссовки',keys:['rick','рик','owens','оуэнс','ramones','рамонес']},
+  {title:'Rick Owens DRKSHDW Cargo',brand:'Rick Owens',cat:'Джинсы / Штаны',keys:['rick','рик','owens','drkshdw','карго']},
+  {title:'Rick Owens Bauhaus Hoodie',brand:'Rick Owens',cat:'Кофта / Худи',keys:['rick','рик','owens','bauhaus','худи']},
+  {title:'Raf Simons Ozweego',brand:'Raf Simons',cat:'Кроссовки',keys:['raf','раф','simons','саймонс','ozweego','озвиго']},
+  {title:'Raf Simons Riot Bomber',brand:'Raf Simons',cat:'Куртка / Верх',keys:['raf','раф','simons','riot','бомбер']},
+  {title:'Raf Simons Redux Cargo',brand:'Raf Simons',cat:'Джинсы / Штаны',keys:['raf','раф','simons','redux','карго']},
+  {title:'Raf Simons Oversized Knit',brand:'Raf Simons',cat:'Кофта / Худи',keys:['raf','раф','simons','knit','свитер']}
+];
+
 const CITIES_LIST=['Уфа','Москва','Санкт-Петербург','Казань','Екатеринбург','Новосибирск','Краснодар','Нижний Новгород','Самара','Челябинск','Ростов-на-Дону','Омск','Красноярск','Воронеж','Пермь','Волгоград','Саратов','Тюмень','Тольятти','Ижевск','Барнаул','Ульяновск','Иркутск','Хабаровск','Ярославль','Владивосток','Томск','Оренбург','Кемерово','Рязань','Астрахань','Пенза','Киров','Липецк','Чебоксары','Калининград','Тула','Курск','Сочи','Ставрополь','Тверь','Сургут'];
-const SNEAKERS=[{title:'Nike Air Force 1 Low',tag:'Хит Nike'},{title:'Nike Dunk Low Retro',tag:'Классика Dunk'},{title:'Nike Air Jordan 1 High',tag:'Jordan 1'},{title:'Nike Air Max 95',tag:'Air Max'}];
 const PRESETS=[{name:'Чёрный / Белый',bg:'#08080a',acc:'#ffffff'},{name:'Белый / Чёрный',bg:'#f4f4f7',acc:'#0a0a0d'},{name:'Чёрный / Жёлтый',bg:'#09090b',acc:'#facc15'},{name:'Белый / Жёлтый',bg:'#f7f7f9',acc:'#eab308'},{name:'Графит / Лайм',bg:'#101214',acc:'#a3e635'},{name:'Оникс / Кобальт',bg:'#090d16',acc:'#38bdf8'}];
 
 let currentUser={tg_id:ROOT_ADMIN_ID,username:'admin',first_name:'Админ',avatar_url:'',city:sGet('u_city','Уфа'),size:sGet('u_size',''),is_admin:true,ban_until:null,ban_reason:''};
 let allListings=[],allProfiles=[],allReviews=[],favIds=sJson('u_favs',[]),searchHistory=sJson('u_search_hist',[]),localBans=sJson('u_bans_map',{});
-let feedScope='all',activeCategory='all',activeSizeFilter='',shoeBarMode='eu',sortMode='newest',fltMin=0,fltMax=0,fltExch=false,formCategory='Кофта / Худи',formPhotos=[],cityModalTarget='user',detailPhotos=[],detailIdx=0,reviewStars=5,tTimer=null;
+let feedScope='all',activeCategory='all',activeSizeFilter='',shoeBarMode='eu',sortMode='newest',fltMin=0,fltMax=0,fltCond='',fltBrand='',fltModel='',fltExch=false;
+let formCategory='Кофта / Худи',formBrand='',formPhotos=[],cityModalTarget='user',detailPhotos=[],detailIdx=0,reviewStars=5,tTimer=null;
 
 const el=id=>document.getElementById(id),esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 function showToast(m){const b=el('toast-box');if(!b)return;b.textContent=m;b.classList.remove('hidden');clearTimeout(tTimer);tTimer=setTimeout(()=>b.classList.add('hidden'),2300);}
@@ -419,9 +501,36 @@ async function initApp(){
   applyTheme(sGet('u_theme_bg','#08080a'),sGet('u_theme_acc','#ffffff'));initSwipe();
   const mk=a=>a.map(s=>`<button type="button" class="chip" onclick="pickManualSize('${s}')">${s}</button>`).join('');
   el('sz-grid-intl').innerHTML=mk(SIZES_INTL);el('sz-grid-ru').innerHTML=mk(SIZES_RU);el('sz-grid-jeans').innerHTML=mk(SIZES_JEANS);el('sz-grid-shoes').innerHTML=mk(SIZES_SHOES_EU);el('sz-grid-insole').innerHTML=mk(SIZES_INSOLE_CM);
+  renderHomeFilterBrands();
   try{if(tg){tg.ready();tg.expand();const u=tg.initDataUnsafe?.user;if(u?.id){currentUser.tg_id=Number(u.id);currentUser.username=u.username||'';currentUser.first_name=[u.first_name,u.last_name].filter(Boolean).join(' ')||'Пользователь';currentUser.avatar_url=u.photo_url||'';currentUser.is_admin=(Number(u.id)===ROOT_ADMIN_ID);}}}catch(e){}
   if(sb){try{const {data:ex}=await sb.from('profiles').select('*').eq('tg_id',currentUser.tg_id).maybeSingle();currentUser.is_admin=(currentUser.tg_id===ROOT_ADMIN_ID)||Boolean(ex?.is_admin);if(ex?.city)currentUser.city=ex.city;await sb.from('profiles').upsert({tg_id:currentUser.tg_id,username:currentUser.username,first_name:currentUser.first_name,avatar_url:currentUser.avatar_url,city:currentUser.city,is_admin:currentUser.is_admin},{onConflict:'tg_id'});}catch(e){}}
   await fetchAllData();
+}
+
+function toggleHomeFilterBox(){
+  const b=el('home-flt-body');b.classList.toggle('hidden');
+  el('home-flt-arrow').textContent=b.classList.contains('hidden')?'▼':'▲';
+}
+
+function renderHomeFilterBrands(){
+  const brands=['',...Object.keys(BRAND_CATALOG)];
+  el('hf-brand-pills').innerHTML=brands.map(b=>`<button type="button" class="chip ${fltBrand===b?'active':''}" onclick="selectHomeBrand('${b}')">${b||'Все бренды'}</button>`).join('');
+  const mw=el('hf-model-wrap');
+  if(!fltBrand||!BRAND_CATALOG[fltBrand]){mw.classList.add('hidden');}
+  else{
+    mw.classList.remove('hidden');
+    const mods=['',...BRAND_CATALOG[fltBrand]];
+    el('hf-model-pills').innerHTML=mods.map(m=>`<button type="button" class="chip ${fltModel===m?'active':''}" onclick="selectHomeModel('${m}')">${m||'Все модели'}</button>`).join('');
+  }
+}
+function selectHomeBrand(b){fltBrand=b;fltModel='';renderHomeFilterBrands();applyHomeInlineFilters();}
+function selectHomeModel(m){fltModel=m;renderHomeFilterBrands();applyHomeInlineFilters();}
+function applyHomeInlineFilters(){
+  fltMin=Number(el('hf-min-price').value||0);fltMax=Number(el('hf-max-price').value||0);
+  fltCond=el('hf-cond').value;sortMode=el('hf-sort').value;fltExch=el('hf-exch').checked;
+  const parts=[fltBrand,fltModel,fltCond,fltMin?`от ${fltMin}₽`:'',fltMax?`до ${fltMax}₽`:''].filter(Boolean);
+  el('home-flt-summary').textContent=parts.length?`Выбрано: ${parts.join(' · ')}`:'Все поля необязательные — выберите нужные';
+  renderFeed();
 }
 
 function getStats(sid){const r=allReviews.filter(x=>Number(x.seller_id)===Number(sid)&&(x.status==='approved'||!x.status));if(!r.length)return{count:0,avg:'0.0',pct:0,list:[]};return{count:r.length,avg:(r.reduce((a,b)=>a+Number(b.rating),0)/r.length).toFixed(1),pct:Math.round((r.filter(x=>Number(x.rating)>=4).length/r.length)*100),list:r};}
@@ -437,653 +546,170 @@ async function fetchAllData(){
   el('prof-rate-pill').textContent=`★ ${st.avg} (${st.count} отз.)`;
   el('prof-size-pill').textContent=`Размер: ${currentUser.size||'—'}`;
   el('bento-size-sub').textContent=currentUser.size?`Выбран: ${currentUser.size}`:'Выбрать сетку';
-    el('top-user-ava').innerHTML = el('prof-big-ava').innerHTML = currentUser.avatar_url
-    ? `<img src="${esc(currentUser.avatar_url)}">`
-    : (currentUser.first_name || 'U')[0].toUpperCase();
-
-  el('top-admin-btn').classList.toggle('hidden', !currentUser.is_admin);
-  el('prof-admin-row').classList.toggle('hidden', !currentUser.is_admin);
-
-  const b = isBanned(currentUser.tg_id);
-  el('ban-alert-banner').classList.toggle('hidden', !b);
-  if (b) el('ban-alert-text').textContent = `Причина: ${b.reason}`;
-
-  renderHistory();
-  renderDynamicSizeBar();
-  renderFeed();
-  renderFavs();
-  renderMyLots();
-  renderAdminAll();
+  el('top-user-ava').innerHTML=el('prof-big-ava').innerHTML=currentUser.avatar_url?`<img src="${esc(currentUser.avatar_url)}">`:(currentUser.first_name||'U')[0].toUpperCase();
+  el('top-admin-btn').classList.toggle('hidden',!currentUser.is_admin);el('prof-admin-row').classList.toggle('hidden',!currentUser.is_admin);
+  const b=isBanned(currentUser.tg_id);el('ban-alert-banner').classList.toggle('hidden',!b);if(b)el('ban-alert-text').textContent=`Причина: ${b.reason}`;
+  renderHistory();renderDynamicSizeBar();renderFeed();renderFavs();renderMyLots();renderAdminAll();
 }
 
-function onSearchInput() {
-  const v = (el('search-input').value || '').trim();
-  const d = el('search-suggest-box');
-  el('search-clear-x').classList.toggle('hidden', !v);
-  if (!v) {
-    d.classList.add('hidden');
-    renderFeed();
-    return;
-  }
-  const q = v.toLowerCase();
-  const isShoe = ['nik','найк','dunk','данк','air','форс','force','jord','кросс'].some(w => q.includes(w));
-  const sn = SNEAKERS.filter(s => s.title.toLowerCase().includes(q) || isShoe);
-
-  if (!sn.length) {
-    d.classList.add('hidden');
-  } else {
-    d.innerHTML = sn.map(s => `
-      <button type="button" class="suggest-item" onclick="pickSuggest('${esc(s.title)}','Кроссовки')">
-        <span>👟 ${esc(s.title)} <small style="color:var(--muted)">(${esc(s.tag)})</small></span>
-        <span>↗</span>
-      </button>`).join('');
+function onSearchInput(){
+  const v=(el('search-input').value||'').trim(),d=el('search-suggest-box');el('search-clear-x').classList.toggle('hidden',!v);
+  if(!v){d.classList.add('hidden');renderFeed();return;}
+  const q=v.toLowerCase();
+  const matched=SEARCH_ITEMS.filter(s=>s.title.toLowerCase().includes(q)||s.brand.toLowerCase().includes(q)||s.keys.some(k=>k.includes(q)||q.includes(k)));
+  if(!matched.length){d.classList.add('hidden');}
+  else{
+    d.innerHTML=`<div style="font-size:10px;font-weight:800;color:var(--muted);padding:2px 8px 4px;text-transform:uppercase">Рекомендации брендов и моделей</div>`+matched.map(s=>`<button type="button" class="suggest-item" onclick="pickSuggest('${esc(s.title)}','${esc(s.cat)}','${esc(s.brand)}')"><span>🏷 <b>${esc(s.title)}</b> <small style="color:var(--muted)">(${esc(s.cat)})</small></span><span>↗</span></button>`).join('');
     d.classList.remove('hidden');
   }
   renderFeed();
 }
+function pickSuggest(t,c,b=''){el('search-input').value=t;el('search-suggest-box').classList.add('hidden');if(c)selectCategoryPill(c);if(b){fltBrand=b;renderHomeFilterBrands();}saveHist(t);renderFeed();}
+function submitSearchQuery(){const v=(el('search-input').value||'').trim();el('search-suggest-box').classList.add('hidden');if(v)saveHist(v);renderFeed();}
+function clearSearchInput(){el('search-input').value='';el('search-clear-x').classList.add('hidden');el('search-suggest-box').classList.add('hidden');renderFeed();}
+function saveHist(q){searchHistory=[q,...searchHistory.filter(x=>x.toLowerCase()!==q.toLowerCase())].slice(0,8);sSet('u_search_hist',JSON.stringify(searchHistory));renderHistory();}
+function clearSearchHistory(){searchHistory=[];sSet('u_search_hist','[]');renderHistory();}
+function renderHistory(){const b=el('search-history-bar');if(!searchHistory.length){b.classList.add('hidden');return;}b.classList.remove('hidden');b.innerHTML=`<button type="button" class="chip" style="color:var(--danger)" onclick="clearSearchHistory()">Очистить ✕</button>`+searchHistory.map(h=>`<button type="button" class="chip" onclick="pickSuggest('${esc(h)}','')">🕒 ${esc(h)}</button>`).join('');}
 
-function pickSuggest(t, c) {
-  el('search-input').value = t;
-  el('search-suggest-box').classList.add('hidden');
-  el('search-clear-x').classList.remove('hidden');
-  if (c) selectCategoryPill(c);
-  saveHist(t);
-  renderFeed();
+function selectFeedScope(s){if(s==='size'&&!currentUser.size)return openSizeFitModal();feedScope=s;['all','city','size'].forEach(k=>el(`scope-${k}`).classList.toggle('active',k===s));renderFeed();}
+function selectCategoryPill(c){activeCategory=c;activeSizeFilter='';document.querySelectorAll('#category-bar .chip').forEach(b=>b.classList.toggle('active',b.getAttribute('data-cat')===c));renderDynamicSizeBar();renderFeed();}
+function setShoeMode(m){shoeBarMode=m;activeSizeFilter='';renderDynamicSizeBar();renderFeed();}
+function selectSizePill(s){activeSizeFilter=activeSizeFilter===s?'':s;renderDynamicSizeBar();renderFeed();}
+
+function renderDynamicSizeBar(){
+  const b=el('dynamic-size-bar');if(activeCategory==='all'||activeCategory==='Аксессуары'){b.classList.add('hidden');return;}b.classList.remove('hidden');
+  if(activeCategory==='Кроссовки'){const a=shoeBarMode==='cm'?SIZES_INSOLE_CM:SIZES_SHOES_EU;b.innerHTML=`<button type="button" class="chip ${shoeBarMode==='eu'?'active':''}" onclick="setShoeMode('eu')">EU 35–47</button><button type="button" class="chip ${shoeBarMode==='cm'?'active':''}" onclick="setShoeMode('cm')">📏 Стелька см</button>`+a.map(s=>`<button type="button" class="chip ${activeSizeFilter===s?'active':''}" onclick="selectSizePill('${s}')">${s}</button>`).join('');}
+  else{const a=activeCategory==='Джинсы / Штаны'?[...SIZES_JEANS,...SIZES_INTL.slice(0,6)]:[...SIZES_INTL,...SIZES_RU];b.innerHTML=a.map(s=>`<button type="button" class="chip ${activeSizeFilter===s?'active':''}" onclick="selectSizePill('${s}')">${s}</button>`).join('');}
 }
 
-function submitSearchQuery() {
-  const v = (el('search-input').value || '').trim();
-  el('search-suggest-box').classList.add('hidden');
-  if (v) saveHist(v);
-  renderFeed();
+function cardHtml(it){
+  const ph=Array.isArray(it.photos)&&it.photos.length?it.photos:['https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=600&q=60'],pr=Number(it.price)>0?`${Number(it.price).toLocaleString('ru-RU')} ₽`:'Договорная',lk=favIds.includes(it.id),sz=[it.size,it.insole_cm].filter(Boolean).join(' · ');
+  return `<div class="card-item" onclick="openListingDetails(${it.id})"><div class="card-thumb"><img src="${esc(ph[0])}" loading="lazy">${it.is_exchange?`<div class="tag-top-left">Обмен</div>`:(sz?`<div class="tag-top-left">${esc(sz)}</div>`:'')}<button type="button" class="btn-fav ${lk?'liked':''}" onclick="event.stopPropagation();toggleFav(${it.id})">♥</button></div><div class="card-body"><div class="card-price">${pr}</div><div class="card-title">${esc(it.title)}</div><div class="card-meta">${esc(it.location||'Уфа')} · ${esc(it.condition||'Отличное')}</div></div></div>`;
 }
 
-function clearSearchInput() {
-  el('search-input').value = '';
-  el('search-clear-x').classList.add('hidden');
-  el('search-suggest-box').classList.add('hidden');
-  renderFeed();
+function renderFeed(){
+  const q=(el('search-input').value||'').trim().toLowerCase();
+  let l=allListings.filter(x=>x.status==='approved'||!x.status);
+  if(feedScope==='city')l=l.filter(x=>(x.location||'').toLowerCase()===currentUser.city.toLowerCase());
+  else if(feedScope==='size'&&currentUser.size)l=l.filter(x=>[x.size,x.insole_cm].some(v=>(v||'').toLowerCase()===currentUser.size.toLowerCase()));
+  if(activeCategory!=='all')l=l.filter(x=>(x.category||'Кофта / Худи')===activeCategory);
+  if(activeSizeFilter)l=l.filter(x=>[x.size,x.insole_cm].some(v=>(v||'').toLowerCase()===activeSizeFilter.toLowerCase()));
+  if(fltBrand)l=l.filter(x=>((x.brand||'')+' '+(x.title||'')).toLowerCase().includes(fltBrand.toLowerCase()));
+  if(fltModel)l=l.filter(x=>(x.title||'').toLowerCase().includes(fltModel.toLowerCase()));
+  if(fltCond)l=l.filter(x=>(x.condition||'Отличное')===fltCond);
+  if(q)l=l.filter(x=>[x.title,x.description,x.category,x.location,x.brand].some(v=>(v||'').toLowerCase().includes(q)));
+  if(fltMin>0)l=l.filter(x=>Number(x.price)>=fltMin);if(fltMax>0)l=l.filter(x=>Number(x.price)<=fltMax);if(fltExch)l=l.filter(x=>Boolean(x.is_exchange));
+  if(sortMode==='cheapest')l.sort((a,b)=>Number(a.price)-Number(b.price));else if(sortMode==='expensive')l.sort((a,b)=>Number(b.price)-Number(a.price));else if(sortMode==='popular')l.sort((a,b)=>Number(b.views||0)-Number(a.views||0));
+  el('feed-grid').innerHTML=!l.length?`<div class="empty-msg" style="grid-column:1/-1">По выбранным параметрам объявлений пока нет</div>`:l.map(cardHtml).join('');
 }
 
-function saveHist(q) {
-  searchHistory = [q, ...searchHistory.filter(x => x.toLowerCase() !== q.toLowerCase())].slice(0, 8);
-  sSet('u_search_hist', JSON.stringify(searchHistory));
-  renderHistory();
+function toggleFav(id){favIds=favIds.includes(id)?favIds.filter(x=>x!==id):[...favIds,id];sSet('u_favs',JSON.stringify(favIds));renderFeed();renderFavs();}
+function renderFavs(){const l=allListings.filter(x=>favIds.includes(x.id));el('favs-grid').innerHTML=!l.length?`<div class="empty-msg" style="grid-column:1/-1">Пусто</div>`:l.map(cardHtml).join('');}
+function renderMyLots(){
+  const own=allListings.filter(x=>Number(x.seller_id)===currentUser.tg_id);
+  el('mylots-list').innerHTML=!own.length?`<div class="empty-msg">У вас пока нет объявлений</div>`:own.map(it=>`<div class="box-card" onclick="openListingDetails(${it.id})"><div style="font-size:12px;font-weight:800;color:${it.status==='pending'?'var(--warn)':'var(--success)'}">${it.status==='pending'?'⏳ На модерации':'● Опубликовано'}</div><div style="font-size:16px;font-weight:800;margin-top:4px">${esc(it.title)}</div><div style="font-size:18px;font-weight:900;margin:4px 0 8px">${Number(it.price)>0?it.price+' ₽':'Договорная'}</div><div style="display:flex;gap:8px" onclick="event.stopPropagation()"><button type="button" class="btn-sm-sec" onclick="openListingModal(${it.id})">✎ Изменить</button><button type="button" class="btn-sm-red" onclick="delListing(${it.id})">✕ Удалить</button></div></div>`).join('');
 }
 
-function clearSearchHistory() {
-  searchHistory = [];
-  sSet('u_search_hist', '[]');
-  renderHistory();
-  showToast('История поиска очищена');
-}
-
-function renderHistory() {
-  const b = el('search-history-bar');
-  if (!searchHistory.length) {
-    b.classList.add('hidden');
-    return;
-  }
-  b.classList.remove('hidden');
-  b.innerHTML = `<button type="button" class="chip" style="color:var(--danger)" onclick="clearSearchHistory()">Очистить ✕</button>` +
-    searchHistory.map(h => `<button type="button" class="chip" onclick="pickSuggest('${esc(h)}','')">🕒 ${esc(h)}</button>`).join('');
-}
-
-function selectFeedScope(s) {
-  if (s === 'size' && !currentUser.size) return openSizeFitModal();
-  feedScope = s;
-  ['all', 'city', 'size'].forEach(k => el(`scope-${k}`).classList.toggle('active', k === s));
-  renderFeed();
-}
-
-function selectCategoryPill(c) {
-  activeCategory = c;
-  activeSizeFilter = '';
-  document.querySelectorAll('#category-bar .chip').forEach(b => {
-    b.classList.toggle('active', b.getAttribute('data-cat') === c);
-  });
-  renderDynamicSizeBar();
-  renderFeed();
-}
-
-function setShoeMode(m) {
-  shoeBarMode = m;
-  activeSizeFilter = '';
-  renderDynamicSizeBar();
-  renderFeed();
-}
-
-function selectSizePill(s) {
-  activeSizeFilter = (activeSizeFilter === s) ? '' : s;
-  renderDynamicSizeBar();
-  renderFeed();
-}
-
-function renderDynamicSizeBar() {
-  const b = el('dynamic-size-bar');
-  if (activeCategory === 'all' || activeCategory === 'Аксессуары') {
-    b.classList.add('hidden');
-    return;
-  }
-  b.classList.remove('hidden');
-  if (activeCategory === 'Кроссовки') {
-    const a = shoeBarMode === 'cm' ? SIZES_INSOLE_CM : SIZES_SHOES_EU;
-    b.innerHTML = `
-      <button type="button" class="chip ${shoeBarMode === 'eu' ? 'active' : ''}" onclick="setShoeMode('eu')">EU 35–47</button>
-      <button type="button" class="chip ${shoeBarMode === 'cm' ? 'active' : ''}" onclick="setShoeMode('cm')">📏 Стелька см</button>` +
-      a.map(s => `<button type="button" class="chip ${activeSizeFilter === s ? 'active' : ''}" onclick="selectSizePill('${s}')">${s}</button>`).join('');
-  } else {
-    const a = activeCategory === 'Джинсы / Штаны' ? [...SIZES_JEANS, ...SIZES_INTL.slice(0, 6)] : [...SIZES_INTL, ...SIZES_RU];
-    b.innerHTML = a.map(s => `<button type="button" class="chip ${activeSizeFilter === s ? 'active' : ''}" onclick="selectSizePill('${s}')">${s}</button>`).join('');
+function renderFormBrandPills(){
+  const brands=['',...Object.keys(BRAND_CATALOG)];
+  el('f-brand-pills').innerHTML=brands.map(b=>`<button type="button" class="chip ${formBrand===b?'active':''}" onclick="selectFormBrand('${b}')">${b||'Свой / Без бренда'}</button>`).join('');
+  const mw=el('f-model-suggest-wrap');
+  if(!formBrand||!BRAND_CATALOG[formBrand]){mw.classList.add('hidden');}
+  else{
+    mw.classList.remove('hidden');
+    el('f-model-pills').innerHTML=BRAND_CATALOG[formBrand].map(m=>`<button type="button" class="chip" onclick="el('f-title').value='${formBrand} ${m}'">+ ${m}</button>`).join('');
   }
 }
+function selectFormBrand(b){formBrand=b;el('f-brand-inp').value=b;renderFormBrandPills();}
 
-function cardHtml(it) {
-  const ph = Array.isArray(it.photos) && it.photos.length ? it.photos : ['https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=600&q=60'];
-  const pr = Number(it.price) > 0 ? `${Number(it.price).toLocaleString('ru-RU')} ₽` : 'Договорная';
-  const lk = favIds.includes(it.id);
-  const sz = [it.size, it.insole_cm].filter(Boolean).join(' · ');
-  return `
-    <div class="card-item" onclick="openListingDetails(${it.id})">
-      <div class="card-thumb">
-        <img src="${esc(ph[0])}" loading="lazy">
-        ${it.is_exchange ? `<div class="tag-top-left">Обмен</div>` : (sz ? `<div class="tag-top-left">${esc(sz)}</div>` : '')}
-        <button type="button" class="btn-fav ${lk ? 'liked' : ''}" onclick="event.stopPropagation();toggleFav(${it.id})">♥</button>
-      </div>
-      <div class="card-body">
-        <div class="card-price">${pr}</div>
-        <div class="card-title">${esc(it.title)}</div>
-        <div class="card-meta">${esc(it.location || 'Уфа')} · ${esc(it.category || 'Вещь')}</div>
-      </div>
-    </div>`;
+function selectFormCategory(c){
+    formCategory=c;document.querySelectorAll('#f-cat-pills .chip').forEach(b=>b.classList.toggle('active',b.textContent.includes(c.split(' ')[0])));
+  const sh=c==='Кроссовки';el('f-insole-wrap').classList.toggle('hidden',!sh);
+  const a=sh?SIZES_SHOES_EU:(c==='Джинсы / Штаны'?SIZES_JEANS:[...SIZES_INTL,...SIZES_RU]);
+  el('f-size-pills').innerHTML=a.map(s=>`<button type="button" class="chip" onclick="el('f-size-custom').value='${s}'">${s}</button>`).join('');
+  if(sh)el('f-insole-pills').innerHTML=SIZES_INSOLE_CM.map(s=>`<button type="button" class="chip" onclick="el('f-insole-inp').value='${s}'">${s}</button>`).join('');
 }
 
-function renderFeed() {
-  const q = (el('search-input').value || '').trim().toLowerCase();
-  let l = allListings.filter(x => x.status === 'approved' || !x.status);
-
-  if (feedScope === 'city') l = l.filter(x => (x.location || '').toLowerCase() === currentUser.city.toLowerCase());
-  else if (feedScope === 'size' && currentUser.size) l = l.filter(x => [x.size, x.insole_cm].some(v => (v || '').toLowerCase() === currentUser.size.toLowerCase()));
-
-  if (activeCategory !== 'all') l = l.filter(x => (x.category || 'Кофта / Худи') === activeCategory);
-  if (activeSizeFilter) l = l.filter(x => [x.size, x.insole_cm].some(v => (v || '').toLowerCase() === activeSizeFilter.toLowerCase()));
-  if (q) l = l.filter(x => [x.title, x.description, x.category, x.location].some(v => (v || '').toLowerCase().includes(q)));
-  if (fltMin > 0) l = l.filter(x => Number(x.price) >= fltMin);
-  if (fltMax > 0) l = l.filter(x => Number(x.price) <= fltMax);
-  if (fltExch) l = l.filter(x => Boolean(x.is_exchange));
-
-  if (sortMode === 'cheapest') l.sort((a, b) => Number(a.price) - Number(b.price));
-  else if (sortMode === 'expensive') l.sort((a, b) => Number(b.price) - Number(a.price));
-  else if (sortMode === 'popular') l.sort((a, b) => Number(b.views || 0) - Number(a.views || 0));
-
-  el('feed-grid').innerHTML = !l.length
-    ? `<div class="empty-msg" style="grid-column:1/-1">Объявлений пока нет</div>`
-    : l.map(cardHtml).join('');
+function openListingModal(id=null){
+  if(isBanned(currentUser.tg_id))return showToast('Аккаунт ограничен');
+  el('f-edit-id').value=id||'';
+  if(id){const it=allListings.find(x=>x.id===id);if(!it)return;selectFormCategory(it.category||'Кофта / Худи');formBrand=it.brand||'';el('f-brand-inp').value=formBrand;renderFormBrandPills();el('f-title').value=it.title||'';el('f-price').value=it.price||0;el('f-city-label').textContent=it.location||currentUser.city;el('f-size-custom').value=it.size||'';el('f-insole-inp').value=it.insole_cm||'';el('f-cond').value=it.condition||'Отличное';el('f-meas').value=it.measurements||'';el('f-exch').checked=Boolean(it.is_exchange);el('f-desc').value=it.description||'';formPhotos=Array.isArray(it.photos)?[...it.photos]:[];}
+  else{selectFormCategory('Кофта / Худи');formBrand='';el('f-brand-inp').value='';renderFormBrandPills();el('f-title').value='';el('f-price').value='';el('f-city-label').textContent=currentUser.city;el('f-size-custom').value='';el('f-insole-inp').value='';el('f-meas').value='';el('f-exch').checked=false;el('f-desc').value='';formPhotos=[];}
+  renderPreviews();closeModal('modal-detail');openModal('modal-form');
 }
+function renderPreviews(){el('f-previews').innerHTML=formPhotos.map((s,i)=>`<div style="position:relative;width:64px;height:64px;border-radius:10px;overflow:hidden;flex-shrink:0"><img src="${esc(s)}" style="width:100%;height:100%;object-fit:cover"><button type="button" onclick="formPhotos.splice(${i},1);renderPreviews()" style="position:absolute;top:2px;right:2px;background:#000;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px">✕</button></div>`).join('');}
+function addPhotoUrl(){const u=(el('f-photo-url').value||'').trim();if(u){formPhotos.push(u);el('f-photo-url').value='';renderPreviews();}}
+async function handlePhotoFiles(e){for(const f of Array.from(e.target.files||[])){const d=await new Promise(res=>{const r=new FileReader();r.onload=ev=>{const im=new Image();im.onload=()=>{let w=im.width,h=im.height,m=800;if(w>h&&w>m){h=Math.round(h*m/w);w=m;}else if(h>=w&&h>m){w=Math.round(w*m/h);h=m;}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);res(c.toDataURL('image/jpeg',0.72));};im.src=ev.target.result;};r.readAsDataURL(f);});formPhotos.push(d);}e.target.value='';renderPreviews();}
 
-function toggleFav(id) {
-  favIds = favIds.includes(id) ? favIds.filter(x => x !== id) : [...favIds, id];
-  sSet('u_favs', JSON.stringify(favIds));
-  renderFeed();
-  renderFavs();
+async function saveListing(){
+  const id=el('f-edit-id').value,rawTitle=(el('f-title').value||'').trim(),br=(el('f-brand-inp').value||'').trim();
+  if(!rawTitle)return showToast('Укажите название');
+  const title=(br&&!rawTitle.toLowerCase().includes(br.toLowerCase()))?`${br} · ${rawTitle}`:rawTitle;
+  const base={title,price:Number(el('f-price').value||0),location:el('f-city-label').textContent||currentUser.city,is_exchange:el('f-exch').checked,description:(el('f-desc').value||'').trim(),photos:formPhotos};
+  const ext={...base,category:formCategory,size:(el('f-size-custom').value||'').trim(),insole_cm:formCategory==='Кроссовки'?(el('f-insole-inp').value||'').trim():'',condition:el('f-cond').value,measurements:(el('f-meas').value||'').trim(),status:'pending'};
+  if(sb){if(id){const {error}=await sb.from('listings').update(ext).eq('id',Number(id));if(error)await sb.from('listings').update(base).eq('id',Number(id));}else{const m={seller_id:currentUser.tg_id,seller_username:currentUser.username,seller_name:currentUser.first_name,seller_avatar:currentUser.avatar_url};const {error}=await sb.from('listings').insert({...ext,...m});if(error)await sb.from('listings').insert({...base,...m});}}
+  closeModal('modal-form');await fetchAllData();showToast('Отправлено на модерацию!');
 }
+async function delListing(id){if(sb)await sb.from('listings').delete().eq('id',id);closeModal('modal-detail');await fetchAllData();showToast('Удалено');}
 
-function renderFavs() {
-  const l = allListings.filter(x => favIds.includes(x.id));
-  el('favs-grid').innerHTML = !l.length
-    ? `<div class="empty-msg" style="grid-column:1/-1">В избранном пока пусто</div>`
-    : l.map(cardHtml).join('');
-}
-
-function renderMyLots() {
-  const own = allListings.filter(x => Number(x.seller_id) === currentUser.tg_id);
-  el('mylots-list').innerHTML = !own.length
-    ? `<div class="empty-msg">У вас пока нет объявлений</div>`
-    : own.map(it => `
-      <div class="box-card" onclick="openListingDetails(${it.id})">
-        <div style="font-size:12px;font-weight:800;color:${it.status === 'pending' ? 'var(--warn)' : 'var(--success)'}">
-          ${it.status === 'pending' ? '⏳ На модерации' : '● Опубликовано'}
-        </div>
-        <div style="font-size:16px;font-weight:800;margin-top:4px">${esc(it.title)}</div>
-        <div style="font-size:18px;font-weight:900;margin:4px 0 8px">${Number(it.price) > 0 ? it.price + ' ₽' : 'Договорная'}</div>
-        <div style="display:flex;gap:8px" onclick="event.stopPropagation()">
-          <button type="button" class="btn-sm-sec" onclick="openListingModal(${it.id})">✎ Изменить</button>
-          <button type="button" class="btn-sm-red" onclick="delListing(${it.id})">✕ Удалить</button>
-        </div>
-      </div>`).join('');
-}
-
-function selectFormCategory(c) {
-  formCategory = c;
-  document.querySelectorAll('#f-cat-pills .chip').forEach(b => {
-    b.classList.toggle('active', b.textContent.includes(c.split(' ')[0]));
-  });
-  const sh = (c === 'Кроссовки');
-  el('f-insole-wrap').classList.toggle('hidden', !sh);
-  const a = sh ? SIZES_SHOES_EU : (c === 'Джинсы / Штаны' ? SIZES_JEANS : [...SIZES_INTL, ...SIZES_RU]);
-  el('f-size-pills').innerHTML = a.map(s => `<button type="button" class="chip" onclick="el('f-size-custom').value='${s}'">${s}</button>`).join('');
-  if (sh) {
-    el('f-insole-pills').innerHTML = SIZES_INSOLE_CM.map(s => `<button type="button" class="chip" onclick="el('f-insole-inp').value='${s}'">${s}</button>`).join('');
-  }
-}
-
-function openListingModal(id = null) {
-  if (isBanned(currentUser.tg_id)) return showToast('Ваш аккаунт ограничен');
-  el('f-edit-id').value = id || '';
-  if (id) {
-    const it = allListings.find(x => x.id === id);
-    if (!it) return;
-    selectFormCategory(it.category || 'Кофта / Худи');
-    el('f-title').value = it.title || '';
-    el('f-price').value = it.price || 0;
-    el('f-city-label').textContent = it.location || currentUser.city;
-    el('f-size-custom').value = it.size || '';
-    el('f-insole-inp').value = it.insole_cm || '';
-    el('f-cond').value = it.condition || 'Отличное';
-    el('f-meas').value = it.measurements || '';
-    el('f-exch').checked = Boolean(it.is_exchange);
-    el('f-desc').value = it.description || '';
-    formPhotos = Array.isArray(it.photos) ? [...it.photos] : [];
-  } else {
-    selectFormCategory('Кофта / Худи');
-    el('f-title').value = '';
-    el('f-price').value = '';
-    el('f-city-label').textContent = currentUser.city;
-    el('f-size-custom').value = '';
-    el('f-insole-inp').value = '';
-    el('f-meas').value = '';
-    el('f-exch').checked = false;
-    el('f-desc').value = '';
-    formPhotos = [];
-  }
-  renderPreviews();
-  closeModal('modal-detail');
-  openModal('modal-form');
-}
-
-function renderPreviews() {
-  el('f-previews').innerHTML = formPhotos.map((s, i) => `
-    <div style="position:relative;width:64px;height:64px;border-radius:10px;overflow:hidden;flex-shrink:0">
-      <img src="${esc(s)}" style="width:100%;height:100%;object-fit:cover">
-      <button type="button" onclick="formPhotos.splice(${i},1);renderPreviews()" style="position:absolute;top:2px;right:2px;background:#000;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px">✕</button>
-    </div>`).join('');
-}
-
-function addPhotoUrl() {
-  const u = (el('f-photo-url').value || '').trim();
-  if (u) {
-    formPhotos.push(u);
-    el('f-photo-url').value = '';
-    renderPreviews();
-  }
-}
-
-async function handlePhotoFiles(e) {
-  for (const f of Array.from(e.target.files || [])) {
-    const d = await new Promise(res => {
-      const r = new FileReader();
-      r.onload = ev => {
-        const im = new Image();
-        im.onload = () => {
-          let w = im.width, h = im.height, m = 800;
-          if (w > h && w > m) { h = Math.round(h * m / w); w = m; }
-          else if (h >= w && h > m) { w = Math.round(w * m / h); h = m; }
-          const c = document.createElement('canvas');
-          c.width = w; c.height = h;
-          c.getContext('2d').drawImage(im, 0, 0, w, h);
-          res(c.toDataURL('image/jpeg', 0.72));
-        };
-        im.src = ev.target.result;
-      };
-      r.readAsDataURL(f);
-    });
-    formPhotos.push(d);
-  }
-  e.target.value = '';
-  renderPreviews();
-}
-
-async function saveListing() {
-  const id = el('f-edit-id').value;
-  const title = (el('f-title').value || '').trim();
-  if (!title) return showToast('Укажите название');
-
-  const base = {
-    title,
-    price: Number(el('f-price').value || 0),
-    location: el('f-city-label').textContent || currentUser.city,
-    is_exchange: el('f-exch').checked,
-    description: (el('f-desc').value || '').trim(),
-    photos: formPhotos
-  };
-  const ext = {
-    ...base,
-    category: formCategory,
-    size: (el('f-size-custom').value || '').trim(),
-    insole_cm: formCategory === 'Кроссовки' ? (el('f-insole-inp').value || '').trim() : '',
-    condition: el('f-cond').value,
-    measurements: (el('f-meas').value || '').trim(),
-    status: 'pending'
-  };
-
-  if (sb) {
-    if (id) {
-      const { error } = await sb.from('listings').update(ext).eq('id', Number(id));
-      if (error) await sb.from('listings').update(base).eq('id', Number(id));
-    } else {
-      const m = {
-        seller_id: currentUser.tg_id,
-        seller_username: currentUser.username,
-        seller_name: currentUser.first_name,
-        seller_avatar: currentUser.avatar_url
-      };
-      const { error } = await sb.from('listings').insert({ ...ext, ...m });
-      if (error) await sb.from('listings').insert({ ...base, ...m });
-    }
-  }
-  closeModal('modal-form');
-  await fetchAllData();
-  showToast('Отправлено на модерацию!');
-}
-
-async function delListing(id) {
-  if (sb) await sb.from('listings').delete().eq('id', id);
-  closeModal('modal-detail');
-  await fetchAllData();
-  showToast('Удалено');
-}
-
-function openListingDetails(id) {
-  const it = allListings.find(x => x.id === id);
-  if (!it) return;
-  detailPhotos = Array.isArray(it.photos) && it.photos.length ? it.photos : ['https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=600&q=60'];
-  detailIdx = 0;
-  const pr = Number(it.price) > 0 ? `${Number(it.price).toLocaleString('ru-RU')} ₽` : 'Договорная';
-  const st = getStats(it.seller_id);
-  const can = Number(it.seller_id) === currentUser.tg_id || currentUser.is_admin;
-
-  el('detail-body').innerHTML = `
-    <div style="position:relative;width:100%;aspect-ratio:1/1;border-radius:18px;overflow:hidden;margin-bottom:12px">
-      <img id="det-img" src="${esc(detailPhotos[0])}" style="width:100%;height:100%;object-fit:cover">
-      ${detailPhotos.length > 1 ? `
-        <button type="button" onclick="stepPhoto(-1)" style="position:absolute;left:8px;top:50%;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,0.7);color:#fff">‹</button>
-        <button type="button" onclick="stepPhoto(1)" style="position:absolute;right:8px;top:50%;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,0.7);color:#fff">›</button>` : ''}
-    </div>
-    <div style="font-size:24px;font-weight:900">${pr}</div>
-    <div style="font-size:18px;font-weight:800;margin:4px 0 8px">${esc(it.title)}</div>
-    <div class="h-scroll">
-      <span class="chip">📍 ${esc(it.location || 'Уфа')}</span>
-      <span class="chip">🏷 ${esc(it.category || 'Вещь')}</span>
-      ${it.size ? `<span class="chip">📏 ${esc(it.size)}</span>` : ''}
-      ${it.insole_cm ? `<span class="chip">👟 ${esc(it.insole_cm)}</span>` : ''}
-    </div>
-    ${it.description ? `<div class="box-card" style="font-size:14px;white-space:pre-wrap">${esc(it.description)}</div>` : ''}
-    <div class="box-card" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="openSellerProfileModal(${it.seller_id},'${esc(it.seller_name)}','${esc(it.seller_username)}')">
-      <div style="font-weight:800">${esc(it.seller_name || 'Продавец')} · ★ ${st.avg} (${st.count} отз.)</div>
-      <span>Витрина ›</span>
-    </div>
+function openListingDetails(id){
+  const it=allListings.find(x=>x.id===id);if(!it)return;
+  detailPhotos=Array.isArray(it.photos)&&it.photos.length?it.photos:['https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=600&q=60'];detailIdx=0;
+  const pr=Number(it.price)>0?`${Number(it.price).toLocaleString('ru-RU')} ₽`:'Договорная',st=getStats(it.seller_id),can=Number(it.seller_id)===currentUser.tg_id||currentUser.is_admin;
+  el('detail-body').innerHTML=`
+    ${currentUser.is_admin?`<div class="box-card" style="border-color:var(--accent);margin-bottom:12px"><div style="font-size:12px;font-weight:900;margin-bottom:8px">⚡ РЕЖИМ ПРОВЕРКИ МОДЕРАТОРА (${it.status==='pending'?'⏳ На модерации':'● Опубликовано'})</div><div style="display:flex;gap:8px;flex-wrap:wrap">${it.status==='pending'?`<button type="button" class="btn-sm-acc" onclick="modLot(${it.id});closeModal('modal-detail')">✓ Одобрить в ленту</button>`:''}<button type="button" class="btn-sm-sec" onclick="openListingModal(${it.id})">✎ Редактировать</button><button type="button" class="btn-sm-red" onclick="delListing(${it.id})">✕ Отклонить / Удалить</button></div></div>`:''}
+    <div style="position:relative;width:100%;aspect-ratio:1/1;border-radius:18px;overflow:hidden;margin-bottom:12px"><img id="det-img" src="${esc(detailPhotos[0])}" style="width:100%;height:100%;object-fit:cover">${detailPhotos.length>1?`<button type="button" onclick="stepPhoto(-1)" style="position:absolute;left:8px;top:50%;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,0.7);color:#fff">‹</button><button type="button" onclick="stepPhoto(1)" style="position:absolute;right:8px;top:50%;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,0.7);color:#fff">›</button>`:''}</div>
+    <div style="font-size:24px;font-weight:900">${pr}</div><div style="font-size:18px;font-weight:800;margin:4px 0 8px">${esc(it.title)}</div>
+    <div class="h-scroll"><span class="chip">📍 ${esc(it.location||'Уфа')}</span><span class="chip">🏷 ${esc(it.category||'Вещь')}</span>${it.size?`<span class="chip">📏 ${esc(it.size)}</span>`:''}${it.insole_cm?`<span class="chip">👟 ${esc(it.insole_cm)}</span>`:''}${it.measurements?`<span class="chip">📐 ${esc(it.measurements)}</span>`:''}<span class="chip">✨ ${esc(it.condition||'Отличное')}</span></div>
+    ${it.description?`<div class="box-card" style="font-size:14px;white-space:pre-wrap">${esc(it.description)}</div>`:''}
+    <div class="box-card" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="openSellerProfileModal(${it.seller_id},'${esc(it.seller_name)}','${esc(it.seller_username)}')"><div style="font-weight:800">${esc(it.seller_name||'Продавец')} · ★ ${st.avg} (${st.count} отз.)</div><span>Витрина ›</span></div>
     <button type="button" class="btn-main" onclick="chatTg('${esc(it.seller_username)}',${it.seller_id})">✉ Написать продавцу в Telegram</button>
-    ${can ? `
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
-        <button type="button" class="btn-sec" onclick="openListingModal(${it.id})">✎ Изменить</button>
-        <button type="button" class="btn-red" onclick="delListing(${it.id})">✕ Удалить</button>
-      </div>` : ''}`;
+    ${can&&!currentUser.is_admin?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px"><button type="button" class="btn-sec" onclick="openListingModal(${it.id})">✎ Изменить</button><button type="button" class="btn-red" onclick="delListing(${it.id})">✕ Удалить</button></div>`:''}`;
   openModal('modal-detail');
 }
+function stepPhoto(d){detailIdx=(detailIdx+d+detailPhotos.length)%detailPhotos.length;el('det-img').src=detailPhotos[detailIdx];}
+function chatTg(u,id){const c=(u||'').replace(/^@/,'').trim(),l=c?`https://t.me/${c}`:`tg://user?id=${id}`;if(c&&tg?.openTelegramLink)tg.openTelegramLink(l);else window.open(l,'_blank');}
 
-function stepPhoto(d) {
-  detailIdx = (detailIdx + d + detailPhotos.length) % detailPhotos.length;
-  el('det-img').src = detailPhotos[detailIdx];
-}
-
-function chatTg(u, id) {
-  const c = (u || '').replace(/^@/, '').trim();
-  const l = c ? `https://t.me/${c}` : `tg://user?id=${id}`;
-  if (c && tg?.openTelegramLink) tg.openTelegramLink(l);
-  else window.open(l, '_blank');
-}
-
-function openSellerProfileModal(sid, fn = 'Продавец', fu = '') {
-  closeModal('modal-detail');
-  reviewStars = 5;
-  const p = allProfiles.find(x => Number(x.tg_id) === Number(sid));
-  const nm = p?.first_name || fn;
-  const us = p?.username || fu;
-  const st = getStats(sid);
-  const self = Number(sid) === Number(currentUser.tg_id);
-
-  el('seller-modal-body').innerHTML = `
-    <div style="text-align:center;padding-bottom:12px;border-bottom:1px solid var(--border)">
-      <div style="font-size:19px;font-weight:900">${esc(nm)}</div>
-      <div style="font-size:12px;color:var(--muted)">ID: ${sid} · ★ ${st.avg} (${st.count} отз.)</div>
-      ${!self ? `<button type="button" class="btn-main" style="margin-top:10px" onclick="chatTg('${esc(us)}',${sid})">✉ Написать в Telegram</button>` : ''}
-    </div>
-    ${self
-      ? `<div class="box-card" style="margin-top:10px;text-align:center;font-size:12px;color:var(--muted)">Оставить отзыв самому себе нельзя</div>`
-      : `<div class="box-card" style="margin-top:10px">
-          <div id="rev-stars" style="display:flex;gap:8px;margin-bottom:8px">
-            ${[1,2,3,4,5].map(n => `<button type="button" onclick="pickStar(${n})" style="font-size:24px;color:var(--accent)">★</button>`).join('')}
-          </div>
-          <textarea id="rev-txt" class="inp-field" placeholder="Ваш отзыв..."></textarea>
-          <button type="button" class="btn-main" onclick="sendReview(${sid})">Отправить на модерацию</button>
-        </div>`}
-    <div class="sec-label">Отзывы (${st.count})</div>
-    ${!st.list.length
-      ? `<div class="empty-msg">Отзывов пока нет (0.0)</div>`
-      : st.list.map(r => `<div class="box-card"><b>${esc(r.author_name)} ·${'★'.repeat(r.rating)}</b><div style="font-size:13px;margin-top:4px">${esc(r.comment)}</div></div>`).join('')}`;
+function openSellerProfileModal(sid,fn='Продавец',fu=''){
+  closeModal('modal-detail');reviewStars=5;
+  const p=allProfiles.find(x=>Number(x.tg_id)===Number(sid)),nm=p?.first_name||fn,us=p?.username||fu,st=getStats(sid),self=Number(sid)===Number(currentUser.tg_id);
+  el('seller-modal-body').innerHTML=`<div style="text-align:center;padding-bottom:12px;border-bottom:1px solid var(--border)"><div style="font-size:19px;font-weight:900">${esc(nm)}</div><div style="font-size:12px;color:var(--muted)">ID: ${sid} · ★ ${st.avg} (${st.count} отз.)</div>${!self?`<button type="button" class="btn-main" style="margin-top:10px" onclick="chatTg('${esc(us)}',${sid})">✉ Написать в Telegram</button>`:''}</div>${self?`<div class="box-card" style="margin-top:10px;text-align:center;font-size:12px;color:var(--muted)">Оставить отзыв самому себе нельзя</div>`:`<div class="box-card" style="margin-top:10px"><div id="rev-stars" style="display:flex;gap:8px;margin-bottom:8px">${[1,2,3,4,5].map(n=>`<button type="button" onclick="pickStar(${n})" style="font-size:24px;color:var(--accent)">★</button>`).join('')}</div><textarea id="rev-txt" class="inp-field" placeholder="Ваш отзыв..."></textarea><button type="button" class="btn-main" onclick="sendReview(${sid})">Отправить на модерацию</button></div>`}<div class="sec-label">Отзывы (${st.count})</div>${!st.list.length?`<div class="empty-msg">Отзывов пока нет (0.0)</div>`:st.list.map(r=>`<div class="box-card"><b>${esc(r.author_name)} ·${'★'.repeat(r.rating)}</b><div style="font-size:13px;margin-top:4px">${esc(r.comment)}</div></div>`).join('')}`;
   openModal('modal-seller');
 }
+function pickStar(n){reviewStars=n;(el('rev-stars')?.querySelectorAll('button')||[]).forEach((b,i)=>{b.style.opacity=i<n?'1':'0.25';});}
+async function sendReview(sid){if(Number(sid)===Number(currentUser.tg_id))return;const t=(el('rev-txt')?.value||'').trim();if(!t)return showToast('Напишите отзыв');if(sb)await sb.from('reviews').insert({seller_id:Number(sid),author_id:currentUser.tg_id,author_name:currentUser.first_name,rating:reviewStars,comment:t,status:'pending'});showToast('Отправлено на модерацию!');await fetchAllData();openSellerProfileModal(sid);}
 
-function pickStar(n) {
-  reviewStars = n;
-  (el('rev-stars')?.querySelectorAll('button') || []).forEach((b, i) => {
-    b.style.opacity = i < n ? '1' : '0.25';
-  });
+function switchAdminView(v){['lots','revs','sellers','bans','admins'].forEach(k=>{el(`adm-btn-${k}`)?.classList.toggle('active',k===v);el(`adm-view-${k}`)?.classList.toggle('hidden',k!==v);});}
+function renderAdminAll(){
+  if(!currentUser.is_admin)return;
+  const pRevs=allReviews.filter(r=>r.status==='pending');
+  el('adm-cnt-lots').textContent=allListings.length;el('adm-cnt-revs').textContent=pRevs.length;
+  el('adm-view-lots').innerHTML=allListings.map(it=>`<div class="box-card" onclick="openListingDetails(${it.id})" style="cursor:pointer"><div style="font-size:11px;color:var(--muted)">#${it.id} · ${esc(it.seller_name)} (ID: ${it.seller_id}) · <b style="color:${it.status==='pending'?'var(--warn)':'var(--success)'}">${it.status==='pending'?'⏳ НА ПРОВЕРКЕ':'● ОПУБЛИКОВАНО'}</b></div><div style="font-weight:800;margin:4px 0">${esc(it.title)} — ${it.price||0} ₽</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px" onclick="event.stopPropagation()"><button type="button" class="btn-sm-sec" onclick="openListingDetails(${it.id})">👁 Просмотр</button>${it.status==='pending'?`<button type="button" class="btn-sm-acc" onclick="modLot(${it.id})">✓ Одобрить</button>`:''}<button type="button" class="btn-sm-sec" onclick="openListingModal(${it.id})">✎ Изм.</button><button type="button" class="btn-sm-red" onclick="delListing(${it.id})">✕ Удалить</button></div></div>`).join('');
+  el('adm-view-revs').innerHTML=!pRevs.length?`<div class="empty-msg">Нет отзывов на проверке</div>`:pRevs.map(r=>`<div class="box-card"><div><b>${esc(r.author_name)}</b> → ID ${r.seller_id} (${'★'.repeat(r.rating)})</div><div style="margin:6px 0">${esc(r.comment)}</div><div style="display:flex;gap:6px"><button type="button" class="btn-sm-acc" onclick="modRev(${r.id},1)">✓ Одобрить</button><button type="button" class="btn-sm-red" onclick="modRev(${r.id},0)">✕ Удалить</button></div></div>`).join('');
+  const sm=new Map();allListings.forEach(l=>{const id=Number(l.seller_id);if(!sm.has(id))sm.set(id,{id,name:l.seller_name||'Продавец',user:l.seller_username||'',c:0});sm.get(id).c++;});
+  const sArr=Array.from(sm.values());el('adm-cnt-sellers').textContent=sArr.length;
+  el('adm-view-sellers').innerHTML=sArr.map(s=>`<div class="box-card" style="display:flex;justify-content:space-between;align-items:center"><div><b>${esc(s.name)}</b> (ID: ${s.id}) · Лотов: ${s.c}</div><div style="display:flex;gap:6px"><button type="button" class="btn-sm-sec" onclick="openSellerProfileModal(${s.id},'${esc(s.name)}','${esc(s.user)}')">Витрина</button><button type="button" class="btn-sm-sec" onclick="chatTg('${esc(s.user)}',${s.id})">✉ ЛС</button></div></div>`).join('');
+  el('adm-view-bans').innerHTML=`<div class="box-card"><input type="number" id="ban-id" class="inp-field" placeholder="Telegram ID" style="margin-bottom:8px"><select id="ban-hrs" class="inp-field" style="margin-bottom:8px"><option value="24">Временный: 24 часа</option><option value="168">Временный: 7 дней</option><option value="999999">Постоянный: Навсегда</option></select><input type="text" id="ban-rsn" class="inp-field" placeholder="Причина бана" style="margin-bottom:8px"><div style="display:flex;gap:8px"><button type="button" class="btn-red" onclick="setBan(1)">🔨 Забанить</button><button type="button" class="btn-sec" onclick="setBan(0)">Разбанить</button></div></div>`;
+  el('adm-view-admins').innerHTML=`<div class="box-card"><div style="display:flex;gap:8px"><input type="number" id="adm-id" class="inp-field" placeholder="Telegram ID"><button type="button" class="btn-sm-acc" onclick="setAdm(true)">+ Админ</button><button type="button" class="btn-sm-red" onclick="setAdm(false)">Снять</button></div></div>`;
 }
+async function modLot(id){if(sb)await sb.from('listings').update({status:'approved'}).eq('id',id);await fetchAllData();showToast('Одобрено!');}
+async function modRev(id,ok){if(sb){if(ok)await sb.from('reviews').update({status:'approved'}).eq('id',id);else await sb.from('reviews').delete().eq('id',id);}await fetchAllData();}
+async function setBan(b){const id=Number((el('ban-id').value||'').trim());if(!id||id===ROOT_ADMIN_ID)return;const u=b?new Date(Date.now()+Number(el('ban-hrs').value)*3600000).toISOString():null,r=b?(el('ban-rsn').value||'Нарушение'):'';if(b)localBans[id]={until:u,reason:r};else delete localBans[id];sSet('u_bans_map',JSON.stringify(localBans));if(sb)await sb.from('profiles').upsert({tg_id:id,ban_until:u,ban_reason:r},{onConflict:'tg_id'});await fetchAllData();showToast(b?'Забанен':'Разбанен');}
+async function setAdm(f){const id=Number((el('adm-id').value||'').trim());if(!id||(id===ROOT_ADMIN_ID&&!f))return;if(sb)await sb.from('profiles').upsert({tg_id:id,is_admin:f},{onConflict:'tg_id'});await fetchAllData();showToast('Обновлено');}
 
-async function sendReview(sid) {
-  if (Number(sid) === Number(currentUser.tg_id)) return;
-  const t = (el('rev-txt')?.value || '').trim();
-  if (!t) return showToast('Напишите отзыв');
-  if (sb) {
-    await sb.from('reviews').insert({
-      seller_id: Number(sid),
-      author_id: currentUser.tg_id,
-      author_name: currentUser.first_name,
-      rating: reviewStars,
-      comment: t,
-      status: 'pending'
-    });
-  }
-  showToast('Отправлено на модерацию!');
-  await fetchAllData();
-  openSellerProfileModal(sid);
+function openCityModal(t='user'){cityModalTarget=t;el('city-search-inp').value='';renderCityList();openModal('modal-city');}
+function renderCityList(){const q=(el('city-search-inp').value||'').trim().toLowerCase();el('city-pills-box').innerHTML=CITIES_LIST.filter(c=>!q||c.toLowerCase().includes(q)).map(c=>`<button type="button" class="chip" onclick="applyUserCity('${c}')">${c}</button>`).join('');}
+async function applyUserCity(c){const cl=(c||'').trim();if(!cl)return;if(cityModalTarget==='form'){el('f-city-label').textContent=cl;closeModal('modal-city');return;}currentUser.city=cl;sSet('u_city',cl);if(sb)await sb.from('profiles').update({city:cl}).eq('tg_id',currentUser.tg_id);await fetchAllData();closeModal('modal-city');}
+function openSizeFitModal(){openModal('modal-size');}
+function pickManualSize(s){currentUser.size=s;sSet('u_size',s);closeModal('modal-size');fetchAllData();}
+function resetAllFilters(){
+  feedScope='all';activeCategory='all';activeSizeFilter='';sortMode='newest';fltMin=0;fltMax=0;fltCond='';fltBrand='';fltModel='';fltExch=false;
+  el('search-input').value='';el('hf-min-price').value='';el('hf-max-price').value='';el('hf-cond').value='';el('hf-sort').value='newest';el('hf-exch').checked=false;
+  renderHomeFilterBrands();applyHomeInlineFilters();selectCategoryPill('all');
 }
+function switchTab(t){['feed','favs','mylots','profile','admin'].forEach(k=>{el(`tab-${k}`)?.classList.toggle('hidden',k!==t);el(`dock-${k}`)?.classList.toggle('active',k===t);});window.scrollTo({top:0,behavior:'smooth'});}
 
-function switchAdminView(v) {
-  ['lots', 'revs', 'sellers', 'bans', 'admins'].forEach(k => {
-    el(`adm-btn-${k}`)?.classList.toggle('active', k === v);
-    el(`adm-view-${k}`)?.classList.toggle('hidden', k !== v);
-  });
-}
-
-function renderAdminAll() {
-  if (!currentUser.is_admin) return;
-  const pRevs = allReviews.filter(r => r.status === 'pending');
-  el('adm-cnt-lots').textContent = allListings.length;
-  el('adm-cnt-revs').textContent = pRevs.length;
-
-  el('adm-view-lots').innerHTML = allListings.map(it => `
-    <div class="box-card">
-      <div style="font-size:11px;color:var(--muted)">#${it.id} · ${esc(it.seller_name)} (ID: ${it.seller_id}) · <b>${it.status === 'pending' ? 'НА ПРОВЕРКЕ' : 'ОПУБЛИКОВАНО'}</b></div>
-            <div style="font-weight:800;margin:4px 0">${esc(it.title)} — ${it.price || 0} ₽</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        ${it.status === 'pending' ? `<button type="button" class="btn-sm-acc" onclick="modLot(${it.id})">✓ Одобрить</button>` : ''}
-        <button type="button" class="btn-sm-sec" onclick="openListingModal(${it.id})">✎ Изм.</button>
-        <button type="button" class="btn-sm-red" onclick="delListing(${it.id})">✕ Удалить</button>
-      </div>
-    </div>`).join('');
-
-  el('adm-view-revs').innerHTML = !pRevs.length
-    ? `<div class="empty-msg">Нет отзывов на проверке</div>`
-    : pRevs.map(r => `
-      <div class="box-card">
-        <div><b>${esc(r.author_name)}</b> → ID ${r.seller_id} (${'★'.repeat(r.rating)})</div>
-        <div style="margin:6px 0">${esc(r.comment)}</div>
-        <div style="display:flex;gap:6px">
-          <button type="button" class="btn-sm-acc" onclick="modRev(${r.id},1)">✓ Одобрить</button>
-          <button type="button" class="btn-sm-red" onclick="modRev(${r.id},0)">✕ Удалить</button>
-        </div>
-      </div>`).join('');
-
-  const sm = new Map();
-  allListings.forEach(l => {
-    const id = Number(l.seller_id);
-    if (!sm.has(id)) sm.set(id, { id, name: l.seller_name || 'Продавец', user: l.seller_username || '', c: 0 });
-    sm.get(id).c++;
-  });
-  const sArr = Array.from(sm.values());
-  el('adm-cnt-sellers').textContent = sArr.length;
-
-  el('adm-view-sellers').innerHTML = sArr.map(s => `
-    <div class="box-card" style="display:flex;justify-content:space-between;align-items:center">
-      <div><b>${esc(s.name)}</b> (ID: ${s.id}) · Лотов: ${s.c}</div>
-      <div style="display:flex;gap:6px">
-        <button type="button" class="btn-sm-sec" onclick="openSellerProfileModal(${s.id},'${esc(s.name)}','${esc(s.user)}')">Витрина</button>
-        <button type="button" class="btn-sm-sec" onclick="chatTg('${esc(s.user)}',${s.id})">✉ ЛС</button>
-      </div>
-    </div>`).join('');
-
-  el('adm-view-bans').innerHTML = `
-    <div class="box-card">
-      <input type="number" id="ban-id" class="inp-field" placeholder="Telegram ID" style="margin-bottom:8px">
-      <select id="ban-hrs" class="inp-field" style="margin-bottom:8px">
-        <option value="24">Временный: 24 часа</option>
-        <option value="168">Временный: 7 дней</option>
-        <option value="999999">Постоянный: Навсегда</option>
-      </select>
-      <input type="text" id="ban-rsn" class="inp-field" placeholder="Причина бана" style="margin-bottom:8px">
-      <div style="display:flex;gap:8px">
-        <button type="button" class="btn-red" onclick="setBan(1)">🔨 Забанить</button>
-        <button type="button" class="btn-sec" onclick="setBan(0)">Разбанить</button>
-      </div>
-    </div>`;
-
-  el('adm-view-admins').innerHTML = `
-    <div class="box-card">
-      <div style="display:flex;gap:8px">
-        <input type="number" id="adm-id" class="inp-field" placeholder="Telegram ID">
-        <button type="button" class="btn-sm-acc" onclick="setAdm(true)">+ Админ</button>
-        <button type="button" class="btn-sm-red" onclick="setAdm(false)">Снять</button>
-      </div>
-    </div>`;
-}
-
-async function modLot(id) {
-  if (sb) await sb.from('listings').update({ status: 'approved' }).eq('id', id);
-  await fetchAllData();
-  showToast('Одобрено!');
-}
-
-async function modRev(id, ok) {
-  if (sb) {
-    if (ok) await sb.from('reviews').update({ status: 'approved' }).eq('id', id);
-    else await sb.from('reviews').delete().eq('id', id);
-  }
-  await fetchAllData();
-}
-
-async function setBan(b) {
-  const id = Number((el('ban-id').value || '').trim());
-  if (!id || id === ROOT_ADMIN_ID) return;
-  const u = b ? new Date(Date.now() + Number(el('ban-hrs').value) * 3600000).toISOString() : null;
-  const r = b ? (el('ban-rsn').value || 'Нарушение') : '';
-  if (b) localBans[id] = { until: u, reason: r };
-  else delete localBans[id];
-  sSet('u_bans_map', JSON.stringify(localBans));
-  if (sb) await sb.from('profiles').upsert({ tg_id: id, ban_until: u, ban_reason: r }, { onConflict: 'tg_id' });
-  await fetchAllData();
-  showToast(b ? 'Забанен' : 'Разбанен');
-}
-
-async function setAdm(f) {
-  const id = Number((el('adm-id').value || '').trim());
-  if (!id || (id === ROOT_ADMIN_ID && !f)) return;
-  if (sb) await sb.from('profiles').upsert({ tg_id: id, is_admin: f }, { onConflict: 'tg_id' });
-  await fetchAllData();
-  showToast('Обновлено');
-}
-
-function openCityModal(t = 'user') {
-  cityModalTarget = t;
-  el('city-search-inp').value = '';
-  renderCityList();
-  openModal('modal-city');
-}
-
-function renderCityList() {
-  const q = (el('city-search-inp').value || '').trim().toLowerCase();
-  el('city-pills-box').innerHTML = CITIES_LIST
-    .filter(c => !q || c.toLowerCase().includes(q))
-    .map(c => `<button type="button" class="chip" onclick="applyUserCity('${c}')">${c}</button>`).join('');
-}
-
-async function applyUserCity(c) {
-  const cl = (c || '').trim();
-  if (!cl) return;
-  if (cityModalTarget === 'form') {
-    el('f-city-label').textContent = cl;
-    closeModal('modal-city');
-    return;
-  }
-  currentUser.city = cl;
-  sSet('u_city', cl);
-  if (sb) await sb.from('profiles').update({ city: cl }).eq('tg_id', currentUser.tg_id);
-  await fetchAllData();
-  closeModal('modal-city');
-}
-
-function openSizeFitModal() { openModal('modal-size'); }
-
-function pickManualSize(s) {
-  currentUser.size = s;
-  sSet('u_size', s);
-  closeModal('modal-size');
-  fetchAllData();
-}
-
-function openFilterModal() { openModal('modal-filter'); }
-
-function applyFiltersFromModal() {
-  sortMode = el('flt-sort').value;
-  fltMin = Number(el('flt-min').value || 0);
-  fltMax = Number(el('flt-max').value || 0);
-  fltExch = el('flt-exch').checked;
-  closeModal('modal-filter');
-  renderFeed();
-}
-
-function resetAllFilters() {
-  feedScope = 'all';
-  activeCategory = 'all';
-  activeSizeFilter = '';
-  sortMode = 'newest';
-  fltMin = 0;
-  fltMax = 0;
-  fltExch = false;
-  el('search-input').value = '';
-  selectCategoryPill('all');
-}
-
-function switchTab(t) {
-  ['feed', 'favs', 'mylots', 'profile', 'admin'].forEach(k => {
-    el(`tab-${k}`)?.classList.toggle('hidden', k !== t);
-    el(`dock-${k}`)?.classList.toggle('active', k === t);
-  });
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-window.addEventListener('DOMContentLoaded', initApp);
+window.addEventListener('DOMContentLoaded',initApp);
 </script>
 </body>
 </html>
