@@ -626,4 +626,24 @@ async function unbanById(id) { delete localBans[id]; sSet('u_bans_map', JSON.str
 async function setAdm(f) { const id = Number((el('adm-id').value || '').trim()); if (!id || (id === ROOT_ADMIN_ID && !f)) return; if (sb) await sb.from('profiles').upsert({ tg_id: id, is_admin: f }, { onConflict: 'tg_id' }); await fetchAllData(); showToast('Обновлено'); }
 function openCityModal(t = 'user') { cityModalTarget = t; el('city-search-inp').value = ''; renderCityList(); openModal('modal-city'); }
 function renderCityList() { const q = (el('city-search-inp').value || '').trim().toLowerCase(); el('city-pills-box').innerHTML = CITIES_LIST.filter(c => !q || c.toLowerCase().includes(q)).map(c => `<button type="button" class="chip" onclick="applyUserCity('${c}')">${c}</button>`).join(''); }
-async function applyUserCity(c) { const cl = (c || '').trim(); if (!cl) return; if (cityModalTarget === 'form') { el('f-c
+async function applyUserCity(c) { const cl = (c || '').trim(); if (!cl) return; if (cityModalTarget === 'form') { el('f-city-label').textContent = cl; closeModal('modal-city'); return; } currentUser.city = cl; sSet('u_city', cl); if (sb) await sb.from('profiles').update({ city: cl }).eq('tg_id', currentUser.tg_id); await fetchAllData(); closeModal('modal-city'); }
+function resetAllFilters() { feedScope = 'all'; activeCategory = 'all'; activeSizeFilter = ''; sortMode = 'newest'; fltMin = 0; fltMax = 0; fltCond = ''; fltBrand = ''; fltModel = ''; fltExch = false; el('search-input').value = ''; el('hf-min-price').value = ''; el('hf-max-price').value = ''; el('hf-cond').value = ''; el('hf-sort').value = 'newest'; el('hf-exch').checked = false; renderHomeFilterBrands(); applyHomeInlineFilters(); selectCategoryPill('all'); }
+function switchTab(t) { ['feed','favs','mylots','profile','admin'].forEach(k => { el(`tab-${k}`)?.classList.toggle('hidden', k !== t); el(`dock-${k}`)?.classList.toggle('active', k === t); }); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+async function fetchAllData() {
+  if (sb) { try { const [l,p,r] = await Promise.all([sb.from('listings').select('*').order('created_at', { ascending: false }), sb.from('profiles').select('*'), sb.from('reviews').select('*').order('created_at', { ascending: false })]); allListings = l.data || []; allProfiles = p.data || []; allReviews = r.data || []; } catch (e) {} }
+  renderUserHeader(); updateBanBannerUI(); renderHistory(); renderDynamicSizeBar(); renderFeed(); renderFavs(); renderMyLots(); renderAdminAll();
+}
+
+async function initApp() {
+  applyTheme(sGet('u_theme_bg', '#08080a'), sGet('u_theme_acc', '#ffffff')); initSwipe(); renderHomeFilterBrands();
+  try { if (tg) { tg.ready(); tg.expand(); const u = tg.initDataUnsafe?.user; if (u?.id) { currentUser.tg_id = Number(u.id); currentUser.username = u.username || ''; currentUser.first_name = [u.first_name, u.last_name].filter(Boolean).join(' ') || 'Пользователь'; currentUser.avatar_url = u.photo_url || ''; currentUser.is_admin = (Number(u.id) === ROOT_ADMIN_ID); } } } catch (e) {}
+  renderUserHeader(); renderFeed();
+  if (sb) { try { const { data: ex } = await sb.from('profiles').select('*').eq('tg_id', currentUser.tg_id).maybeSingle(); currentUser.is_admin = (currentUser.tg_id === ROOT_ADMIN_ID) || Boolean(ex?.is_admin); if (ex?.city) currentUser.city = ex.city; await sb.from('profiles').upsert({ tg_id: currentUser.tg_id, username: currentUser.username, first_name: currentUser.first_name, avatar_url: currentUser.avatar_url, city: currentUser.city, is_admin: currentUser.is_admin }, { onConflict: 'tg_id' }); } catch (e) {} }
+  await fetchAllData(); setInterval(updateBanBannerUI, 15000);
+}
+
+window.addEventListener('DOMContentLoaded', initApp);
+</script>
+</body>
+</html>
