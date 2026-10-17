@@ -630,17 +630,83 @@ async function applyUserCity(c) { const cl = (c || '').trim(); if (!cl) return; 
 function resetAllFilters() { feedScope = 'all'; activeCategory = 'all'; activeSizeFilter = ''; sortMode = 'newest'; fltMin = 0; fltMax = 0; fltCond = ''; fltBrand = ''; fltModel = ''; fltExch = false; el('search-input').value = ''; el('hf-min-price').value = ''; el('hf-max-price').value = ''; el('hf-cond').value = ''; el('hf-sort').value = 'newest'; el('hf-exch').checked = false; renderHomeFilterBrands(); applyHomeInlineFilters(); selectCategoryPill('all'); }
 function switchTab(t) { ['feed','favs','mylots','profile','admin'].forEach(k => { el(`tab-${k}`)?.classList.toggle('hidden', k !== t); el(`dock-${k}`)?.classList.toggle('active', k === t); }); window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
+function initSwipe() {
+  document.querySelectorAll('.modal-sheet').forEach(s => {
+    let sy = 0, cy = 0, dr = false;
+    s.addEventListener('touchstart', e => {
+      if (s.scrollTop <= 0 && (e.target.closest('.sheet-handle-zone,.modal-head') || !e.target.closest('button,input,textarea,select,.h-scroll'))) {
+        sy = cy = e.touches[0].clientY; dr = true; s.style.transition = 'none';
+      }
+    }, { passive: true });
+    s.addEventListener('touchmove', e => { if (!dr) return; cy = e.touches[0].clientY; if (cy > sy) s.style.transform = `translateY(${cy - sy}px)`; }, { passive: true });
+    s.addEventListener('touchend', () => { if (!dr) return; dr = false; s.style.transition = 'transform 0.28s ease'; if (cy - sy > 80) closeModal(s.closest('.modal-bg').id); else s.style.transform = ''; });
+  });
+}
+
 async function fetchAllData() {
-  if (sb) { try { const [l,p,r] = await Promise.all([sb.from('listings').select('*').order('created_at', { ascending: false }), sb.from('profiles').select('*'), sb.from('reviews').select('*').order('created_at', { ascending: false })]); allListings = l.data || []; allProfiles = p.data || []; allReviews = r.data || []; } catch (e) {} }
-  renderUserHeader(); updateBanBannerUI(); renderHistory(); renderDynamicSizeBar(); renderFeed(); renderFavs(); renderMyLots(); renderAdminAll();
+  if (sb) {
+    try {
+      const [l, p, r] = await Promise.all([
+        sb.from('listings').select('*').order('created_at', { ascending: false }),
+        sb.from('profiles').select('*'),
+        sb.from('reviews').select('*').order('created_at', { ascending: false })
+      ]);
+      allListings = l.data || [];
+      allProfiles = p.data || [];
+      allReviews = r.data || [];
+    } catch (e) {}
+  }
+  renderUserHeader();
+  updateBanBannerUI();
+  renderHistory();
+  renderDynamicSizeBar();
+  renderFeed();
+  renderFavs();
+  renderMyLots();
+  renderAdminAll();
 }
 
 async function initApp() {
-  applyTheme(sGet('u_theme_bg', '#08080a'), sGet('u_theme_acc', '#ffffff')); initSwipe(); renderHomeFilterBrands();
-  try { if (tg) { tg.ready(); tg.expand(); const u = tg.initDataUnsafe?.user; if (u?.id) { currentUser.tg_id = Number(u.id); currentUser.username = u.username || ''; currentUser.first_name = [u.first_name, u.last_name].filter(Boolean).join(' ') || 'Пользователь'; currentUser.avatar_url = u.photo_url || ''; currentUser.is_admin = (Number(u.id) === ROOT_ADMIN_ID); } } } catch (e) {}
-  renderUserHeader(); renderFeed();
-  if (sb) { try { const { data: ex } = await sb.from('profiles').select('*').eq('tg_id', currentUser.tg_id).maybeSingle(); currentUser.is_admin = (currentUser.tg_id === ROOT_ADMIN_ID) || Boolean(ex?.is_admin); if (ex?.city) currentUser.city = ex.city; await sb.from('profiles').upsert({ tg_id: currentUser.tg_id, username: currentUser.username, first_name: currentUser.first_name, avatar_url: currentUser.avatar_url, city: currentUser.city, is_admin: currentUser.is_admin }, { onConflict: 'tg_id' }); } catch (e) {} }
-  await fetchAllData(); setInterval(updateBanBannerUI, 15000);
+  try { applyTheme(sGet('u_theme_bg', '#08080a'), sGet('u_theme_acc', '#ffffff')); } catch (e) {}
+  try { initSwipe(); } catch (e) {}
+  try { renderHomeFilterBrands(); } catch (e) {}
+
+  try {
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      const u = tg.initDataUnsafe?.user;
+      if (u && u.id) {
+        currentUser.tg_id = Number(u.id);
+        currentUser.username = u.username || '';
+        currentUser.first_name = [u.first_name, u.last_name].filter(Boolean).join(' ') || 'Пользователь';
+        currentUser.avatar_url = u.photo_url || '';
+        currentUser.is_admin = (Number(u.id) === ROOT_ADMIN_ID);
+      }
+    }
+  } catch (e) {}
+
+  renderUserHeader();
+  renderFeed();
+
+  if (sb) {
+    try {
+      const { data: ex } = await sb.from('profiles').select('*').eq('tg_id', currentUser.tg_id).maybeSingle();
+      currentUser.is_admin = (currentUser.tg_id === ROOT_ADMIN_ID) || Boolean(ex?.is_admin);
+      if (ex?.city) currentUser.city = ex.city;
+      await sb.from('profiles').upsert({
+        tg_id: currentUser.tg_id,
+        username: currentUser.username,
+        first_name: currentUser.first_name,
+        avatar_url: currentUser.avatar_url,
+        city: currentUser.city,
+        is_admin: currentUser.is_admin
+      }, { onConflict: 'tg_id' });
+    } catch (e) {}
+  }
+
+  await fetchAllData();
+  setInterval(updateBanBannerUI, 15000);
 }
 
 window.addEventListener('DOMContentLoaded', initApp);
